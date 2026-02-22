@@ -2,8 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "@/layouts/MainLayout";
 import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
+import Onboarding from "@/pages/Onboarding";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+import RequireOnboarding from "@/routes/RequireOnboarding";
 
 const AppRoutes = () => {
   return (
@@ -11,11 +14,18 @@ const AppRoutes = () => {
       {/* Public routes */}
       <Route path="/" element={<Index />} />
 
-      {/* Protected routes wrapped in MainLayout */}
+      {/* Auth Protected routes */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          {/* ADD NEW PROTECTED ROUTES HERE */}
+        {/* Onboarding related routes */}
+        <Route element={<RequireOnboarding />}>
+          <Route path="/onboarding" element={<Onboarding />} />
+
+          {/* Routes requiring both Auth AND completed Onboarding */}
+          <Route element={<MainLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            {/* ADD NEW PROTECTED ROUTES HERE */}
+          </Route>
         </Route>
       </Route>
 

@@ -1,10 +1,19 @@
 import { Dumbbell, Flame, Moon, TrendingUp } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import ActivityChart from "@/components/ActivityChart";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
+  const { profile } = useAuth();
+
   return (
     <>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-muted-foreground">
+          Welcome back{profile?.full_name ? `, ${profile.full_name}` : ""}
+        </h2>
+      </div>
+
       {/* Goal Section */}
       <div className="mb-8">
         <p className="text-sm text-muted-foreground mb-1">Current Goal</p>
