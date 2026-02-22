@@ -1,14 +1,14 @@
-import AppSidebar from "@/components/AppSidebar";
-import DashboardHeader from "@/components/DashboardHeader";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
   return (
     <div className="min-h-screen bg-background flex">
-      <AppSidebar />
+      <Sidebar />
 
       <div className="flex-1 ml-64 flex flex-col">
-        <DashboardHeader />
+        <Header />
 
         <main className="flex-1 p-8">
           <Outlet />
