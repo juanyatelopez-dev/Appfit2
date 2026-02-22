@@ -1,6 +1,11 @@
 const Index = () => {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center relative">
+            {import.meta.env.DEV && (
+                <div className="absolute top-4 right-4 text-[10px] text-muted-foreground opacity-50 z-50">
+                    Landing Page
+                </div>
+            )}
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
                 Welcome to Appfit
             </h1>

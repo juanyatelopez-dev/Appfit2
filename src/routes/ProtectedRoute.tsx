@@ -17,11 +17,16 @@ const ProtectedRoute = () => {
         );
     }
 
+    if (import.meta.env.DEV) {
+        console.log(`[ProtectedRoute] User: ${user?.email}, Loading: ${loading}, Path: ${window.location.pathname}`);
+    }
+
     /**
      * Authentication Check:
      * Only redirects if loading is complete and no user session is found.
      */
     if (!user) {
+        console.log("[ProtectedRoute] No user, redirecting to /");
         return <Navigate to="/" replace />;
     }
 

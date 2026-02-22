@@ -17,7 +17,12 @@ const Onboarding = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center relative">
+            {import.meta.env.DEV && (
+                <div className="absolute top-4 right-4 text-[10px] text-muted-foreground opacity-50 z-50">
+                    Onboarding Page
+                </div>
+            )}
             <h1 className="text-3xl font-bold mb-4">Welcome to Appfit!</h1>
             <p className="text-muted-foreground mb-8 max-w-md">
                 Let's get your profile set up so you can start tracking your fitness goals.

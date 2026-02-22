@@ -48,7 +48,12 @@ const Profile = () => {
     };
 
     return (
-        <div className="container max-w-2xl py-8">
+        <div className="container max-w-2xl py-8 relative">
+            {import.meta.env.DEV && (
+                <div className="absolute top-2 right-4 text-[10px] text-muted-foreground opacity-50 z-50">
+                    Profile Page
+                </div>
+            )}
             <Card>
                 <CardHeader>
                     <CardTitle>Profile Settings</CardTitle>

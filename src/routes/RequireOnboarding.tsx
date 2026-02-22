@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 /**
@@ -9,15 +9,21 @@ import { useAuth } from '@/context/AuthContext';
  * This should ONLY be rendered within a ProtectedRoute wrapper, 
  * as it assumes an authenticated user context.
  */
-const RequireOnboarding: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { onboardingCompleted, loading } = useAuth();
+const RequireOnboarding = () => {
+    const { onboardingCompleted, loading, user } = useAuth();
     const location = useLocation();
+
+    if (import.meta.env.DEV) {
+        console.log(`[RequireOnboarding] Path: ${location.pathname}, Loading: ${loading}, Onboarding: ${onboardingCompleted}, User: ${user?.email}`);
+    }
 
     // Wait for auth and profile data to resolve
     if (loading || onboardingCompleted === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary text-center">
+                    <span className="sr-only">Loading...</span>
+                </div>
             </div>
         );
     }
@@ -30,6 +36,7 @@ const RequireOnboarding: React.FC<{ children: React.ReactNode }> = ({ children }
      */
     if (onboardingCompleted === false) {
         if (location.pathname !== '/onboarding') {
+            console.log("[RequireOnboarding] Redirecting to /onboarding");
             return <Navigate to="/onboarding" replace />;
         }
     }
@@ -40,6 +47,7 @@ const RequireOnboarding: React.FC<{ children: React.ReactNode }> = ({ children }
      */
     if (onboardingCompleted === true) {
         if (location.pathname === '/onboarding') {
+            console.log("[RequireOnboarding] Redirecting to /dashboard");
             return <Navigate to="/dashboard" replace />;
         }
     }
@@ -49,7 +57,7 @@ const RequireOnboarding: React.FC<{ children: React.ReactNode }> = ({ children }
      * Either the user is on /onboarding and hasn't finished, 
      * or has finished and is NOT on /onboarding.
      */
-    return <>{children}</>;
+    return <Outlet />;
 };
 
 export default RequireOnboarding;

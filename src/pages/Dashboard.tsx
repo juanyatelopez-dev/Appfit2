@@ -7,7 +7,12 @@ const Dashboard = () => {
   const { profile } = useAuth();
 
   return (
-    <>
+    <div className="relative">
+      {import.meta.env.DEV && (
+        <div className="absolute -top-6 right-0 text-[10px] text-muted-foreground opacity-50">
+          Dashboard Page
+        </div>
+      )}
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-muted-foreground">
           Welcome back{profile?.full_name ? `, ${profile.full_name}` : ""}

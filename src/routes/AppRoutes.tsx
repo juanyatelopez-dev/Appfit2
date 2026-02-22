@@ -16,11 +16,11 @@ const AppRoutes = () => {
 
       {/* Auth Protected routes */}
       <Route element={<ProtectedRoute />}>
-        {/* Onboarding related routes */}
-        <Route element={<RequireOnboarding />}>
-          <Route path="/onboarding" element={<Onboarding />} />
+        {/* Onboarding page (only requires Auth) */}
+        <Route path="/onboarding" element={<Onboarding />} />
 
-          {/* Routes requiring both Auth AND completed Onboarding */}
+        {/* Routes requiring both Auth AND Onboarding Check */}
+        <Route element={<RequireOnboarding />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
