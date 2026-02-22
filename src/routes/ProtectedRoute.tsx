@@ -18,7 +18,7 @@ const ProtectedRoute = () => {
     }
 
     if (import.meta.env.DEV) {
-        console.log(`[ProtectedRoute] User: ${user?.email}, Loading: ${loading}, Path: ${window.location.pathname}`);
+        console.log(`[ProtectedRoute] Path: ${window.location.pathname}, User: ${user?.email}, Loading: ${loading}`);
     }
 
     /**

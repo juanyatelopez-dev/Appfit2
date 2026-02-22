@@ -9,6 +9,9 @@ import ProtectedRoute from "@/routes/ProtectedRoute";
 import RequireOnboarding from "@/routes/RequireOnboarding";
 
 const AppRoutes = () => {
+  if (import.meta.env.DEV) {
+    console.log("[AppRoutes] Rendering");
+  }
   return (
     <Routes>
       {/* Public routes */}

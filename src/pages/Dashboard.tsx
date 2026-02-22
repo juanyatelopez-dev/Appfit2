@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const { profile, user } = useAuth();
+  console.log("Dashboard Rendered");
 
   if (import.meta.env.DEV) {
     console.log("[Dashboard] Rendering with profile:", profile);

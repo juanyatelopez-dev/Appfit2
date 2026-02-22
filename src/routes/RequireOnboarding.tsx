@@ -14,7 +14,7 @@ const RequireOnboarding = () => {
     const location = useLocation();
 
     if (import.meta.env.DEV) {
-        console.log(`[RequireOnboarding] Path: ${location.pathname}, Loading: ${loading}, Onboarding: ${onboardingCompleted}, User: ${user?.email}`);
+        console.log(`[RequireOnboarding] Path: ${location.pathname}, Onboarding: ${onboardingCompleted}, Loading: ${loading}`);
     }
 
     // Wait for auth and profile data to resolve
