@@ -13,8 +13,10 @@ const RequireOnboarding = () => {
     const { onboardingCompleted, loading, user } = useAuth();
     const location = useLocation();
 
+    // DEV BYPASS: skip onboarding check in development
     if (import.meta.env.DEV) {
-        console.log(`[RequireOnboarding] Path: ${location.pathname}, Onboarding: ${onboardingCompleted}, Loading: ${loading}`);
+        console.log(`[RequireOnboarding] DEV BYPASS — skipping onboarding check. Path: ${location.pathname}`);
+        return <Outlet />;
     }
 
     // Wait for auth and profile data to resolve

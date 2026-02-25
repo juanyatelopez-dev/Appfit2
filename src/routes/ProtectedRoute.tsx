@@ -5,10 +5,12 @@ import { useAuth } from '@/context/AuthContext';
 const ProtectedRoute = () => {
     const { user, loading } = useAuth();
 
-    /**
-     * While loading is true, we render a stable loader.
-     * This prevents premature redirects to home ('/') before the session is resolved.
-     */
+    // DEV BYPASS: skip auth check in development
+    if (import.meta.env.DEV) {
+        console.log(`[ProtectedRoute] DEV BYPASS — skipping auth. Path: ${window.location.pathname}`);
+        return <Outlet />;
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -17,20 +19,10 @@ const ProtectedRoute = () => {
         );
     }
 
-    if (import.meta.env.DEV) {
-        console.log(`[ProtectedRoute] Path: ${window.location.pathname}, User: ${user?.email}, Loading: ${loading}`);
-    }
-
-    /**
-     * Authentication Check:
-     * Only redirects if loading is complete and no user session is found.
-     */
     if (!user) {
-        console.log("[ProtectedRoute] No user, redirecting to /");
         return <Navigate to="/" replace />;
     }
 
-    // If authenticated, render children (via Outlet)
     return <Outlet />;
 };
 
