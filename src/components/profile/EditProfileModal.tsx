@@ -31,6 +31,7 @@ interface EditProfileModalProps {
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange }) => {
     const { profile, updateProfile, updateAvatar, isGuest } = useAuth();
     const [fullName, setFullName] = useState("");
+    const [birthDate, setBirthDate] = useState("");
     const [weight, setWeight] = useState("");
     const [height, setHeight] = useState("");
     const [goalType, setGoalType] = useState("");
@@ -42,6 +43,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
     useEffect(() => {
         if (open && profile) {
             setFullName(profile.full_name || "");
+            setBirthDate(profile.birth_date || "");
             setWeight(profile.weight?.toString() || "");
             setHeight(profile.height?.toString() || "");
             setGoalType(profile.goal_type || "");
@@ -106,6 +108,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
 
             await updateProfile({
                 full_name: fullName,
+                birth_date: birthDate || null,
                 weight: parsedWeight,
                 height: parsedHeight,
                 goal_type: goalType,
@@ -182,6 +185,16 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
                             placeholder="Full Name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="birthDate">Birth Date</Label>
+                        <Input
+                            id="birthDate"
+                            type="date"
+                            value={birthDate}
+                            onChange={(e) => setBirthDate(e.target.value)}
                         />
                     </div>
 

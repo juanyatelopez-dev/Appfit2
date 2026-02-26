@@ -1,4 +1,4 @@
-import { Home, Target, CalendarDays, Trophy, BarChart3, Settings, Scale } from "lucide-react";
+import { Home, BarChart3, Settings, Scale } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -8,9 +8,6 @@ import EditProfileModal from "@/components/profile/EditProfileModal";
 
 const menuItems = [
   { title: "Dashboard", icon: Home, path: "/dashboard" },
-  { title: "My Goals", icon: Target, path: "/goals" },
-  { title: "Schedule", icon: CalendarDays, path: "/schedule" },
-  { title: "Achievements", icon: Trophy, path: "/achievements" },
   { title: "Statistics", icon: BarChart3, path: "/statistics" },
   { title: "Weight", icon: Scale, path: "/weight" },
   { title: "Settings", icon: Settings, path: "/settings" },

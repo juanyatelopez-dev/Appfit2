@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 interface Profile {
     full_name: string | null;
+    birth_date: string | null;
     avatar_url: string | null;
     weight: number | null;
     height: number | null;
@@ -37,6 +38,7 @@ const GUEST_STORAGE_KEY = 'appfit_is_guest';
 
 const createGuestProfile = (): Profile => ({
     full_name: 'Guest',
+    birth_date: null,
     avatar_url: null,
     weight: null,
     height: null,
@@ -49,6 +51,7 @@ const createGuestProfile = (): Profile => ({
 
 const createEmptyProfile = (): Profile => ({
     full_name: null,
+    birth_date: null,
     avatar_url: null,
     weight: null,
     height: null,
@@ -86,12 +89,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const fetchProfile = async (userId: string): Promise<Profile> => {
-        const { data, error } = await supabase
+        let { data, error } = await supabase
             .from('profiles')
-            .select('full_name,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction')
+            .select('full_name,birth_date,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction')
             .eq('id', userId)
             .limit(1)
             .maybeSingle();
+
+        if (error && error.message?.includes("schema cache")) {
+            const fallback = await supabase
+                .from('profiles')
+                .select('full_name,height,weight,goal_type,avatar_url')
+                .eq('id', userId)
+                .limit(1)
+                .maybeSingle();
+            data = fallback.data as any;
+            error = fallback.error;
+        }
 
         if (error) {
             throw error;
@@ -99,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const nextProfile: Profile = {
             full_name: data?.full_name ?? null,
+            birth_date: data?.birth_date ?? null,
             height: data?.height ?? null,
             weight: data?.weight ?? null,
             goal_type: data?.goal_type ?? null,
