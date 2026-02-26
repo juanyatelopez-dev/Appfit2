@@ -168,26 +168,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logFlow("Switching to Guest Mode");
         setIsGuest(true);
         setUser(null);
-        setProfile(null);
+        // Initialize default profile for guests
+        setProfile({
+            id: 'guest',
+            full_name: 'Guest User',
+            weight: 70,
+            height: 175,
+            goal_type: 'Build Muscles',
+            is_premium: false,
+            created_at: new Date().toISOString()
+        });
         setOnboardingCompleted(true); // Guests skip onboarding
     };
 
     const completeOnboarding = async () => {
         if (!user || isGuest) return;
         logFlow("Completing onboarding...");
-        // If there's no onboarding_completed field in 'profiles', 
-        // we might need to add it or use a heuristic.
         // Assuming for now it's just state-based until table is updated.
         setOnboardingCompleted(true);
     };
 
     const updateProfile = async (data: Partial<Omit<Profile, 'id' | 'created_at'>>) => {
+        logFlow("Updating profile...");
+
         if (isGuest) {
-            logFlow("Guest mode: blocking profile update.");
+            logFlow("Guest mode: performing local update.");
+            setProfile(prev => prev ? { ...prev, ...data } : null);
             return;
         }
+
         if (!user) return;
-        logFlow("Updating profile...");
 
         // Optimistic update
         const oldProfile = profile;
