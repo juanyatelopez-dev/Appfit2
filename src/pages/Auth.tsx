@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Mail, Lock, UserPlus, LogIn } from "lucide-react";
+import { Loader2, Mail, Lock, UserPlus, LogIn, AlertTriangle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Auth = () => {
     const [mode, setMode] = useState<"login" | "register">("login");
@@ -14,12 +16,20 @@ const Auth = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [pendingEmailConfirmation, setPendingEmailConfirmation] = useState(false);
 
-    const { signIn, signInWithGoogle, signUp, continueAsGuest } = useAuth();
+    const { user, isGuest, signIn, signUp, continueAsGuest } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user || isGuest) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [user, isGuest, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setPendingEmailConfirmation(false);
 
         if (mode === "register" && password !== confirmPassword) {
             toast.error("Passwords do not match.");
@@ -31,11 +41,17 @@ const Auth = () => {
             if (mode === "login") {
                 await signIn(email, password);
                 toast.success("Welcome back!");
+                navigate("/dashboard", { replace: true });
             } else {
-                await signUp(email, password);
+                const { requiresEmailConfirmation } = await signUp(email, password);
+                if (requiresEmailConfirmation) {
+                    setPendingEmailConfirmation(true);
+                    toast.error("Email confirmation is enabled in Supabase. Confirm your email before signing in.");
+                    return;
+                }
                 toast.success("Account created successfully!");
+                navigate("/dashboard", { replace: true });
             }
-            navigate("/dashboard");
         } catch (error: any) {
             console.error("Auth error:", error);
             toast.error(error.message || "Authentication failed.");
@@ -51,6 +67,12 @@ const Auth = () => {
                     <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                         {mode === "login" ? <LogIn className="text-primary w-6 h-6" /> : <UserPlus className="text-primary w-6 h-6" />}
                     </div>
+                    <Tabs value={mode} onValueChange={(value) => setMode(value as "login" | "register")} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="login">Login</TabsTrigger>
+                            <TabsTrigger value="register">Register</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                     <CardTitle className="text-2xl font-bold">
                         {mode === "login" ? "Welcome Back" : "Create Account"}
                     </CardTitle>
@@ -62,6 +84,15 @@ const Auth = () => {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
+                        {pendingEmailConfirmation && (
+                            <Alert variant="destructive">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Email confirmation is enabled</AlertTitle>
+                                <AlertDescription>
+                                    Disable email confirmation in Supabase Auth settings to allow immediate login after registration.
+                                </AlertDescription>
+                            </Alert>
+                        )}
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <div className="relative">
@@ -115,33 +146,9 @@ const Auth = () => {
                             {loading ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : (
-                                mode === "login" ? "Sign In" : "Register"
+                                mode === "login" ? "Sign in" : "Create account"
                             )}
                         </Button>
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border-gray-200"
-                            disabled={loading}
-                            onClick={() => signInWithGoogle()}
-                        >
-                            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                                <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
-                            </svg>
-                            {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
-                        </Button>
-
-                        <div className="text-sm text-center text-muted-foreground">
-                            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-                            <button
-                                type="button"
-                                className="text-primary hover:underline font-medium"
-                                onClick={() => setMode(mode === "login" ? "register" : "login")}
-                            >
-                                {mode === "login" ? "Register" : "Login"}
-                            </button>
-                        </div>
                         <div className="relative w-full">
                             <div className="absolute inset-0 flex items-center">
                                 <span className="w-full border-t" />

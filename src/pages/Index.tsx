@@ -1,45 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-    const { user, signIn, loading: authLoading, continueAsGuest } = useAuth();
+    const { user, isGuest, loading: authLoading, continueAsGuest } = useAuth();
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    const handleDashboardClick = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        console.log("[Navigation Flow] Button clicked.");
-
-        if (user) {
-            console.log("[Navigation Flow] User authenticated, navigating to /dashboard");
-            navigate("/dashboard");
-        } else {
-            if (!email) {
-                toast.error("Please enter your email to continue.");
-                return;
-            }
-
-            setLoading(true);
-            console.log(`[Navigation Flow] No user, triggering signIn for: ${email}`);
-            try {
-                await signIn(email);
-                console.log("[Navigation Flow] Magic link sent successfully.");
-                toast.success("Check your email for the login link!");
-            } catch (error: any) {
-                console.error("[Navigation Flow] Sign-in error:", error);
-                toast.error(error.message || "Failed to send magic link.");
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
 
     if (authLoading) {
         return (
@@ -66,9 +33,9 @@ const Index = () => {
             <div className="w-full max-w-sm space-y-4">
                 <Button
                     className="w-full h-10 px-6 font-medium"
-                    onClick={() => navigate(user ? "/dashboard" : "/auth")}
+                    onClick={() => navigate(user || isGuest ? "/dashboard" : "/auth")}
                 >
-                    {user ? "Go to Dashboard" : "Get Started"}
+                    {user || isGuest ? "Welcome to Dashboard" : "Get Started"}
                 </Button>
 
                 <Button

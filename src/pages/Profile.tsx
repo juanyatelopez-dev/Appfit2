@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { User, Scale, Ruler, Target } from "lucide-react";
-import GuestWarningBanner from "@/components/GuestWarningBanner";
 
 const Profile = () => {
     const { profile, updateProfile, isGuest } = useAuth();
@@ -62,8 +61,6 @@ const Profile = () => {
 
     return (
         <div className="container max-w-2xl py-8 space-y-6">
-            {isGuest && <GuestWarningBanner />}
-
             <Card>
                 <CardHeader>
                     <CardTitle>Profile Settings</CardTitle>

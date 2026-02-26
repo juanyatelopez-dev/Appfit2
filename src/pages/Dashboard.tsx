@@ -5,17 +5,14 @@ import ActivityChart from "@/components/ActivityChart";
 import { Button } from "@/components/ui/button";
 
 import { useAuth } from "@/context/AuthContext";
-import GuestWarningBanner from "@/components/GuestWarningBanner";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 
 const Dashboard = () => {
-  const { profile, isGuest } = useAuth();
+  const { profile } = useAuth();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   return (
     <>
-      {isGuest && <GuestWarningBanner />}
-
       {/* Header / Profile Summary Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pt-4">
         <div className="flex flex-col gap-1">

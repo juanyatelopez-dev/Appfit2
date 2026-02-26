@@ -5,6 +5,10 @@ import { useAuth } from '@/context/AuthContext';
 const ProtectedRoute = () => {
     const { user, loading, isGuest } = useAuth();
 
+    if (isGuest) {
+        return <Outlet />;
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -13,12 +17,8 @@ const ProtectedRoute = () => {
         );
     }
 
-    if (isGuest) {
-        return <Outlet />;
-    }
-
     if (!user) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/auth" replace />;
     }
 
     return <Outlet />;

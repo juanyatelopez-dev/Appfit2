@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Scale, Ruler, Target, User, Settings as SettingsIcon } from "lucide-react";
-import GuestWarningBanner from "@/components/GuestWarningBanner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Settings = () => {
@@ -66,8 +65,6 @@ const Settings = () => {
 
   return (
     <div className="container max-w-2xl py-8 space-y-8 animate-in fade-in duration-500">
-      {isGuest && <GuestWarningBanner />}
-
       <div className="flex items-center gap-3 mb-2">
         <SettingsIcon className="w-8 h-8 text-primary" />
         <h1 className="text-3xl font-bold text-foreground">Settings</h1>
