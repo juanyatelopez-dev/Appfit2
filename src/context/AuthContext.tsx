@@ -189,18 +189,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             logFlow(`Auth state change: ${event}`);
             if (!isMounted) return;
 
-            if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
                 setLoading(true);
-
-                if (session?.user) {
-                    await syncAuthenticatedUser(session.user);
-                } else if (localStorage.getItem(GUEST_STORAGE_KEY) !== 'true') {
-                    setUser(null);
-                    setAuthedProfile(null);
-                    setOnboardingCompleted(false);
+                try {
+                    if (session?.user) {
+                        await syncAuthenticatedUser(session.user);
+                    } else if (localStorage.getItem(GUEST_STORAGE_KEY) !== 'true') {
+                        setUser(null);
+                        setAuthedProfile(null);
+                        setOnboardingCompleted(false);
+                    }
+                } catch (error) {
+                    console.error('Error processing auth state change:', error);
+                    if (localStorage.getItem(GUEST_STORAGE_KEY) !== 'true') {
+                        setUser(null);
+                        setAuthedProfile(null);
+                        setOnboardingCompleted(false);
+                    }
+                } finally {
+                    if (isMounted) {
+                        setLoading(false);
+                    }
                 }
-
-                setLoading(false);
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setAuthedProfile(null);
@@ -208,6 +218,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setOnboardingCompleted(false);
                 setIsGuest(false);
                 localStorage.removeItem(GUEST_STORAGE_KEY);
+                setLoading(false);
             }
         });
 
