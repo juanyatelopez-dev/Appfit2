@@ -9,6 +9,10 @@ interface Profile {
     weight: number | null;
     height: number | null;
     goal_type: string | null;
+    target_weight_kg: number | null;
+    target_date: string | null;
+    start_weight_kg: number | null;
+    goal_direction: "lose" | "gain" | "maintain" | null;
 }
 
 interface AuthContextType {
@@ -37,6 +41,10 @@ const createGuestProfile = (): Profile => ({
     weight: null,
     height: null,
     goal_type: null,
+    target_weight_kg: null,
+    target_date: null,
+    start_weight_kg: null,
+    goal_direction: null,
 });
 
 const createEmptyProfile = (): Profile => ({
@@ -45,6 +53,10 @@ const createEmptyProfile = (): Profile => ({
     weight: null,
     height: null,
     goal_type: null,
+    target_weight_kg: null,
+    target_date: null,
+    start_weight_kg: null,
+    goal_direction: null,
 });
 
 const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
@@ -76,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchProfile = async (userId: string): Promise<Profile> => {
         const { data, error } = await supabase
             .from('profiles')
-            .select('full_name,height,weight,goal_type,avatar_url')
+            .select('full_name,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction')
             .eq('id', userId)
             .limit(1)
             .maybeSingle();
@@ -91,6 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             weight: data?.weight ?? null,
             goal_type: data?.goal_type ?? null,
             avatar_url: data?.avatar_url ?? null,
+            target_weight_kg: data?.target_weight_kg ?? null,
+            target_date: data?.target_date ?? null,
+            start_weight_kg: data?.start_weight_kg ?? null,
+            goal_direction: (data?.goal_direction as Profile["goal_direction"]) ?? null,
         };
         setAuthedProfile(nextProfile);
         return nextProfile;

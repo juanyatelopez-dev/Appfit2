@@ -80,9 +80,14 @@ const Dashboard = () => {
               </p>
             )}
           </div>
-          <Button onClick={() => navigate("/weight")}>
-            {latestWeight === null ? "Add weight" : "View weight log"}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/statistics")}>
+              View stats
+            </Button>
+            <Button onClick={() => navigate("/weight")}>
+              Add entry
+            </Button>
+          </div>
         </div>
       </div>
 
