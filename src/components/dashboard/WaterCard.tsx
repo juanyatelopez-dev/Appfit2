@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { Droplets, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,9 +35,13 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const toLiters = (ml: number) => `${(ml / 1000).toFixed(2)} L`;
+const toLiters = (ml: number) => `${(ml / 1000).toFixed(1)} L`;
 
-const WaterCard = () => {
+type WaterCardProps = {
+  showHistoryButton?: boolean;
+};
+
+const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
   const { user, isGuest, profile } = useAuth();
   const queryClient = useQueryClient();
 
@@ -373,6 +378,12 @@ const WaterCard = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {showHistoryButton && (
+          <Button asChild variant="outline" size="sm">
+            <Link to="/water">Ver historial</Link>
+          </Button>
         )}
       </CardContent>
 

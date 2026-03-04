@@ -431,3 +431,27 @@ export const getWaterWeeklySummary = async (
     average_ml: averageMl(totals),
   };
 };
+
+export const listRecentWaterLogs = async (
+  userId: string | null,
+  limit = 3,
+  options?: { isGuest?: boolean },
+): Promise<WaterLog[]> => {
+  const isGuest = options?.isGuest || false;
+  if (isGuest) {
+    return getGuestLogs()
+      .sort((a, b) => b.logged_at.localeCompare(a.logged_at))
+      .slice(0, limit);
+  }
+  if (!userId) return [];
+
+  const { data, error } = await supabase
+    .from("water_intake_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("logged_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data || []) as WaterLog[];
+};

@@ -1,4 +1,4 @@
-import { Home, BarChart3, Settings, Scale, Target, Droplets } from "lucide-react";
+import { Home, BarChart3, Settings, Scale, Target, Droplets, UserRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,7 @@ import EditProfileModal from "@/components/profile/EditProfileModal";
 
 const menuItems = [
   { title: "Dashboard", icon: Home, path: "/dashboard" },
+  { title: "Profile", icon: UserRound, path: "/profile" },
   { title: "Goals", icon: Target, path: "/goals" },
   { title: "Statistics", icon: BarChart3, path: "/statistics" },
   { title: "Water", icon: Droplets, path: "/water" },

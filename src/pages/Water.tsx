@@ -63,7 +63,7 @@ const Water = () => {
 
   return (
     <div className="container max-w-6xl py-8 space-y-6">
-      <WaterCard />
+      <WaterCard showHistoryButton={false} />
 
       <Card>
         <CardHeader>
