@@ -1,26 +1,29 @@
-import { Home, BarChart3, Settings, Scale, Target, Droplets, UserRound } from "lucide-react";
+import { Home, BarChart3, Settings, Scale, Target, Droplets, UserRound, CalendarDays } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { usePreferences } from "@/context/PreferencesContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 
-const menuItems = [
-  { title: "Dashboard", icon: Home, path: "/dashboard" },
-  { title: "Profile", icon: UserRound, path: "/profile" },
-  { title: "Goals", icon: Target, path: "/goals" },
-  { title: "Statistics", icon: BarChart3, path: "/statistics" },
-  { title: "Water", icon: Droplets, path: "/water" },
-  { title: "Weight", icon: Scale, path: "/weight" },
-  { title: "Settings", icon: Settings, path: "/settings" },
-];
-
 const Sidebar = () => {
   const { profile, user, isGuest } = useAuth();
+  const { t } = usePreferences();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const displayName = isGuest ? "Guest" : profile?.full_name?.trim() || user?.email || "User";
+  const menuItems = [
+    { title: t("nav.dashboard"), icon: Home, path: "/dashboard" },
+    { title: t("nav.profile"), icon: UserRound, path: "/profile" },
+    { title: t("nav.goals"), icon: Target, path: "/goals" },
+    { title: t("nav.statistics"), icon: BarChart3, path: "/statistics" },
+    { title: t("nav.water"), icon: Droplets, path: "/water" },
+    { title: t("nav.weight"), icon: Scale, path: "/weight" },
+    { title: t("nav.calendar"), icon: CalendarDays, path: "/calendar" },
+    { title: t("nav.settings"), icon: Settings, path: "/settings" },
+  ];
+
+  const displayName = isGuest ? t("sidebar.guest") : profile?.full_name?.trim() || user?.email || t("sidebar.user");
   const heightLabel = profile?.height ? `${profile.height} cm` : "--";
   const weightLabel = profile?.weight ? `${profile.weight} kg` : "--";
   const goalLabel = profile?.goal_type || "--";
@@ -52,7 +55,7 @@ const Sidebar = () => {
           className="mt-4 w-full"
           onClick={() => setIsEditModalOpen(true)}
         >
-          Edit Profile
+          {t("sidebar.editProfile")}
         </Button>
       </div>
 

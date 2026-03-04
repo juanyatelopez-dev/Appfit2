@@ -1,9 +1,11 @@
 import { Bell, LogOut } from "lucide-react";
+import { usePreferences } from "@/context/PreferencesContext";
 
 const DashboardHeader = () => {
+  const { language, t } = usePreferences();
   const today = new Date();
   const options: Intl.DateTimeFormatOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-  const dateStr = today.toLocaleDateString("en-US", options);
+  const dateStr = today.toLocaleDateString(language === "es" ? "es-ES" : "en-US", options);
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentDay = today.getDay();
@@ -14,7 +16,7 @@ const DashboardHeader = () => {
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-8">
       <div className="flex items-center gap-6">
         <div>
-          <h2 className="text-lg font-semibold text-card-foreground">Dashboard</h2>
+          <h2 className="text-lg font-semibold text-card-foreground">{t("header.dashboard")}</h2>
           <p className="text-xs text-muted-foreground">{dateStr}</p>
         </div>
         <div className="hidden md:flex items-center gap-1 ml-4">

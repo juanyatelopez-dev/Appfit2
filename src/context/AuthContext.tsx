@@ -17,6 +17,8 @@ interface Profile {
     water_goal_ml: number | null;
     water_quick_options_ml: number[] | null;
     onboarding_completed: boolean | null;
+    app_language: "en" | "es" | null;
+    theme_preference: "light" | "dark" | "system" | null;
 }
 
 interface AuthContextType {
@@ -81,6 +83,8 @@ const createGuestProfile = (): Profile => ({
     water_goal_ml: 2000,
     water_quick_options_ml: [250, 500, 1000, 2000],
     onboarding_completed: true,
+    app_language: "en",
+    theme_preference: "system",
 });
 
 const createEmptyProfile = (): Profile => ({
@@ -97,6 +101,8 @@ const createEmptyProfile = (): Profile => ({
     water_goal_ml: 2000,
     water_quick_options_ml: [250, 500, 1000, 2000],
     onboarding_completed: null,
+    app_language: "en",
+    theme_preference: "system",
 });
 
 const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
@@ -129,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchProfile = async (userId: string): Promise<Profile> => {
         let { data, error } = await supabase
             .from('profiles')
-            .select('full_name,birth_date,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,onboarding_completed')
+            .select('full_name,birth_date,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,onboarding_completed,app_language,theme_preference')
             .eq('id', userId)
             .limit(1)
             .maybeSingle();
@@ -163,6 +169,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             water_goal_ml: data?.water_goal_ml ?? 2000,
             water_quick_options_ml: data?.water_quick_options_ml ?? [250, 500, 1000, 2000],
             onboarding_completed: data?.onboarding_completed ?? null,
+            app_language: (data?.app_language as Profile["app_language"]) ?? "en",
+            theme_preference: (data?.theme_preference as Profile["theme_preference"]) ?? "system",
         };
         setAuthedProfile(nextProfile);
         return nextProfile;
