@@ -162,16 +162,18 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <BodyMeasurementsCard
-            loading={snapshot.coreLoading}
-            latest={core?.latestMeasurement ?? null}
-            previous={core?.previousMeasurement ?? null}
-            latestWeight={core?.latestWeight ?? null}
-            weeklyWaistDeltaCm={core?.weeklyWaistDeltaCm ?? null}
-            goalDirection={core?.goal?.goal_direction ?? null}
-          />
-
-          <WeeklyTrendsCard loading={snapshot.coreLoading} data={snapshot.trends} />
+          <div className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
+            <BodyMeasurementsCard
+              className="h-full"
+              loading={snapshot.coreLoading}
+              latest={core?.latestMeasurement ?? null}
+              previous={core?.previousMeasurement ?? null}
+              latestWeight={core?.latestWeight ?? null}
+              weeklyWaistDeltaCm={core?.weeklyWaistDeltaCm ?? null}
+              goalDirection={core?.goal?.goal_direction ?? null}
+            />
+            <WeeklyTrendsCard loading={snapshot.coreLoading} data={snapshot.trends} />
+          </div>
 
           <TacticalNotesCard
             loading={snapshot.coreLoading}

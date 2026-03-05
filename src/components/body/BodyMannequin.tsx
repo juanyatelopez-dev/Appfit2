@@ -48,7 +48,7 @@ export function BodyMannequin({
   const showImage = Boolean(imageSrc) && !imageError;
 
   return (
-    <div className="relative w-full max-w-[380px] aspect-[2/3]">
+    <div className="relative w-full max-w-[260px] aspect-[2/3]">
       {showImage ? (
         <img
           src={imageSrc}
@@ -118,4 +118,3 @@ export function BodyMannequin({
     </div>
   );
 }
-

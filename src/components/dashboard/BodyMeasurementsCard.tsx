@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { BodyMeasurement } from "@/services/bodyMeasurements";
 
 type Props = {
+  className?: string;
   loading?: boolean;
   latest: BodyMeasurement | null;
   previous: BodyMeasurement | null;
@@ -43,11 +44,19 @@ const measurementTone = (
   return delta < 0 ? "positive" : "negative";
 };
 
-const BodyMeasurementsCard = ({ loading = false, latest, previous, latestWeight, weeklyWaistDeltaCm, goalDirection }: Props) => {
+const BodyMeasurementsCard = ({
+  className,
+  loading = false,
+  latest,
+  previous,
+  latestWeight,
+  weeklyWaistDeltaCm,
+  goalDirection,
+}: Props) => {
   const navigate = useNavigate();
   if (loading) {
     return (
-      <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
+      <Card className={`rounded-2xl border-border/60 bg-card/80 shadow-sm ${className ?? ""}`}>
         <CardHeader>
           <CardTitle>Body Measurements Overview</CardTitle>
           <CardDescription>Visualizacion corporal y variacion de medidas.</CardDescription>
@@ -61,7 +70,7 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous, latestWeight,
 
   if (!latest) {
     return (
-      <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
+      <Card className={`rounded-2xl border-border/60 bg-card/80 shadow-sm ${className ?? ""}`}>
         <CardHeader>
           <CardTitle>Body Measurements Overview</CardTitle>
           <CardDescription>No body measurements yet</CardDescription>
@@ -131,7 +140,7 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous, latestWeight,
   ];
 
   return (
-    <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
+    <Card className={`rounded-2xl border-border/60 bg-card/80 shadow-sm ${className ?? ""}`}>
       <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <CardTitle>Body Measurements Overview</CardTitle>
@@ -141,9 +150,11 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous, latestWeight,
           <Link to="/measurements">Editar medidas</Link>
         </Button>
       </CardHeader>
-      <CardContent className="flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <BodyMannequin points={points} onPointClick={() => navigate("/measurements")} />
-        <div className="w-full space-y-2 lg:max-w-xs">
+      <CardContent className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex justify-center lg:justify-start">
+          <BodyMannequin points={points} onPointClick={() => navigate("/measurements")} />
+        </div>
+        <div className="w-full space-y-2">
           <div className="rounded-lg border border-border/60 p-3">
             <p className="text-xs text-muted-foreground">Latest Weight</p>
             <p className="text-lg font-semibold">{latestWeight !== null ? `${latestWeight.toFixed(1)} kg` : "--"}</p>
