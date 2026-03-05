@@ -169,6 +169,15 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
 
       const measurementRowsDesc = [...measurementRange].sort((a, b) => b.date_key.localeCompare(a.date_key));
       const previousMeasurement = measurementRowsDesc.find((row) => row.id !== latestMeasurement?.id) ?? null;
+      const weekRefDate = new Date(today);
+      weekRefDate.setDate(weekRefDate.getDate() - 7);
+      const weekRefKey = formatDateKey(weekRefDate);
+      const weeklyReferenceMeasurement =
+        measurementRowsDesc.find((row) => row.date_key <= weekRefKey && row.id !== latestMeasurement?.id) ?? previousMeasurement;
+      const weeklyWaistDeltaCm =
+        latestMeasurement && weeklyReferenceMeasurement
+          ? Number((Number(latestMeasurement.waist_cm) - Number(weeklyReferenceMeasurement.waist_cm)).toFixed(1))
+          : null;
 
       return {
         displayName: isGuest ? "Guest" : profile?.full_name?.trim() || user?.email || "User",
@@ -191,6 +200,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
         recovery,
         latestMeasurement,
         previousMeasurement,
+        weeklyWaistDeltaCm,
         noteToday,
         noteLatest,
       };

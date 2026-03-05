@@ -98,6 +98,7 @@ const BodyMeasurements = () => {
         queryClient.invalidateQueries({ queryKey: ["body_measurements_latest"] }),
         queryClient.invalidateQueries({ queryKey: ["body_measurements_range"] }),
         queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard_snapshot"] }),
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
         queryClient.invalidateQueries({ queryKey: ["stats"] }),
       ]);

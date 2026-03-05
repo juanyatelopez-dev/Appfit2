@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { BodyMannequin, type MeasurementPoint } from "@/components/body/BodyMannequin";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,9 @@ type Props = {
   loading?: boolean;
   latest: BodyMeasurement | null;
   previous: BodyMeasurement | null;
+  latestWeight: number | null;
+  weeklyWaistDeltaCm: number | null;
+  goalDirection: "lose" | "gain" | "maintain" | null;
 };
 
 const metricDelta = (latest?: number | null, previous?: number | null) => {
@@ -22,18 +26,30 @@ const formatDelta = (value: number | null) => {
   return `${value > 0 ? "+" : ""}${value.toFixed(1)} cm`;
 };
 
-const measurementTone = (key: "neck" | "arm" | "waist" | "hip" | "thigh", delta: number | null): MeasurementPoint["tone"] => {
+const measurementTone = (
+  key: "neck" | "arm" | "waist" | "hip" | "thigh",
+  delta: number | null,
+  goalDirection: "lose" | "gain" | "maintain" | null,
+): MeasurementPoint["tone"] => {
   if (delta === null || delta === 0) return "neutral";
-  if (key === "waist") return delta < 0 ? "positive" : "negative";
-  return delta < 0 ? "negative" : "positive";
+  if (key === "waist" || key === "hip") {
+    if (goalDirection === "gain") return delta > 0 ? "positive" : "negative";
+    return delta < 0 ? "positive" : "negative";
+  }
+  if (key === "arm" || key === "thigh") {
+    if (goalDirection === "lose") return delta < 0 ? "positive" : "negative";
+    return delta > 0 ? "positive" : "negative";
+  }
+  return delta < 0 ? "positive" : "negative";
 };
 
-const BodyMeasurementsCard = ({ loading = false, latest, previous }: Props) => {
+const BodyMeasurementsCard = ({ loading = false, latest, previous, latestWeight, weeklyWaistDeltaCm, goalDirection }: Props) => {
+  const navigate = useNavigate();
   if (loading) {
     return (
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
-          <CardTitle>Body Composition & Measurements</CardTitle>
+          <CardTitle>Body Measurements Overview</CardTitle>
           <CardDescription>Visualizacion corporal y variacion de medidas.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -47,13 +63,13 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous }: Props) => {
     return (
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
-          <CardTitle>Body Composition & Measurements</CardTitle>
-          <CardDescription>Sin medicion corporal.</CardDescription>
+          <CardTitle>Body Measurements Overview</CardTitle>
+          <CardDescription>No body measurements yet</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">Registra cuello, cintura, cadera, brazo y muslo para ver el maniqui interactivo.</p>
           <Button asChild>
-            <Link to="/measurements">Registrar medidas</Link>
+            <Link to="/measurements">Add Measurements</Link>
           </Button>
         </CardContent>
       </Card>
@@ -69,48 +85,48 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous }: Props) => {
   const points: MeasurementPoint[] = [
     {
       key: "neck",
-      label: "Cuello",
+      label: "Neck",
       valueText: `${latest.neck_cm.toFixed(1)} cm`,
       deltaText: formatDelta(neckDelta),
       x: 50,
-      y: 22,
-      tone: measurementTone("neck", neckDelta),
+      y: 18,
+      tone: measurementTone("neck", neckDelta, goalDirection),
     },
     {
       key: "arm",
-      label: "Brazo",
+      label: "Arm",
       valueText: latest.arm_cm ? `${Number(latest.arm_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(armDelta),
-      x: 25,
-      y: 40,
-      tone: measurementTone("arm", armDelta),
+      x: 28,
+      y: 38,
+      tone: measurementTone("arm", armDelta, goalDirection),
     },
     {
       key: "waist",
-      label: "Cintura",
+      label: "Waist",
       valueText: `${latest.waist_cm.toFixed(1)} cm`,
       deltaText: formatDelta(waistDelta),
       x: 50,
-      y: 58,
-      tone: measurementTone("waist", waistDelta),
+      y: 55,
+      tone: measurementTone("waist", waistDelta, goalDirection),
     },
     {
       key: "hip",
-      label: "Cadera",
+      label: "Hip",
       valueText: latest.hip_cm ? `${Number(latest.hip_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(hipDelta),
       x: 50,
-      y: 70,
-      tone: measurementTone("hip", hipDelta),
+      y: 66,
+      tone: measurementTone("hip", hipDelta, goalDirection),
     },
     {
       key: "thigh",
-      label: "Muslo",
+      label: "Thigh",
       valueText: latest.thigh_cm ? `${Number(latest.thigh_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(thighDelta),
-      x: 43,
-      y: 84,
-      tone: measurementTone("thigh", thighDelta),
+      x: 45,
+      y: 82,
+      tone: measurementTone("thigh", thighDelta, goalDirection),
     },
   ];
 
@@ -118,7 +134,7 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous }: Props) => {
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <CardTitle>Body Composition & Measurements</CardTitle>
+          <CardTitle>Body Measurements Overview</CardTitle>
           <CardDescription>Ultima medicion: {latest.date_key}</CardDescription>
         </div>
         <Button asChild variant="outline" size="sm">
@@ -126,19 +142,24 @@ const BodyMeasurementsCard = ({ loading = false, latest, previous }: Props) => {
         </Button>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <BodyMannequin points={points} />
+        <BodyMannequin points={points} onPointClick={() => navigate("/measurements")} />
         <div className="w-full space-y-2 lg:max-w-xs">
           <div className="rounded-lg border border-border/60 p-3">
-            <p className="text-xs text-muted-foreground">% Grasa</p>
+            <p className="text-xs text-muted-foreground">Latest Weight</p>
+            <p className="text-lg font-semibold">{latestWeight !== null ? `${latestWeight.toFixed(1)} kg` : "--"}</p>
+          </div>
+          <div className="rounded-lg border border-border/60 p-3">
+            <p className="text-xs text-muted-foreground">Body Fat Est.</p>
             <p className="text-lg font-semibold">
               {latest.body_fat_pct !== null && latest.body_fat_pct !== undefined ? `${Number(latest.body_fat_pct).toFixed(1)}%` : "--"}
             </p>
           </div>
           <div className="rounded-lg border border-border/60 p-3">
-            <p className="text-xs text-muted-foreground">Masa grasa / magra</p>
+            <p className="text-xs text-muted-foreground">Weekly Change</p>
             <p className="text-sm font-medium">
-              {latest.fat_mass_kg !== null && latest.fat_mass_kg !== undefined ? `${Number(latest.fat_mass_kg).toFixed(1)} kg` : "--"} /{" "}
-              {latest.lean_mass_kg !== null && latest.lean_mass_kg !== undefined ? `${Number(latest.lean_mass_kg).toFixed(1)} kg` : "--"}
+              {weeklyWaistDeltaCm === null
+                ? "--"
+                : `${weeklyWaistDeltaCm > 0 ? "+" : ""}${weeklyWaistDeltaCm.toFixed(1)} cm waist`}
             </p>
           </div>
         </div>

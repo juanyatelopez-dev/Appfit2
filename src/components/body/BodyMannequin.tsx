@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type PointKey = "neck" | "arm" | "waist" | "hip" | "thigh";
 
@@ -20,20 +21,35 @@ const toneClass: Record<NonNullable<MeasurementPoint["tone"]>, string> = {
 
 export function BodyMannequin({
   points,
+  // Place provided PNG in public/body-mannequin.png (transparent background).
+  imageSrc = "/body-mannequin.png",
   onPointClick,
 }: {
   points: MeasurementPoint[];
+  imageSrc?: string;
   onPointClick?: (key: PointKey) => void;
 }) {
+  const hasImage = Boolean(imageSrc);
+
   return (
-    <div className="relative w-full max-w-[320px] aspect-[3/5]">
+    <div className="relative w-full max-w-[340px] aspect-[2/3]">
+      {hasImage ? (
+        <img
+          src={imageSrc}
+          alt="Body measurement mannequin"
+          className="absolute inset-0 h-full w-full object-contain"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+        />
+      ) : null}
       <svg
         viewBox="0 0 300 500"
-        className="absolute inset-0 h-full w-full text-foreground"
+        className="absolute inset-0 h-full w-full text-foreground/20"
         role="img"
-        aria-label="Body measurement mannequin"
+        aria-label="Body measurement mannequin fallback"
       >
-        <g fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="10">
+        <g fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="8">
           <circle cx="150" cy="65" r="35" />
           <path d="M135 105 C140 130, 160 130, 165 105" />
           <path d="M90 150 C120 120, 180 120, 210 150" />
@@ -48,27 +64,31 @@ export function BodyMannequin({
         </g>
       </svg>
 
-      {points.map((p) => (
-        <button
-          key={p.key}
-          type="button"
-          className={cn(
-            "absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border backdrop-blur px-2 py-1 text-left shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/50",
-            toneClass[p.tone || "neutral"],
-          )}
-          style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          onClick={() => onPointClick?.(p.key)}
-          aria-label={`${p.label}: ${p.valueText ?? "sin dato"} ${p.deltaText ? `(${p.deltaText})` : ""}`}
-          title={`${p.label}\n${p.valueText ?? "Sin dato"}${p.deltaText ? ` • ${p.deltaText}` : ""}`}
-        >
-          <div className="text-[10px] leading-tight text-foreground/80">{p.label}</div>
-          <div className="text-[11px] font-semibold leading-tight text-foreground">
-            {p.valueText ?? "—"}
-            {p.deltaText ? <span className="ml-1 text-foreground/70">{p.deltaText}</span> : null}
-          </div>
-        </button>
-      ))}
+      <TooltipProvider delayDuration={80}>
+        {points.map((p) => (
+          <Tooltip key={p.key}>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "absolute -translate-x-1/2 -translate-y-1/2 rounded-full border min-h-5 px-2 py-0.5 text-[10px] font-semibold shadow-sm hover:scale-105 transition focus:outline-none focus:ring-2 focus:ring-primary/50",
+                  toneClass[p.tone || "neutral"],
+                )}
+                style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                onClick={() => onPointClick?.(p.key)}
+                aria-label={`${p.label}: ${p.valueText ?? "sin dato"} ${p.deltaText ? `(${p.deltaText})` : ""}`}
+              >
+                {p.valueText ?? "—"}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-[220px]">
+              <p className="text-xs font-medium">{p.label}</p>
+              <p className="text-xs">{p.valueText ?? "Sin dato"}</p>
+              <p className="text-xs text-muted-foreground">{p.deltaText ? `${p.deltaText} since last measurement` : "Sin comparativa previa"}</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </TooltipProvider>
     </div>
   );
 }
-
