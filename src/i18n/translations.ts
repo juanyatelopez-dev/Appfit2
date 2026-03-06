@@ -45,6 +45,15 @@ export type TranslationKey =
   | "settings.languageDescription"
   | "settings.theme"
   | "settings.themeDescription"
+  | "settings.accentColor"
+  | "settings.accentColorDescription"
+  | "settings.accentSelected"
+  | "settings.accountTitle"
+  | "settings.accountDescription"
+  | "settings.switchUser"
+  | "settings.switchUserGuest"
+  | "settings.switchUserHint"
+  | "settings.switchUserError"
   | "settings.language.en"
   | "settings.language.es"
   | "settings.theme.light"
@@ -167,6 +176,15 @@ export const translations: Record<AppLanguage, Dict> = {
     "settings.languageDescription": "Choose the app language.",
     "settings.theme": "Theme",
     "settings.themeDescription": "Choose a light, dark or system theme.",
+    "settings.accentColor": "Main UI Color",
+    "settings.accentColorDescription": "Pick one of the 16 Minecraft wool colors for your app accent.",
+    "settings.accentSelected": "Selected color",
+    "settings.accountTitle": "Account",
+    "settings.accountDescription": "Log out and switch to another user account.",
+    "settings.switchUser": "Log out and switch user",
+    "settings.switchUserGuest": "Sign in with another user",
+    "settings.switchUserHint": "You'll be redirected to the login screen.",
+    "settings.switchUserError": "Could not change account.",
     "settings.language.en": "English",
     "settings.language.es": "Spanish",
     "settings.theme.light": "Light",
@@ -290,6 +308,15 @@ export const translations: Record<AppLanguage, Dict> = {
     "settings.language.es": "Español",
     "settings.theme.light": "Claro",
     "settings.theme.dark": "Oscuro",
+    "settings.accentColor": "Color principal de la UI",
+    "settings.accentColorDescription": "Elige uno de los 16 colores de lana de Minecraft para el acento de la app.",
+    "settings.accentSelected": "Color seleccionado",
+    "settings.accountTitle": "Cuenta",
+    "settings.accountDescription": "Cierra sesión y cambia a otro usuario.",
+    "settings.switchUser": "Cerrar sesión y cambiar usuario",
+    "settings.switchUserGuest": "Iniciar sesión con otro usuario",
+    "settings.switchUserHint": "Serás redirigido a la pantalla de login.",
+    "settings.switchUserError": "No se pudo cambiar de cuenta.",
     "settings.theme.system": "Sistema",
     "settings.sleepGoal": "Meta de sueño (minutos)",
     "settings.sleepGoalHint": "Recomendado: 480 minutos (8 horas).",

@@ -12,14 +12,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Scale, Ruler, Target, User, Settings as SettingsIcon, Languages, Palette } from "lucide-react";
+import { Scale, Ruler, Target, User, Settings as SettingsIcon, Languages, Palette, Check, LogOut } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
+import { MINECRAFT_WOOL_COLORS } from "@/theme/accentPalette";
 
 const Settings = () => {
-  const { profile, updateProfile, isGuest, loading } = useAuth();
-  const { t, language, themePreference, setLanguagePreference, setThemePreference } = usePreferences();
+  const { profile, updateProfile, isGuest, loading, signOut, exitGuest } = useAuth();
+  const { t, language, themePreference, accentColorId, setLanguagePreference, setThemePreference, setAccentColorPreference } =
+    usePreferences();
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [weight, setWeight] = useState("");
@@ -27,6 +31,7 @@ const Settings = () => {
   const [goalType, setGoalType] = useState("");
   const [sleepGoalMinutes, setSleepGoalMinutes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -110,6 +115,36 @@ const Settings = () => {
       toast.error(error?.message || t("settings.fail"));
     }
   };
+
+  const handleAccentColorChange = async (colorId: (typeof MINECRAFT_WOOL_COLORS)[number]["id"]) => {
+    try {
+      await setAccentColorPreference(colorId);
+    } catch (error: any) {
+      toast.error(error?.message || t("settings.fail"));
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    setIsSwitchingAccount(true);
+    try {
+      if (isGuest) {
+        exitGuest();
+        navigate("/auth", { replace: true, state: { fromGuestSwitch: true } });
+        return;
+      }
+
+      await signOut();
+      navigate("/auth", { replace: true });
+    } catch (error: any) {
+      toast.error(error?.message || t("settings.switchUserError"));
+    } finally {
+      setIsSwitchingAccount(false);
+    }
+  };
+
+  const selectedAccent = MINECRAFT_WOOL_COLORS.find((color) => color.id === accentColorId);
+  const selectedAccentLabel =
+    language === "es" ? selectedAccent?.label.es ?? "Sin color" : selectedAccent?.label.en ?? "No color";
 
   return (
     <div className="container max-w-2xl py-8 space-y-8 animate-in fade-in duration-500">
@@ -276,6 +311,63 @@ const Settings = () => {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              {t("settings.accentColor")}
+            </Label>
+            <p className="text-xs text-muted-foreground">{t("settings.accentColorDescription")}</p>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 pt-1">
+              {MINECRAFT_WOOL_COLORS.map((color) => {
+                const isSelected = color.id === accentColorId;
+                const textColor = color.id === "white" || color.id === "yellow" || color.id === "light_gray" ? "#111827" : "#FFFFFF";
+
+                return (
+                  <button
+                    key={color.id}
+                    type="button"
+                    onClick={() => handleAccentColorChange(color.id)}
+                    className={`relative h-9 w-9 rounded-md border transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                    aria-label={language === "es" ? color.label.es : color.label.en}
+                    title={language === "es" ? color.label.es : color.label.en}
+                  >
+                    {isSelected && <Check className="h-4 w-4 mx-auto" style={{ color: textColor }} />}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("settings.accentSelected")}: {selectedAccentLabel}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle>{t("settings.accountTitle")}</CardTitle>
+          <CardDescription>{t("settings.accountDescription")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full md:w-auto"
+            onClick={handleSwitchAccount}
+            disabled={isSwitchingAccount}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            {isSwitchingAccount
+              ? t("settings.saving")
+              : isGuest
+              ? t("settings.switchUserGuest")
+              : t("settings.switchUser")}
+          </Button>
+          <p className="text-xs text-muted-foreground">{t("settings.switchUserHint")}</p>
         </CardContent>
       </Card>
     </div>

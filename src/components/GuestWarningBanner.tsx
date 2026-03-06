@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const GuestWarningBanner: React.FC = () => {
     const navigate = useNavigate();
+    const { exitGuest } = useAuth();
 
     return (
         <div className="bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800 p-3 sticky top-0 z-50 animate-in slide-in-from-top duration-300">
@@ -17,7 +19,10 @@ const GuestWarningBanner: React.FC = () => {
                     size="sm"
                     variant="default"
                     className="bg-amber-600 hover:bg-amber-700 text-white border-none h-8 text-xs font-semibold px-4"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => {
+                        exitGuest();
+                        navigate('/auth', { replace: true, state: { fromGuestSwitch: true } });
+                    }}
                 >
                     Create Account
                 </Button>

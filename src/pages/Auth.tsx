@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,12 +20,14 @@ const Auth = () => {
 
     const { user, isGuest, signIn, signUp, continueAsGuest } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const allowGuestAuth = Boolean((location.state as { fromGuestSwitch?: boolean } | null)?.fromGuestSwitch);
 
     useEffect(() => {
-        if (user || isGuest) {
+        if (user || (isGuest && !allowGuestAuth)) {
             navigate("/dashboard", { replace: true });
         }
-    }, [user, isGuest, navigate]);
+    }, [user, isGuest, allowGuestAuth, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
