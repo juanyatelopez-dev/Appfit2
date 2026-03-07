@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import BodyMeasurementsCard from "@/components/dashboard/BodyMeasurementsCard";
 import CalendarMiniWidget from "@/components/dashboard/CalendarMiniWidget";
+import DailyMetricsTodoCard from "@/components/dashboard/DailyMetricsTodoCard";
 import GoalCard from "@/components/dashboard/GoalCard";
 import RecoveryCard from "@/components/dashboard/RecoveryCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
@@ -83,6 +84,8 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {tab === "overview" && <DailyMetricsTodoCard core={core} />}
 
       {(tab === "overview" || tab === "analytics") && (
         <TodayStatusRow
