@@ -14,6 +14,7 @@ import NutritionCard from "@/components/dashboard/NutritionCard";
 import RecoveryCard from "@/components/dashboard/RecoveryCard";
 import SleepInsightsCard from "@/components/dashboard/SleepInsightsCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
+import TremorAnalyticsPanel from "@/components/dashboard/TremorAnalyticsPanel";
 import TodayStatusRow from "@/components/dashboard/TodayStatusRow";
 import WaterGoalRingCard from "@/components/dashboard/WaterGoalRingCard";
 import WeeklyTrendsCard from "@/components/dashboard/WeeklyTrendsCard";
@@ -207,7 +208,12 @@ const Dashboard = () => {
         </>
       )}
 
-      {tab === "analytics" && <WeeklyTrendsCard loading={snapshot.coreLoading} data={snapshot.trends} />}
+      {tab === "analytics" && (
+        <div className="space-y-4">
+          <TremorAnalyticsPanel trends={snapshot.trends} core={core} />
+          <WeeklyTrendsCard loading={snapshot.coreLoading} data={snapshot.trends} />
+        </div>
+      )}
     </div>
   );
 };
