@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ComponentType } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { startOfMonth } from "date-fns";
-import { BarChart3, CalendarDays, LayoutDashboard, Settings } from "lucide-react";
+import { BarChart3, Droplets, LayoutDashboard, Moon, Scale, Target, UtensilsCrossed } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -22,13 +22,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboardSnapshot } from "@/hooks/useDashboardSnapshot";
 
-type TabKey = "overview" | "analytics" | "calendar" | "settings";
+type TabKey = "overview" | "analytics";
 
 const tabItems: Array<{ key: TabKey; label: string; icon: ComponentType<{ className?: string }> }> = [
   { key: "overview", label: "Resumen", icon: LayoutDashboard },
   { key: "analytics", label: "Analisis", icon: BarChart3 },
-  { key: "calendar", label: "Calendario", icon: CalendarDays },
-  { key: "settings", label: "Ajustes", icon: Settings },
+];
+
+const quickActions: Array<{ label: string; href: string; icon: ComponentType<{ className?: string }> }> = [
+  { label: "Registrar agua", href: "/water", icon: Droplets },
+  { label: "Registrar sueno", href: "/sleep", icon: Moon },
+  { label: "Registrar comida", href: "/nutrition", icon: UtensilsCrossed },
+  { label: "Registrar peso", href: "/weight", icon: Scale },
+  { label: "Ajustar objetivos", href: "/goals", icon: Target },
 ];
 
 const Dashboard = () => {
@@ -89,6 +95,24 @@ const Dashboard = () => {
       </Card>
 
       {tab === "overview" && <DailyMetricsTodoCard core={core} />}
+
+      {tab === "overview" && (
+        <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
+          <CardContent className="p-4 space-y-3">
+            <p className="text-sm font-semibold">Accesos rapidos</p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {quickActions.map((action) => (
+                <Button key={action.href} asChild variant="outline" className="justify-start">
+                  <Link to={action.href}>
+                    <action.icon className="mr-2 h-4 w-4" />
+                    {action.label}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {(tab === "overview" || tab === "analytics") && (
         <TodayStatusRow
@@ -184,45 +208,6 @@ const Dashboard = () => {
       )}
 
       {tab === "analytics" && <WeeklyTrendsCard loading={snapshot.coreLoading} data={snapshot.trends} />}
-
-      {tab === "calendar" && (
-        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <CalendarMiniWidget
-            month={currentMonth}
-            onMonthChange={setCurrentMonth}
-            activity={snapshot.monthActivity}
-            loading={snapshot.monthActivityLoading}
-          />
-          <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <p className="text-lg font-semibold">Actividad mensual</p>
-              <p className="text-sm text-muted-foreground">
-                Abre el calendario completo para revisar agua, sueno, peso, biofeedback y notas por dia.
-              </p>
-              <Button asChild>
-                <Link to="/calendar">Abrir calendario completo</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {tab === "settings" && (
-        <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-          <CardContent className="p-6 space-y-3">
-            <p className="text-lg font-semibold">Configuracion rapida</p>
-            <p className="text-sm text-muted-foreground">Gestiona perfil, objetivos y preferencias desde Ajustes.</p>
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <Link to="/profile">Perfil</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/settings">Ajustes</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

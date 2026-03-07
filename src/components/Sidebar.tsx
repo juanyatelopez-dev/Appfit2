@@ -1,4 +1,4 @@
-import { Home, BarChart3, Settings, Scale, Droplets, UserRound, CalendarDays, Moon, Ruler, HeartPulse, ClipboardList, UtensilsCrossed } from "lucide-react";
+import { Home, BarChart3, Settings, Scale, Droplets, UserRound, CalendarDays, Moon, Ruler, HeartPulse, ClipboardList, UtensilsCrossed, Target } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -14,8 +14,11 @@ const Sidebar = () => {
 
   const menuGroups = [
     {
-      title: "Dashboard",
-      items: [{ title: t("nav.dashboard"), icon: Home, path: "/dashboard" }],
+      title: "Inicio",
+      items: [
+        { title: t("nav.dashboard"), icon: Home, path: "/dashboard" },
+        { title: t("nav.goals"), icon: Target, path: "/goals" },
+      ],
     },
     {
       title: "Tracking diario",
