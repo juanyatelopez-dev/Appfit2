@@ -11,8 +11,10 @@ import CalendarMiniWidget from "@/components/dashboard/CalendarMiniWidget";
 import DailyMetricsTodoCard from "@/components/dashboard/DailyMetricsTodoCard";
 import GoalCard from "@/components/dashboard/GoalCard";
 import RecoveryCard from "@/components/dashboard/RecoveryCard";
+import SleepInsightsCard from "@/components/dashboard/SleepInsightsCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
 import TodayStatusRow from "@/components/dashboard/TodayStatusRow";
+import WaterGoalRingCard from "@/components/dashboard/WaterGoalRingCard";
 import WeeklyTrendsCard from "@/components/dashboard/WeeklyTrendsCard";
 import WeightCard from "@/components/dashboard/WeightCard";
 import { Button } from "@/components/ui/button";
@@ -143,26 +145,18 @@ const Dashboard = () => {
               loading={snapshot.coreLoading}
               error={snapshot.coreError}
             />
-            <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-              <CardContent className="p-4 space-y-2">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Agua hoy</p>
-                <p className="text-3xl font-semibold">{core?.waterTodayMl ?? 0} ml</p>
-                <p className="text-xs text-muted-foreground">Objetivo: {core?.waterGoalMl ?? 2000} ml</p>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/water">Ir a Agua</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-              <CardContent className="p-4 space-y-2">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Sueno hoy</p>
-                <p className="text-3xl font-semibold">{((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h</p>
-                <p className="text-xs text-muted-foreground">Objetivo: {((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h</p>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/sleep">Ir a Sueno</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <WaterGoalRingCard
+              waterMl={core?.waterTodayMl ?? 0}
+              goalMl={core?.waterGoalMl ?? 2000}
+              loading={snapshot.coreLoading}
+            />
+            <SleepInsightsCard
+              sleepMinutes={core?.sleepDay?.total_minutes ?? 0}
+              goalMinutes={core?.sleepGoalMinutes ?? 480}
+              quality={core?.bioToday?.sleep_quality ?? null}
+              weekTotals={core?.sleep7d ?? []}
+              loading={snapshot.coreLoading}
+            />
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
