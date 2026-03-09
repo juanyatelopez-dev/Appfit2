@@ -13,6 +13,7 @@ import WaterCard from "@/components/dashboard/WaterCard";
 import TodayBiofeedbackModule from "@/components/daily/TodayBiofeedbackModule";
 import TodayMealsModule from "@/components/daily/TodayMealsModule";
 import TodayWeightModule from "@/components/daily/TodayWeightModule";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDashboardSnapshot } from "@/hooks/useDashboardSnapshot";
 
@@ -36,12 +37,16 @@ const Dashboard = () => {
   });
 
   const core = snapshot.core;
-  const completionCount =
-    Number((core?.waterTodayMl ?? 0) > 0) +
-    Number((core?.sleepDay?.total_minutes ?? 0) > 0) +
-    Number((core?.latestWeight ?? null) !== null) +
-    Number(Boolean(core?.bioToday)) +
-    Number((core?.noteToday?.content ?? "").trim().length > 0);
+  const todayActivity = snapshot.monthActivity?.get(snapshot.todayKey);
+  const dailyModules = [
+    { key: "water", label: "Agua", href: "#water", completed: (core?.waterTodayMl ?? 0) > 0 },
+    { key: "sleep", label: "Sueno", href: "#sleep", completed: (core?.sleepDay?.total_minutes ?? 0) > 0 },
+    { key: "weight", label: "Peso", href: "#weight", completed: (core?.latestWeight ?? null) !== null },
+    { key: "biofeedback", label: "Biofeedback", href: "#biofeedback", completed: Boolean(core?.bioToday) },
+    { key: "nutrition", label: "Comidas", href: "#nutrition", completed: Boolean(todayActivity?.hasNutrition) },
+  ] as const;
+  const completionCount = dailyModules.filter((module) => module.completed).length;
+  const missingModules = dailyModules.filter((module) => !module.completed);
 
   return (
     <div className="space-y-6 py-4">
@@ -58,7 +63,7 @@ const Dashboard = () => {
                 Registra peso, hidratacion, sueno, biofeedback y comidas del dia desde una sola pantalla. El objetivo es completar el tracking diario en menos de un minuto.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-[1fr_1.25fr_1fr]">
               <div className="app-surface-tile rounded-2xl p-4">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Fecha</div>
                 <div className="mt-2 text-lg font-semibold text-white">{core?.todayLabel ?? "Cargando..."}</div>
@@ -68,6 +73,22 @@ const Dashboard = () => {
                 <div className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
                   {completionCount}/5
+                </div>
+                <div className="mt-3 space-y-2">
+                  {snapshot.coreLoading || snapshot.monthActivityLoading ? (
+                    <p className="text-sm text-slate-400">Analizando modulos pendientes...</p>
+                  ) : missingModules.length === 0 ? (
+                    <p className="text-sm text-slate-300">Dia operativo completo. No hay registros pendientes.</p>
+                  ) : (
+                    missingModules.map((module) => (
+                      <div key={module.key} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
+                        <span className="text-sm text-slate-200">{module.label}</span>
+                        <Button asChild size="sm" className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+                          <a href={module.href}>Registrar</a>
+                        </Button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
               <div className="app-surface-tile rounded-2xl p-4">

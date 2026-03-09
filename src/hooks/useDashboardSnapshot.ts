@@ -307,6 +307,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
   ]);
 
   return {
+    todayKey,
     monthRange: { monthStart, monthEnd, gridStart, gridEnd },
     monthActivity: monthActivityQuery.data,
     monthActivityLoading: monthActivityQuery.isLoading,
