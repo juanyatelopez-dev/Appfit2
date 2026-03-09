@@ -325,7 +325,7 @@ const Stats = () => {
         { isGuest },
       ),
     onSuccess: async () => {
-      toast.success("Revision semanal guardada.");
+      toast.success("Revisión semanal guardada.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["weekly_review_observation"] }),
         queryClient.invalidateQueries({ queryKey: ["weekly_review_summary"] }),
@@ -335,7 +335,7 @@ const Stats = () => {
       ]);
     },
     onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar la revision semanal.");
+      toast.error(error?.message || "No se pudo guardar la revisión semanal.");
     },
   });
 
@@ -347,7 +347,7 @@ const Stats = () => {
         <TrendingUp className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold">Progreso</h1>
-          <p className="text-sm text-muted-foreground">Analisis longitudinal, tendencias y revision semanal en un solo contexto.</p>
+          <p className="text-sm text-muted-foreground">Análisis longitudinal, tendencias y revisión semanal en un solo contexto.</p>
         </div>
       </div>
 
@@ -367,7 +367,7 @@ const Stats = () => {
             </div>
             <div>
               <p className="text-muted-foreground">Inicial</p>
-              <p className="font-semibold">{hasInitialFallback ? "Aun no definido" : `${formatNumber(initialWeight)} kg`}</p>
+              <p className="font-semibold">{hasInitialFallback ? "Aún no definido" : `${formatNumber(initialWeight)} kg`}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Objetivo</p>
@@ -445,8 +445,8 @@ const Stats = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Resumen de sueno</CardTitle>
-          <CardDescription>Meta y tendencias desde registros de sueno.</CardDescription>
+            <CardTitle>Resumen de sueño</CardTitle>
+          <CardDescription>Meta y tendencias desde registros de sueño.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="rounded-lg border p-3">
@@ -462,12 +462,12 @@ const Stats = () => {
             <p className="text-xl font-semibold">{(sleepMonthAvg / 60).toFixed(1)} h</p>
           </div>
           <div className="rounded-lg border p-3">
-            <p className="text-xs text-muted-foreground">Dias cumplidos</p>
+            <p className="text-xs text-muted-foreground">Días cumplidos</p>
             <p className="text-xl font-semibold">{sleepWeekMet}/7</p>
           </div>
           <div className="md:col-span-4">
             <Button asChild variant="outline">
-              <Link to="/today#sleep">Sueno</Link>
+              <Link to="/today#sleep">Sueño</Link>
             </Button>
           </div>
         </CardContent>
@@ -475,16 +475,16 @@ const Stats = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Resumen de alimentacion</CardTitle>
-          <CardDescription>Calorias y macros promedio en 7 y 30 dias.</CardDescription>
+          <CardTitle>Resumen de alimentación</CardTitle>
+          <CardDescription>Calorías y macros promedio en 7 y 30 días.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="rounded-lg border p-3">
-            <p className="text-xs text-muted-foreground">Calorias (7d)</p>
+            <p className="text-xs text-muted-foreground">Calorías (7d)</p>
             <p className="text-xl font-semibold">{nutrition7d?.averages.calories ?? 0} kcal</p>
           </div>
           <div className="rounded-lg border p-3">
-            <p className="text-xs text-muted-foreground">Proteina (7d)</p>
+            <p className="text-xs text-muted-foreground">Proteína (7d)</p>
             <p className="text-xl font-semibold">{nutrition7d?.averages.protein_g ?? 0} g</p>
           </div>
           <div className="rounded-lg border p-3">
@@ -508,10 +508,10 @@ const Stats = () => {
             <CardTitle className="text-sm">Biofeedback semanal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
-            <p className="font-semibold">Energia: {biofeedbackWeek?.avg_energy ?? 0}/10</p>
-            <p className="font-semibold">Estres: {biofeedbackWeek?.avg_stress ?? 0}/10</p>
-            <p className="font-semibold">Calidad de sueno: {biofeedbackWeek?.avg_sleep_quality ?? 0}/10</p>
-            <p className="text-xs text-muted-foreground">Dias registrados: {biofeedbackWeek?.days_logged ?? 0}/7</p>
+            <p className="font-semibold">Energía: {biofeedbackWeek?.avg_energy ?? 0}/10</p>
+            <p className="font-semibold">Estrés: {biofeedbackWeek?.avg_stress ?? 0}/10</p>
+            <p className="font-semibold">Calidad de sueño: {biofeedbackWeek?.avg_sleep_quality ?? 0}/10</p>
+            <p className="text-xs text-muted-foreground">Días registrados: {biofeedbackWeek?.days_logged ?? 0}/7</p>
             <Button asChild variant="outline" size="sm">
               <Link to="/today#biofeedback">Abrir biofeedback</Link>
             </Button>
@@ -519,7 +519,7 @@ const Stats = () => {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Composicion corporal</CardTitle>
+          <CardTitle className="text-sm">Composición corporal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <p className="font-semibold">
@@ -547,13 +547,13 @@ const Stats = () => {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Revision semanal</CardTitle>
+          <CardTitle className="text-sm">Revisión semanal</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <p className="font-semibold">
               Adherencia agua: {weeklyReview?.waterDaysMet ?? 0}/{weeklyReview?.waterDaysTotal ?? 7}
             </p>
-            <p className="font-semibold">Dias activos: {weeklyReview?.activeDays ?? 0}/7</p>
+            <p className="font-semibold">Días activos: {weeklyReview?.activeDays ?? 0}/7</p>
             <p className="font-semibold">Tendencia de peso: {trendLabel(weeklyReview?.weightTrend ?? null)}</p>
             <p className="text-xs text-muted-foreground">
               Cambio semanal:{" "}
@@ -569,7 +569,7 @@ const Stats = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Tendencia de peso</CardTitle>
-            <CardDescription>Peso corporal y promedio movil en el tiempo</CardDescription>
+            <CardDescription>Peso corporal y promedio móvil en el tiempo</CardDescription>
           </div>
           <div className="flex gap-2">
             {(["7d", "30d", "90d", "all"] as Range[]).map((r) => (
@@ -591,7 +591,7 @@ const Stats = () => {
                   <YAxis domain={["auto", "auto"]} />
                   <Tooltip
                     labelFormatter={(v) => new Date(String(v)).toLocaleDateString()}
-                    formatter={(value: number, name: string) => [`${value} kg`, name === "weight" ? "Peso" : "Promedio movil 7d"]}
+                    formatter={(value: number, name: string) => [`${value} kg`, name === "weight" ? "Peso" : "Promedio móvil 7d"]}
                   />
                   <Line type="monotone" dataKey="weight" stroke="hsl(var(--primary))" strokeWidth={2} dot />
                   <Line type="monotone" dataKey="movingAvg7" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} />
@@ -605,12 +605,12 @@ const Stats = () => {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Tendencias de alimentacion (7d)</CardTitle>
-            <CardDescription>Ultima semana de calorias y macros.</CardDescription>
+            <CardTitle>Tendencias de alimentación (7d)</CardTitle>
+            <CardDescription>Última semana de calorías y macros.</CardDescription>
           </CardHeader>
           <CardContent>
             {!nutrition7d?.days?.length ? (
-              <p className="text-sm text-muted-foreground">Aun no hay datos de alimentacion.</p>
+              <p className="text-sm text-muted-foreground">Aún no hay datos de alimentación.</p>
             ) : (
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -640,12 +640,12 @@ const Stats = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Tendencias de alimentacion (30d)</CardTitle>
-            <CardDescription>Calorias y macros por dia.</CardDescription>
+            <CardTitle>Tendencias de alimentación (30d)</CardTitle>
+            <CardDescription>Calorías y macros por día.</CardDescription>
           </CardHeader>
           <CardContent>
             {!nutrition30d?.days?.length ? (
-              <p className="text-sm text-muted-foreground">Aun no hay datos de alimentacion.</p>
+              <p className="text-sm text-muted-foreground">Aún no hay datos de alimentación.</p>
             ) : (
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -676,11 +676,11 @@ const Stats = () => {
         <Card>
           <CardHeader>
             <CardTitle>Biofeedback (30d)</CardTitle>
-            <CardDescription>Energia, estres y calidad de sueno por dia.</CardDescription>
+            <CardDescription>Energía, estrés y calidad de sueño por día.</CardDescription>
           </CardHeader>
           <CardContent>
             {biofeedbackChartData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aun no hay datos de biofeedback.</p>
+              <p className="text-sm text-muted-foreground">Aún no hay datos de biofeedback.</p>
             ) : (
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -702,11 +702,11 @@ const Stats = () => {
         <Card>
           <CardHeader>
             <CardTitle>Tendencia de grasa corporal</CardTitle>
-            <CardDescription>Estimacion de grasa corporal desde medidas corporales.</CardDescription>
+            <CardDescription>Estimación de grasa corporal desde medidas corporales.</CardDescription>
           </CardHeader>
           <CardContent>
             {bodyFatChartData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aun no hay medidas corporales con grasa corporal.</p>
+              <p className="text-sm text-muted-foreground">Aún no hay medidas corporales con grasa corporal.</p>
             ) : (
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -762,7 +762,7 @@ const Stats = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
-            Revision semanal
+            Revisión semanal
           </CardTitle>
           <CardDescription>Observaciones cualitativas para contextualizar las tendencias de la semana.</CardDescription>
         </CardHeader>
@@ -775,11 +775,11 @@ const Stats = () => {
               </p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Sueno promedio</p>
+              <p className="text-xs text-muted-foreground">Sueño promedio</p>
               <p className="text-2xl font-semibold">{weeklyReview ? (weeklyReview.avgSleepMinutes / 60).toFixed(1) : "0.0"} h</p>
             </div>
             <div className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">Dias activos</p>
+              <p className="text-xs text-muted-foreground">Días activos</p>
               <p className="text-2xl font-semibold">{weeklyReview?.activeDays ?? 0}/7</p>
             </div>
             <div className="rounded-lg border p-3">
@@ -794,7 +794,7 @@ const Stats = () => {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="hydration-state">Estado hidrico</Label>
+              <Label htmlFor="hydration-state">Estado hídrico</Label>
               <select
                 id="hydration-state"
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -802,7 +802,7 @@ const Stats = () => {
                 onChange={(event) => setHydrationState(event.target.value as HydrationState)}
               >
                 <option value="dry">Seco</option>
-                <option value="retention">Retencion</option>
+                <option value="retention">Retención</option>
                 <option value="variable">Variable</option>
               </select>
             </div>
@@ -828,12 +828,12 @@ const Stats = () => {
               id="weekly-notes"
               value={weeklyNotes}
               onChange={(event) => setWeeklyNotes(event.target.value)}
-              placeholder="Factores que explican el rendimiento, adherencia o recuperacion de esta semana..."
+              placeholder="Factores que explican el rendimiento, adherencia o recuperación de esta semana..."
             />
           </div>
 
           <Button onClick={() => saveWeeklyReviewMutation.mutate()} disabled={saveWeeklyReviewMutation.isPending}>
-            {saveWeeklyReviewMutation.isPending ? "Guardando..." : "Guardar revision semanal"}
+            {saveWeeklyReviewMutation.isPending ? "Guardando..." : "Guardar revisión semanal"}
           </Button>
         </CardContent>
       </Card>

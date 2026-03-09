@@ -40,7 +40,7 @@ const DashboardHeader = () => {
   const dateStr = today.toLocaleDateString(language === "es" ? "es-ES" : "en-US", options);
   const pageTitle = useMemo(() => resolvePageTitle(location.pathname, t), [location.pathname, t]);
 
-  const days = language === "es" ? ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const days = language === "es" ? ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentDay = today.getDay();
   const activeDayIndex = currentDay === 0 ? 6 : currentDay - 1;
   const mobileNavItems = [
@@ -64,7 +64,7 @@ const DashboardHeader = () => {
       await signOut();
       navigate("/auth", { replace: true });
     } catch (error: any) {
-      toast.error(error?.message || "No se pudo cerrar sesion.");
+      toast.error(error?.message || "No se pudo cerrar sesión.");
     }
   };
 
@@ -73,12 +73,12 @@ const DashboardHeader = () => {
       <div className="flex items-center gap-6">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu">
+            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menú">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-4">
-            <SheetTitle>Navegacion</SheetTitle>
+            <SheetTitle>Navegación</SheetTitle>
             <div className="mt-4 grid gap-2">
               {mobileNavItems.map((item) => (
                 <SheetClose asChild key={item.path}>
@@ -124,17 +124,17 @@ const DashboardHeader = () => {
           <DropdownMenuTrigger asChild>
             <button
               className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-colors"
-              aria-label="Registro rapido"
-              title="Registro rapido"
+              aria-label="Registro rápido"
+              title="Registro rápido"
             >
               <Plus className="w-5 h-5" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Registro rapido</DropdownMenuLabel>
+            <DropdownMenuLabel>Registro rápido</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => navigate("/today#water")}>Agregar agua</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate("/today#sleep")}>Agregar sueno</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => navigate("/today#sleep")}>Agregar sueño</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => navigate("/today#weight")}>Agregar peso</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => navigate("/today#nutrition")}>Agregar comida</DropdownMenuItem>
           </DropdownMenuContent>
@@ -146,8 +146,8 @@ const DashboardHeader = () => {
         <button
           className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-colors"
           onClick={handleAuthAction}
-          aria-label={isGuest ? "Ir a iniciar sesion" : "Cerrar sesion"}
-          title={isGuest ? "Cambiar cuenta" : "Cerrar sesion"}
+          aria-label={isGuest ? "Ir a iniciar sesión" : "Cerrar sesión"}
+          title={isGuest ? "Cambiar cuenta" : "Cerrar sesión"}
         >
           <LogOut className="w-5 h-5" />
         </button>

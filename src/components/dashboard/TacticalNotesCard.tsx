@@ -28,8 +28,8 @@ const TacticalNotesCard = ({ loading = false, todayNote, latestNote, onSave }: P
     return (
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
-          <CardTitle>Notas tacticas</CardTitle>
-          <CardDescription>Libreta personal del dia.</CardDescription>
+          <CardTitle>Notas tácticas</CardTitle>
+          <CardDescription>Libreta personal del día.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-10 w-full" />
@@ -42,8 +42,8 @@ const TacticalNotesCard = ({ loading = false, todayNote, latestNote, onSave }: P
   return (
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
       <CardHeader>
-        <CardTitle>Notas tacticas</CardTitle>
-        <CardDescription>Registra observaciones relevantes del dia y mantenlas visibles en tu calendario.</CardDescription>
+        <CardTitle>Notas tácticas</CardTitle>
+        <CardDescription>Registra observaciones relevantes del día y mantenlas visibles en tu calendario.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-2">

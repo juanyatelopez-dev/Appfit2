@@ -247,7 +247,7 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
           <Droplets className="h-5 w-5 text-primary" />
           Agua hoy
         </CardTitle>
-        <CardDescription>Registro rapido y seguimiento de objetivo diario.</CardDescription>
+        <CardDescription>Registro rápido y seguimiento de objetivo diario.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-end justify-between">
@@ -327,7 +327,7 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
         <div className="rounded-lg border p-3 text-sm">
           <p className="font-medium">Resumen semanal</p>
           <p className="text-muted-foreground">
-            Promedio: {weekSummary?.average_ml ?? 0} ml/dia | Cumplidos: {weekSummary?.days_met ?? 0}/
+            Promedio: {weekSummary?.average_ml ?? 0} ml/día | Cumplidos: {weekSummary?.days_met ?? 0}/
             {weekSummary?.days_total ?? 7}
           </p>
         </div>

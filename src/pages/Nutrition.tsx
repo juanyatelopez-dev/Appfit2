@@ -567,7 +567,7 @@ const Nutrition = () => {
           <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
             <div className="app-surface-panel rounded-[28px] p-5">
               <div className="flex items-center justify-between">
-                <div><p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Resumen metabolico</p><h3 className="mt-1 text-lg font-bold text-white">Base del plan diario</h3></div>
+                <div><p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Resumen metabólico</p><h3 className="mt-1 text-lg font-bold text-white">Base del plan diario</h3></div>
                 <div className="app-chip rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
                   {GOAL_LABELS[metabolicProfile?.goalType ?? "maintain"] ?? "Objetivo"}
                 </div>
@@ -599,7 +599,7 @@ const Nutrition = () => {
             </div>
 
             <div className="app-surface-panel rounded-[28px] p-5">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500"><Flame className="h-3.5 w-3.5 text-primary" />Perfil metabolico</div>
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500"><Flame className="h-3.5 w-3.5 text-primary" />Perfil metabólico</div>
               <div className="mt-4 grid gap-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-white/8 bg-slate-950/80 p-3">
@@ -608,7 +608,7 @@ const Nutrition = () => {
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-slate-950/80 p-3">
                     <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Edad</div>
-                    <div className="mt-2 text-sm text-white">{metabolicProfile?.age ?? "--"} anios</div>
+                    <div className="mt-2 text-sm text-white">{metabolicProfile?.age ?? "--"} años</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">

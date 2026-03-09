@@ -56,7 +56,7 @@ export const computeRecoveryScore = (input: RecoveryInputs): RecoveryResult => {
   const status = score >= 75 ? "Recuperacion Alta" : score >= 50 ? "Recuperacion Moderada" : "Recuperacion Baja";
 
   const drivers: string[] = [];
-  if (sleepSub < 0.65) drivers.push("Sueno bajo");
+  if (sleepSub < 0.65) drivers.push("Sueño bajo");
   if (stressNorm < 0.45) drivers.push("Estres alto");
   if (energyNorm < 0.5) drivers.push("Energia baja");
   if (hydrationSub < 0.7) drivers.push("Agua insuficiente");

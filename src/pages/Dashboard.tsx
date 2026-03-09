@@ -40,7 +40,7 @@ const Dashboard = () => {
   const todayActivity = snapshot.monthActivity?.get(snapshot.todayKey);
   const dailyModules = [
     { key: "water", label: "Agua", href: "#water", completed: (core?.waterTodayMl ?? 0) > 0 },
-    { key: "sleep", label: "Sueno", href: "#sleep", completed: (core?.sleepDay?.total_minutes ?? 0) > 0 },
+    { key: "sleep", label: "Sueño", href: "#sleep", completed: (core?.sleepDay?.total_minutes ?? 0) > 0 },
     { key: "weight", label: "Peso", href: "#weight", completed: (core?.latestWeight ?? null) !== null },
     { key: "biofeedback", label: "Biofeedback", href: "#biofeedback", completed: Boolean(core?.bioToday) },
     { key: "nutrition", label: "Comidas", href: "#nutrition", completed: Boolean(todayActivity?.hasNutrition) },
@@ -60,7 +60,7 @@ const Dashboard = () => {
             <div>
               <h1 className="text-3xl font-black tracking-tight">Hoy es tu centro operativo</h1>
               <p className="mt-2 max-w-2xl text-sm text-slate-300">
-                Registra peso, hidratacion, sueno, biofeedback y comidas del dia desde una sola pantalla. El objetivo es completar el tracking diario en menos de un minuto.
+                Registra peso, hidratación, sueño, biofeedback y comidas del día desde una sola pantalla. El objetivo es completar el tracking diario en menos de un minuto.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-[1fr_1.25fr_1fr]">
@@ -69,16 +69,16 @@ const Dashboard = () => {
                 <div className="mt-2 text-lg font-semibold text-white">{core?.todayLabel ?? "Cargando..."}</div>
               </div>
               <div className="app-surface-tile rounded-2xl p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Modulos completos</div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Módulos completos</div>
                 <div className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
                   {completionCount}/5
                 </div>
                 <div className="mt-3 space-y-2">
                   {snapshot.coreLoading || snapshot.monthActivityLoading ? (
-                    <p className="text-sm text-slate-400">Analizando modulos pendientes...</p>
+                    <p className="text-sm text-slate-400">Analizando módulos pendientes...</p>
                   ) : missingModules.length === 0 ? (
-                    <p className="text-sm text-slate-300">Dia operativo completo. No hay registros pendientes.</p>
+                    <p className="text-sm text-slate-300">Día operativo completo. No hay registros pendientes.</p>
                   ) : (
                     missingModules.map((module) => (
                       <div key={module.key} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
@@ -95,7 +95,7 @@ const Dashboard = () => {
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Consistencia 7d</div>
                 <div className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
                   <TimerReset className="h-4 w-4 text-primary" />
-                  {core?.activeDays7 ?? 0} dias activos
+                  {core?.activeDays7 ?? 0} días activos
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ const Dashboard = () => {
                 Enfoque
               </div>
               <p className="mt-2 text-sm text-slate-300">
-                Primero registra el dia. Luego usa Progreso y Calendario para interpretar tendencias y revisar adherencia.
+                Primero registra el día. Luego usa Progreso y Calendario para interpretar tendencias y revisar adherencia.
               </p>
             </div>
           </div>
@@ -162,7 +162,7 @@ const Dashboard = () => {
         <RecoveryCard
           loading={snapshot.coreLoading}
           score={core?.recovery.score ?? 0}
-          status={core?.recovery.status ?? "Recuperacion Moderada"}
+          status={core?.recovery.status ?? "Recuperación Moderada"}
           drivers={core?.recovery.drivers ?? []}
           subscores={
             core?.recovery.subscores ?? {

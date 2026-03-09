@@ -47,7 +47,7 @@ const SleepInsightsCard = ({ sleepMinutes, goalMinutes, quality, weekTotals, loa
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
       <CardContent className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Sueno hoy</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Sueño hoy</p>
           <Moon className={`h-4 w-4 ${goalMet ? "text-primary" : "text-muted-foreground"}`} />
         </div>
 
@@ -89,7 +89,7 @@ const SleepInsightsCard = ({ sleepMinutes, goalMinutes, quality, weekTotals, loa
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">Ultimos 7 dias</p>
+          <p className="text-xs text-muted-foreground">Últimos 7 días</p>
           <div className="grid grid-cols-7 gap-1.5 items-end h-16 rounded-lg border border-border/60 px-2 py-2">
             {weekBars.map((day) => {
               const value = Number(day.total_minutes || 0);
@@ -109,7 +109,7 @@ const SleepInsightsCard = ({ sleepMinutes, goalMinutes, quality, weekTotals, loa
         </div>
 
         <Button asChild size="sm" variant="outline" className="w-full">
-          <Link to="/sleep">Ir a Sueno</Link>
+          <Link to="/sleep">Ir a Sueño</Link>
         </Button>
       </CardContent>
     </Card>

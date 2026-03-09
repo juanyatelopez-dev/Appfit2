@@ -38,7 +38,7 @@ const WeightCard = ({ latest, initial, initialDate, weeklyDelta, movingAvg7 = nu
           <Scale className="h-5 w-5 text-primary" />
           Peso
         </CardTitle>
-        <CardDescription>Peso actual, cambio 7d, media movil y tendencia.</CardDescription>
+        <CardDescription>Peso actual, cambio 7d, media móvil y tendencia.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {error ? (
@@ -50,7 +50,7 @@ const WeightCard = ({ latest, initial, initialDate, weeklyDelta, movingAvg7 = nu
               Cambio semanal: {weeklyDelta === null ? "--" : `${weeklyDelta > 0 ? "+" : ""}${weeklyDelta.toFixed(1)} kg`}
             </p>
             <p className="text-sm text-muted-foreground border rounded-lg p-2">
-              Media movil 7d: {movingAvg7 === null ? "--" : `${movingAvg7.toFixed(2)} kg`}
+              Media móvil 7d: {movingAvg7 === null ? "--" : `${movingAvg7.toFixed(2)} kg`}
             </p>
             <p className="text-sm text-muted-foreground border rounded-lg p-2">Tendencia: {trend}</p>
             <p className="text-sm text-muted-foreground">

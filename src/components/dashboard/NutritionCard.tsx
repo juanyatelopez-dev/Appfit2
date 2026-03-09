@@ -57,7 +57,7 @@ const NutritionCard = () => {
           Ultima comida: {lastEntry ? `${lastEntry.food_name} (${Math.round(lastEntry.calories)} kcal)` : "Sin registros"}
         </p>
         <Button asChild size="sm" variant="outline" className="w-full">
-          <Link to="/nutrition">Ir a alimentacion</Link>
+          <Link to="/nutrition">Ir a alimentación</Link>
         </Button>
       </CardContent>
     </Card>

@@ -25,9 +25,9 @@ export type DashboardTrendMetricDefinition = {
 export const DASHBOARD_TREND_METRIC_DEFINITIONS: DashboardTrendMetricDefinition[] = [
   { key: "weight", label: "Peso (kg)", color: "hsl(var(--primary))" },
   { key: "water", label: "Agua (ml)", color: "#0ea5e9" },
-  { key: "sleep_hours", label: "Sueno (h)", color: "#6366f1" },
-  { key: "sleep_quality", label: "Calidad de sueno", color: "#f59e0b" },
-  { key: "energy", label: "Energia diaria", color: "#22c55e" },
+  { key: "sleep_hours", label: "Sueño (h)", color: "#6366f1" },
+  { key: "sleep_quality", label: "Calidad de sueño", color: "#f59e0b" },
+  { key: "energy", label: "Energía diaria", color: "#22c55e" },
   { key: "stress", label: "Estres percibido", color: "#ef4444" },
   { key: "training_energy", label: "Energia de entrenamiento", color: "#14b8a6" },
   { key: "hunger", label: "Hambre", color: "#f97316" },
@@ -36,7 +36,7 @@ export const DASHBOARD_TREND_METRIC_DEFINITIONS: DashboardTrendMetricDefinition[
   { key: "waist_cm", label: "Cintura (cm)", color: "#06b6d4" },
   { key: "body_fat_pct", label: "Grasa corporal (%)", color: "#a855f7" },
   { key: "completion_count", label: "Cumplimiento diario", color: "#eab308" },
-  { key: "goal_hits", label: "Metas del dia", color: "#38bdf8" },
+  { key: "goal_hits", label: "Metas del día", color: "#38bdf8" },
 ];
 
 export const DEFAULT_DASHBOARD_TREND_METRICS: DashboardTrendMetricKey[] = ["weight", "water", "sleep_hours"];

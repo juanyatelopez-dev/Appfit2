@@ -94,7 +94,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
       trends.map((row) => ({
         fecha: row.label,
         Agua: Math.round(row.water || 0),
-        Sueno: Number((row.sleep_hours || 0).toFixed(1)),
+        Sueño: Number((row.sleep_hours || 0).toFixed(1)),
       })),
     [trends],
   );
@@ -115,7 +115,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
         fecha: row.label,
         Energia: row.energy ?? 0,
         Estres: row.stress ?? 0,
-        CalidadSueno: row.sleep_quality ?? 0,
+        CalidadSueño: row.sleep_quality ?? 0,
       })),
     [trends],
   );
@@ -167,7 +167,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
         <Card>
           <Text>Dias activos (7d)</Text>
           <Metric>{activeDays}/7</Metric>
-          <Text>Actividad en agua, sueno, notas o biofeedback</Text>
+          <Text>Actividad en agua, sueño, notas o biofeedback</Text>
         </Card>
         <Card>
           <Text>Adherencia agua (7d)</Text>
@@ -177,7 +177,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
           <Text>Meta diaria: {waterGoal} ml</Text>
         </Card>
         <Card>
-          <Text>Adherencia sueno (7d)</Text>
+          <Text>Adherencia sueño (7d)</Text>
           <Metric>
             {sleepDaysMet}/{core?.sleep7d?.length || 7}
           </Metric>
@@ -187,13 +187,13 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Card>
-          <Title>Habitos diarios (7d)</Title>
-          <Text>Agua y sueno por dia.</Text>
+          <Title>Hábitos diarios (7d)</Title>
+          <Text>Agua y sueño por día.</Text>
           <AreaChart
             className="mt-4 h-72"
             data={hydrationSleepData}
             index="fecha"
-            categories={["Agua", "Sueno"]}
+            categories={["Agua", "Sueño"]}
             colors={["cyan", "indigo"]}
             valueFormatter={(value: number) => `${value}`}
           />
@@ -201,7 +201,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
 
         <Card>
           <Title>Consistencia de metricas</Title>
-          <Text>Completadas del To-Do vs metas de agua/sueno.</Text>
+          <Text>Completadas del To-Do vs metas de agua/sueño.</Text>
           <BarChart
             className="mt-4 h-72"
             data={consistencyData}
@@ -216,12 +216,12 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
       <div className="grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <Title>Biofeedback (7d)</Title>
-          <Text>Energia, estres y calidad de sueno subjetiva.</Text>
+          <Text>Energía, estrés y calidad de sueño subjetiva.</Text>
           <AreaChart
             className="mt-4 h-72"
             data={biofeedbackData}
             index="fecha"
-            categories={["Energia", "Estres", "CalidadSueno"]}
+            categories={["Energía", "Estrés", "CalidadSueño"]}
             colors={["blue", "rose", "violet"]}
             valueFormatter={(value: number) => `${value}/10`}
           />
@@ -242,7 +242,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
 
       <Card>
         <Title>Tendencia de peso</Title>
-        <Text>Peso diario y media movil corta.</Text>
+        <Text>Peso diario y media móvil corta.</Text>
         <AreaChart
           className="mt-4 h-72"
           data={weightData}

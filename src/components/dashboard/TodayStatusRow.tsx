@@ -82,7 +82,7 @@ const TodayStatusRow = ({
         progress={waterProgress}
       />
       <Item
-        title="Sueno hoy"
+        title="Sueño hoy"
         value={`${(sleepMinutes / 60).toFixed(1)} h`}
         subtitle={`Objetivo: ${(sleepGoalMinutes / 60).toFixed(1)} h`}
         icon={Moon}
@@ -91,12 +91,12 @@ const TodayStatusRow = ({
       <Item
         title="Biofeedback"
         value={`E ${energy ?? "--"} | S ${stress ?? "--"}`}
-        subtitle="Energia y estres diarios"
+        subtitle="Energía y estrés diarios"
         icon={Zap}
       />
       <Item
         title="Consistencia"
-        value={`${streakDays} dias`}
+        value={`${streakDays} días`}
         subtitle="Actividad registrada reciente"
         icon={Flame}
         progress={Math.min(100, Math.round((streakDays / 7) * 100))}

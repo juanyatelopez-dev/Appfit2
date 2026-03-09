@@ -43,7 +43,7 @@ const ProfileSummaryCard = ({
           <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <CardTitle className="text-xl">{name}</CardTitle>
-        {showGuestWarning && <p className="text-xs text-amber-700">Modo invitado: los datos no se guardaran.</p>}
+        {showGuestWarning && <p className="text-xs text-amber-700">Modo invitado: los datos no se guardarán.</p>}
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-3 text-center">

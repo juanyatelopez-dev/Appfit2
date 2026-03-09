@@ -72,7 +72,7 @@ const ProfileCalibrationPanel = ({
           Calibracion de perfil
         </div>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
-          Ajusta tus datos base, tu nivel de actividad y el objetivo metabolico que usaremos para tus calculos.
+          Ajusta tus datos base, tu nivel de actividad y el objetivo metabólico que usaremos para tus cálculos.
         </p>
       </div>
 
@@ -209,7 +209,7 @@ const ProfileCalibrationPanel = ({
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
             <Target className="h-3.5 w-3.5" />
-            Objetivo metabolico
+            Objetivo metabólico
           </div>
 
           <RadioGroup value={nutritionGoalType} onValueChange={(value) => onNutritionGoalTypeChange(value as NutritionGoalType)} className="gap-3">

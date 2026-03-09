@@ -168,7 +168,7 @@ const DailyBiofeedback = () => {
         <HeartPulse className="w-8 h-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold">Daily Biofeedback Check-in</h1>
-          <p className="text-sm text-muted-foreground">Escala subjetiva 1-10 para estado fisiologico diario.</p>
+          <p className="text-sm text-muted-foreground">Escala subjetiva 1-10 para estado fisiológico diario.</p>
         </div>
       </div>
 
@@ -191,7 +191,7 @@ const DailyBiofeedback = () => {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Sueno (7d)</CardTitle>
+            <CardTitle className="text-sm">Sueño (7d)</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">{weeklyAverages?.avg_sleep_quality ?? 0}</p>
@@ -225,7 +225,7 @@ const DailyBiofeedback = () => {
             </div>
 
             <MetricRow
-              label="Calidad de sueno"
+              label="Calidad de sueño"
               value={values.sleep_quality}
               onChange={(next) => setValues((prev) => ({ ...prev, sleep_quality: next }))}
             />
@@ -235,7 +235,7 @@ const DailyBiofeedback = () => {
               onChange={(next) => setValues((prev) => ({ ...prev, hunger_level: next }))}
             />
             <MetricRow
-              label="Energia diaria"
+              label="Energía diaria"
               value={values.daily_energy}
               onChange={(next) => setValues((prev) => ({ ...prev, daily_energy: next }))}
             />
@@ -278,7 +278,7 @@ const DailyBiofeedback = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Ultimos check-ins</CardTitle>
+            <CardTitle>Últimos check-ins</CardTitle>
             <CardDescription>Historial rapido</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -289,7 +289,7 @@ const DailyBiofeedback = () => {
                 <div key={row.id} className="rounded-lg border p-3 text-sm">
                   <p className="font-medium">{row.date_key}</p>
                   <p className="text-muted-foreground">
-                    Energia {row.daily_energy}/10 | Estres {row.perceived_stress}/10 | Sueno {row.sleep_quality}/10
+                    Energía {row.daily_energy}/10 | Estrés {row.perceived_stress}/10 | Sueño {row.sleep_quality}/10
                   </p>
                 </div>
               ))

@@ -231,13 +231,13 @@ const Calendar = () => {
       modules.push({ key: "water", label: "Agua", mode: "scroll", target: "quick-water" });
     }
     if (!hasSleep) {
-      modules.push({ key: "sleep", label: "Sueno", mode: "scroll", target: "quick-sleep" });
+      modules.push({ key: "sleep", label: "Sueño", mode: "scroll", target: "quick-sleep" });
     }
     if (!hasBiofeedback) {
       modules.push({ key: "biofeedback", label: "Biofeedback", mode: "link", target: `/biofeedback?date=${selectedDateKey}` });
     }
     if (!hasNutrition) {
-      modules.push({ key: "nutrition", label: "Alimentacion", mode: "link", target: `/nutrition?date=${selectedDateKey}` });
+      modules.push({ key: "nutrition", label: "Alimentación", mode: "link", target: `/nutrition?date=${selectedDateKey}` });
     }
 
     return modules;
@@ -440,7 +440,7 @@ const Calendar = () => {
         timeZone: timezone,
       }),
     onSuccess: async () => {
-      toast.success("Nota del dia guardada.");
+      toast.success("Nota del día guardada.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
         queryClient.invalidateQueries({ queryKey: ["calendar_day_note"] }),
@@ -571,11 +571,11 @@ const Calendar = () => {
           {selectedDay && selectedDayMissingModules.length > 0 && (
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader>
-                <CardTitle className="text-base">Completar este dia</CardTitle>
+                <CardTitle className="text-base">Completar este día</CardTitle>
                 <CardDescription>
                   {isPastSelectedDate
-                    ? "Si olvidaste registrar algo, puedes completar este dia ahora mismo."
-                    : "Todavia faltan registros para cerrar este dia."}
+                    ? "Si olvidaste registrar algo, puedes completar este día ahora mismo."
+                    : "Todavía faltan registros para cerrar este día."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -676,12 +676,12 @@ const Calendar = () => {
                   <div className="rounded-md border p-3 space-y-2">
                     <p className="text-sm text-muted-foreground">Biofeedback</p>
                     {!selectedBiofeedback ? (
-                      <p className="text-sm text-muted-foreground">Sin check-in para este dia.</p>
+                      <p className="text-sm text-muted-foreground">Sin check-in para este día.</p>
                     ) : (
                       <>
                         <p className="text-lg font-semibold">Check-in completado</p>
                         <p className="text-xs text-muted-foreground">
-                          Energia {selectedBiofeedback.daily_energy}/10 | Estres {selectedBiofeedback.perceived_stress}/10 | Sueno{" "}
+                          Energía {selectedBiofeedback.daily_energy}/10 | Estrés {selectedBiofeedback.perceived_stress}/10 | Sueño{" "}
                           {selectedBiofeedback.sleep_quality}/10
                         </p>
                         {selectedBiofeedback.notes ? (
@@ -695,9 +695,9 @@ const Calendar = () => {
                   </div>
 
                   <div className="rounded-md border p-3 space-y-2">
-                    <p className="text-sm text-muted-foreground">Alimentacion</p>
+                    <p className="text-sm text-muted-foreground">Alimentación</p>
                     {!selectedNutrition || selectedNutrition.totals.calories <= 0 ? (
-                      <p className="text-sm text-muted-foreground">Sin registros de alimentacion.</p>
+                      <p className="text-sm text-muted-foreground">Sin registros de alimentación.</p>
                     ) : (
                       <>
                         <p className="text-lg font-semibold">
@@ -709,7 +709,7 @@ const Calendar = () => {
                       </>
                     )}
                     <Button asChild variant="outline" size="sm">
-                      <Link to={`/nutrition?date=${selectedDateKey}`}>Abrir alimentacion</Link>
+                      <Link to={`/nutrition?date=${selectedDateKey}`}>Abrir alimentación</Link>
                     </Button>
                   </div>
 
@@ -724,13 +724,13 @@ const Calendar = () => {
                     <Textarea
                       value={noteContent}
                       onChange={(event) => setNoteContent(event.target.value)}
-                      placeholder="Observaciones tacticas del dia..."
+                      placeholder="Observaciones tácticas del día..."
                       className="min-h-24"
                     />
                     {selectedNote ? (
                       <p className="text-xs text-muted-foreground">Nota existente para {selectedDateKey}</p>
                     ) : (
-                      <p className="text-xs text-muted-foreground">Sin nota para este dia.</p>
+                      <p className="text-xs text-muted-foreground">Sin nota para este día.</p>
                     )}
                     <Button onClick={() => saveNoteMutation.mutate()} disabled={saveNoteMutation.isPending || !noteContent.trim()}>
                       Guardar nota
@@ -744,7 +744,7 @@ const Calendar = () => {
           <Card id="calendar-quick-add">
             <CardHeader>
               <CardTitle>{t("calendar.quickAddTitle")}</CardTitle>
-              <CardDescription>Los registros rapidos se guardaran en {selectedDateKey}.</CardDescription>
+              <CardDescription>Los registros rápidos se guardarán en {selectedDateKey}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div id="quick-water" className="space-y-2">

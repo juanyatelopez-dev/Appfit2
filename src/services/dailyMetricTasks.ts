@@ -10,7 +10,7 @@ export type DailyMetricTaskDefinition = {
 
 export const DAILY_METRIC_TASK_DEFINITIONS: DailyMetricTaskDefinition[] = [
   { key: "water", label: "Registrar agua", route: "/today#water" },
-  { key: "sleep", label: "Registrar sueno", route: "/today#sleep" },
+  { key: "sleep", label: "Registrar sueño", route: "/today#sleep" },
   { key: "weight", label: "Registrar peso", route: "/today#weight" },
   { key: "biofeedback", label: "Registrar biofeedback", route: "/today#biofeedback" },
   { key: "notes", label: "Registrar nota diaria", route: "/today" },

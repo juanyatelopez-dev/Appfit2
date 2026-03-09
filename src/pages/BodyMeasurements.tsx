@@ -230,7 +230,7 @@ const BodyMeasurements = () => {
           </CardHeader>
           <CardContent>
             {chartData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aun no hay datos suficientes.</p>
+              <p className="text-sm text-muted-foreground">Aún no hay datos suficientes.</p>
             ) : (
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">

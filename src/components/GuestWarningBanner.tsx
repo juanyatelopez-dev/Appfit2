@@ -13,7 +13,7 @@ const GuestWarningBanner: React.FC = () => {
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200 text-sm font-medium">
                     <AlertCircle className="h-4 w-4" />
-                    <span>Estas usando modo invitado. Tus datos no se guardaran.</span>
+                    <span>Estás usando modo invitado. Tus datos no se guardarán.</span>
                 </div>
                 <Button
                     size="sm"

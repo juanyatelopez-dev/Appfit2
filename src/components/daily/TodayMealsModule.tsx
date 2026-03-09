@@ -248,9 +248,9 @@ const TodayMealsModule = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UtensilsCrossed className="h-5 w-5 text-primary" />
-          Comidas del dia
+          Comidas del día
         </CardTitle>
-        <CardDescription>Logbook operativo del dia con carga rapida por comida.</CardDescription>
+        <CardDescription>Logbook operativo del día con carga rápida por comida.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr]">
@@ -272,7 +272,7 @@ const TodayMealsModule = () => {
             </p>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ritmo del dia</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ritmo del día</p>
             <div className="mt-3 grid gap-2 text-sm">
               <div className="rounded-xl border border-border/50 bg-background/50 p-3">
                 Ultima comida: {daySummary?.lastEntry ? `${daySummary.lastEntry.food_name} (${Math.round(daySummary.lastEntry.calories)} kcal)` : "Sin registro"}

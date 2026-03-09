@@ -63,7 +63,7 @@ const WeeklySummaryCard = ({
           <CalendarDays className="h-5 w-5 text-primary" />
           Resumen semanal
         </CardTitle>
-        <CardDescription>Ultimos 7 dias: agua, sueno, biofeedback y peso.</CardDescription>
+        <CardDescription>Últimos 7 días: agua, sueño, biofeedback y peso.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {error ? (
@@ -71,37 +71,37 @@ const WeeklySummaryCard = ({
         ) : (
           <>
             <p className="text-sm">
-              Agua promedio: <span className="font-semibold">{(waterAverageMl / 1000).toFixed(1)} L/dia</span>{" "}
+              Agua promedio: <span className="font-semibold">{(waterAverageMl / 1000).toFixed(1)} L/día</span>{" "}
               <span className="text-muted-foreground">({waterAverageMl} ml)</span>
             </p>
             <p className="text-sm">
-              Promedio 30d: <span className="font-semibold">{(waterMonthAverageMl / 1000).toFixed(1)} L/dia</span>{" "}
+              Promedio 30d: <span className="font-semibold">{(waterMonthAverageMl / 1000).toFixed(1)} L/día</span>{" "}
               <span className="text-muted-foreground">({waterMonthAverageMl} ml)</span>
             </p>
             <p className="text-sm">
               Objetivo agua cumplido: <span className="font-semibold">{waterDaysMet}/{waterDaysTotal}</span>
             </p>
             <p className="text-sm">
-              Sueno promedio: <span className="font-semibold">{(sleepAverageMinutes / 60).toFixed(1)} h/dia</span>{" "}
+              Sueño promedio: <span className="font-semibold">{(sleepAverageMinutes / 60).toFixed(1)} h/día</span>{" "}
               <span className="text-muted-foreground">({sleepAverageMinutes} min)</span>
             </p>
             <p className="text-sm">
-              Sueno 30d: <span className="font-semibold">{(sleepMonthAverageMinutes / 60).toFixed(1)} h/dia</span>{" "}
+              Sueño 30d: <span className="font-semibold">{(sleepMonthAverageMinutes / 60).toFixed(1)} h/día</span>{" "}
               <span className="text-muted-foreground">({sleepMonthAverageMinutes} min)</span>
             </p>
             <p className="text-sm">
-              Meta de sueno: <span className="font-semibold">{sleepDaysMet}/{sleepDaysTotal}</span>
+              Meta de sueño: <span className="font-semibold">{sleepDaysMet}/{sleepDaysTotal}</span>
             </p>
             <p className="text-sm">
               Tendencia peso: <span className="font-semibold">{weightTrend}</span>
             </p>
             <p className="text-sm">
-              Biofeedback 7d: <span className="font-semibold">Energia {bioEnergy}/10</span>,{" "}
-              <span className="font-semibold">Estres {bioStress}/10</span>,{" "}
-              <span className="font-semibold">Sueno {bioSleep}/10</span>
+              Biofeedback 7d: <span className="font-semibold">Energía {bioEnergy}/10</span>,{" "}
+              <span className="font-semibold">Estrés {bioStress}/10</span>,{" "}
+              <span className="font-semibold">Sueño {bioSleep}/10</span>
             </p>
             <p className="text-sm">
-              Dias activos (7d): <span className="font-semibold">{activeDays}/7</span>
+              Días activos (7d): <span className="font-semibold">{activeDays}/7</span>
             </p>
           </>
         )}
@@ -113,10 +113,10 @@ const WeeklySummaryCard = ({
             <Link to="/today#water">Agua</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link to="/today#sleep">Sueno</Link>
+            <Link to="/today#sleep">Sueño</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link to={weeklyReviewHref}>Revision semanal</Link>
+            <Link to={weeklyReviewHref}>Revisión semanal</Link>
           </Button>
         </div>
       </CardContent>

@@ -382,7 +382,7 @@ const Settings = () => {
               <h3 className="font-medium">Limpiar una fecha especifica</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Borra solo las categorias seleccionadas en una fecha concreta. Es la opcion mas segura para corregir errores diarios.
+              Borra solo las categorías seleccionadas en una fecha concreta. Es la opción más segura para corregir errores diarios.
             </p>
 
             <div className="space-y-2">
@@ -464,7 +464,7 @@ const Settings = () => {
               <h3 className="font-medium text-destructive">Reiniciar cuenta desde cero</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Borra historial, favoritos, presets y resetea el perfil metabolico para que vuelvas a comenzar desde onboarding.
+              Borra historial, favoritos, presets y resetea el perfil metabólico para que vuelvas a comenzar desde onboarding.
             </p>
 
             <AlertDialog open={isHardResetDialogOpen} onOpenChange={setIsHardResetDialogOpen}>

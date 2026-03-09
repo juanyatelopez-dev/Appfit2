@@ -21,7 +21,7 @@ const RecoveryCard = ({ loading = false, score, status, drivers, subscores }: Pr
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
           <CardTitle>Recovery Score</CardTitle>
-          <CardDescription>Estado de recuperacion diario.</CardDescription>
+          <CardDescription>Estado de recuperación diario.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-24 w-24 rounded-full" />
@@ -42,7 +42,7 @@ const RecoveryCard = ({ loading = false, score, status, drivers, subscores }: Pr
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
       <CardHeader>
         <CardTitle>Recovery Score</CardTitle>
-        <CardDescription>Modelo diario basado en sueno, biofeedback, hidratacion y consistencia.</CardDescription>
+        <CardDescription>Modelo diario basado en sueño, biofeedback, hidratación y consistencia.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -72,7 +72,7 @@ const RecoveryCard = ({ loading = false, score, status, drivers, subscores }: Pr
 
         <div className="grid gap-2 sm:grid-cols-2">
           <div className="rounded-lg border border-border/60 p-2">
-            <p className="text-xs text-muted-foreground">Sueno</p>
+            <p className="text-xs text-muted-foreground">Sueño</p>
             <Progress value={subscores.sleep} className="h-1.5 mt-1" />
           </div>
           <div className="rounded-lg border border-border/60 p-2">

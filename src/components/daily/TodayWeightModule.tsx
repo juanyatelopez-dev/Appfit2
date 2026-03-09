@@ -130,7 +130,7 @@ const TodayWeightModule = () => {
             <p className="text-xs text-muted-foreground">{latestEntry?.measured_at ?? "Sin historial"}</p>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Media movil 7d</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Media móvil 7d</p>
             <p className="mt-2 text-2xl font-semibold">
               {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
                 ? "--"

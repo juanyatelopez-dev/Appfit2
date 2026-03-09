@@ -114,7 +114,7 @@ const WeeklyTrendsCard = ({ loading = false, data }: Props) => {
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
           <CardTitle>Tendencias semanales</CardTitle>
-          <CardDescription>Evolucion de los ultimos 7 dias.</CardDescription>
+          <CardDescription>Evolución de los últimos 7 días.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-24 w-full" />
@@ -133,7 +133,7 @@ const WeeklyTrendsCard = ({ loading = false, data }: Props) => {
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle>Tendencias semanales</CardTitle>
-            <CardDescription>Personaliza y monitorea las metricas clave de los ultimos 7 dias.</CardDescription>
+            <CardDescription>Personaliza y monitorea las métricas clave de los últimos 7 días.</CardDescription>
           </div>
           <Popover>
             <PopoverTrigger asChild>

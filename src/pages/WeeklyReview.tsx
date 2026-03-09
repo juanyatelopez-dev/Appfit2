@@ -99,7 +99,7 @@ const WeeklyReview = () => {
         <ClipboardList className="w-8 h-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold">Revision semanal</h1>
-          <p className="text-sm text-muted-foreground">Resumen automatico de los ultimos 7 dias + observaciones.</p>
+          <p className="text-sm text-muted-foreground">Resumen automático de los últimos 7 días + observaciones.</p>
         </div>
       </div>
 
@@ -111,17 +111,17 @@ const WeeklyReview = () => {
           <CardContent>
             <p className="text-2xl font-semibold">{waterAdherencePct}%</p>
             <p className="text-xs text-muted-foreground">
-              {summary?.waterDaysMet ?? 0}/{summary?.waterDaysTotal ?? 7} dias con meta
+              {summary?.waterDaysMet ?? 0}/{summary?.waterDaysTotal ?? 7} días con meta
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Sueno promedio</CardTitle>
+            <CardTitle className="text-sm">Sueño promedio</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">{summary ? (summary.avgSleepMinutes / 60).toFixed(1) : "0.0"} h</p>
-            <p className="text-xs text-muted-foreground">Promedio de 7 dias</p>
+            <p className="text-xs text-muted-foreground">Promedio de 7 días</p>
           </CardContent>
         </Card>
         <Card>
@@ -130,7 +130,7 @@ const WeeklyReview = () => {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">{summary?.activeDays ?? 0}/7</p>
-            <p className="text-xs text-muted-foreground">Agua, sueno o biofeedback</p>
+            <p className="text-xs text-muted-foreground">Agua, sueño o biofeedback</p>
           </CardContent>
         </Card>
         <Card>
@@ -141,7 +141,7 @@ const WeeklyReview = () => {
             <p className="text-2xl font-semibold">
               {summary?.nutritionCalorieDaysMet ?? 0}/{summary?.nutritionDaysTotal ?? 7}
             </p>
-            <p className="text-xs text-muted-foreground">Dias cumpliendo calorias objetivo</p>
+            <p className="text-xs text-muted-foreground">Días cumpliendo calorías objetivo</p>
           </CardContent>
         </Card>
       </div>
@@ -158,7 +158,7 @@ const WeeklyReview = () => {
             <p className="text-sm text-muted-foreground">Biofeedback</p>
             <p className="font-medium">Energia: {summary?.avgBioEnergy ?? 0}/10</p>
             <p className="font-medium">Estres: {summary?.avgBioStress ?? 0}/10</p>
-            <p className="font-medium">Sueno subjetivo: {summary?.avgBioSleepQuality ?? 0}/10</p>
+            <p className="font-medium">Sueño subjetivo: {summary?.avgBioSleepQuality ?? 0}/10</p>
           </div>
           <div className="rounded-lg border p-3">
             <p className="text-sm text-muted-foreground">Peso</p>
@@ -170,7 +170,7 @@ const WeeklyReview = () => {
                 : `${summary.weightWeeklyChange > 0 ? "+" : ""}${summary.weightWeeklyChange.toFixed(2)} kg`}
             </p>
             <p className="font-medium">
-              Media movil 7d:{" "}
+              Media móvil 7d:{" "}
               {summary?.weightMovingAvg7 === null || summary?.weightMovingAvg7 === undefined
                 ? "--"
                 : `${summary.weightMovingAvg7.toFixed(2)} kg`}
@@ -202,7 +202,7 @@ const WeeklyReview = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="hydration-state">Estado hidrico</Label>
+              <Label htmlFor="hydration-state">Estado hídrico</Label>
               <select
                 id="hydration-state"
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"

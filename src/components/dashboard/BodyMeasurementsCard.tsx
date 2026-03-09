@@ -73,7 +73,7 @@ const BodyMeasurementsCard = ({
       <Card className={`rounded-2xl border-border/60 bg-card/80 shadow-sm ${className ?? ""}`}>
         <CardHeader>
           <CardTitle>Resumen de medidas corporales</CardTitle>
-          <CardDescription>Aun no hay medidas corporales</CardDescription>
+          <CardDescription>Aún no hay medidas corporales</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">Registra cuello, cintura, cadera, brazo y muslo para ver el maniqui interactivo.</p>

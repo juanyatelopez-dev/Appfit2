@@ -94,7 +94,7 @@ const Goals = () => {
       await updateProfile(payload);
       if (isGuest) {
         saveGuestWeightGoal(payload);
-        toast.info("Modo invitado: los cambios no se guardaran en tu cuenta.");
+        toast.info("Modo invitado: los cambios no se guardarán en tu cuenta.");
       } else {
         toast.success("Meta de peso guardada.");
       }
@@ -184,7 +184,7 @@ const Goals = () => {
               </SelectContent>
             </Select>
           </div>
-          {isGuest && <p className="text-xs text-amber-700">Modo invitado: los datos no se guardaran en tu cuenta.</p>}
+          {isGuest && <p className="text-xs text-amber-700">Modo invitado: los datos no se guardarán en tu cuenta.</p>}
           <Button onClick={handleSaveGoal}>Guardar meta</Button>
         </CardContent>
       </Card>

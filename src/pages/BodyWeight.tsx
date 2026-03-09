@@ -180,7 +180,7 @@ const BodyWeight = () => {
           queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
           queryClient.invalidateQueries({ queryKey: ["stats"] }),
         ]);
-        toast.info("Modo invitado: los registros de peso no se guardaran en tu cuenta.");
+        toast.info("Modo invitado: los registros de peso no se guardarán en tu cuenta.");
         resetForm();
         return;
       }
@@ -259,7 +259,7 @@ const BodyWeight = () => {
             {latestWeight !== null ? ` Ultimo: ${latestWeight} kg` : ""}
           </p>
           <p className="text-xs text-muted-foreground">
-            Media movil 7d:{" "}
+            Media móvil 7d:{" "}
             {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
               ? "--"
               : `${trendAnalysis.movingAvg7.toFixed(2)} kg`}{" "}
@@ -270,7 +270,7 @@ const BodyWeight = () => {
             | Tendencia: {trendLabel}
           </p>
           {isGuest && (
-            <p className="text-xs text-amber-700 mt-1">Modo invitado: los registros de peso no se guardaran en tu cuenta.</p>
+            <p className="text-xs text-amber-700 mt-1">Modo invitado: los registros de peso no se guardarán en tu cuenta.</p>
           )}
         </div>
       </div>
@@ -313,7 +313,7 @@ const BodyWeight = () => {
       <Card>
         <CardHeader>
           <CardTitle>{editingEntryId ? "Editar registro" : "Agregar registro"}</CardTitle>
-          <CardDescription>Guarda un registro por dia.</CardDescription>
+          <CardDescription>Guarda un registro por día.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-4">
@@ -373,7 +373,7 @@ const BodyWeight = () => {
           {isLoading && !isGuest ? (
             <p className="text-sm text-muted-foreground">Cargando registros...</p>
           ) : displayedEntries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aun no hay registros.</p>
+            <p className="text-sm text-muted-foreground">Aún no hay registros.</p>
           ) : (
             <Table>
               <TableHeader>

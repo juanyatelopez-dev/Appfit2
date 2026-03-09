@@ -181,7 +181,7 @@ const DailyMetricsTodoCard = ({ core }: { core: DashboardCore | null | undefined
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Flame className="mr-1 h-3.5 w-3.5" />
-              Racha: {streakDays} dia{streakDays === 1 ? "" : "s"}
+              Racha: {streakDays} día{streakDays === 1 ? "" : "s"}
             </div>
             <Popover>
               <PopoverTrigger asChild>

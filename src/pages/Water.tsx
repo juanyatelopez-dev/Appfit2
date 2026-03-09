@@ -68,7 +68,7 @@ const Water = () => {
       <Card>
         <CardHeader>
           <CardTitle>Analitica de agua</CardTitle>
-          <CardDescription>Dia, semana y mes con totales diarios.</CardDescription>
+          <CardDescription>Día, semana y mes con totales diarios.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -82,7 +82,7 @@ const Water = () => {
             </div>
             <div className="rounded-lg border p-3">
               <p className="text-xs text-muted-foreground">Rango</p>
-              <p className="text-xl font-semibold">{range === "7d" ? "Ultimos 7 dias" : range === "30d" ? "Ultimos 30 dias" : "Este mes"}</p>
+              <p className="text-xl font-semibold">{range === "7d" ? "Últimos 7 días" : range === "30d" ? "Últimos 30 días" : "Este mes"}</p>
             </div>
           </div>
 
@@ -118,7 +118,7 @@ const Water = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Historial del dia seleccionado</CardTitle>
+          <CardTitle>Historial del día seleccionado</CardTitle>
           <CardDescription>Eventos individuales del consumo de agua.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

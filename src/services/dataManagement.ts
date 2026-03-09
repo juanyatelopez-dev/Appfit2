@@ -13,11 +13,11 @@ export type ResettableDayScope =
 
 export const RESETTABLE_DAY_SCOPES: Array<{ key: ResettableDayScope; label: string; description: string }> = [
   { key: "water", label: "Agua", description: "Borra registros de hidratacion de la fecha elegida." },
-  { key: "sleep", label: "Sueno", description: "Elimina logs de sueno y sus totales del dia." },
-  { key: "nutrition", label: "Nutricion", description: "Borra comidas y resumenes metabolicos diarios." },
+  { key: "sleep", label: "Sueño", description: "Elimina logs de sueño y sus totales del día." },
+  { key: "nutrition", label: "Nutrición", description: "Borra comidas y resúmenes metabólicos diarios." },
   { key: "biofeedback", label: "Biofeedback", description: "Quita la captura diaria de sensaciones." },
   { key: "notes", label: "Notas", description: "Elimina la nota diaria guardada para esa fecha." },
-  { key: "measurements", label: "Medidas", description: "Borra medidas corporales del dia seleccionado." },
+  { key: "measurements", label: "Medidas", description: "Borra medidas corporales del día seleccionado." },
   { key: "weight", label: "Peso", description: "Elimina el registro de peso de esa fecha." },
   { key: "checkins", label: "Check-in", description: "Quita el check-in diario de seguimiento." },
   { key: "tasks", label: "Tareas", description: "Borra tareas creadas para esa fecha." },

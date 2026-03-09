@@ -77,7 +77,7 @@ const Onboarding = () => {
     if (birthDate) {
       const age = calculateAge(birthDate);
       if (age === null || age < 12 || age > 95) {
-        toast.error("La edad debe estar entre 12 y 95 anios.");
+        toast.error("La edad debe estar entre 12 y 95 años.");
         return;
       }
     }
@@ -121,9 +121,9 @@ const Onboarding = () => {
       <div className="mx-auto max-w-3xl">
         <Card>
           <CardHeader>
-            <CardTitle>Configura tu perfil metabolico</CardTitle>
+            <CardTitle>Configura tu perfil metabólico</CardTitle>
             <CardDescription>
-              Esta configuracion conecta onboarding, perfil, biometria y nutricion para calcular targets automaticos.
+              Esta configuración conecta onboarding, perfil, biometría y nutrición para calcular targets automáticos.
             </CardDescription>
           </CardHeader>
 
@@ -141,7 +141,7 @@ const Onboarding = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Sexo biologico</Label>
+                  <Label>Sexo biológico</Label>
                   <Select value={biologicalSex} onValueChange={(value) => setBiologicalSex(value as "male" | "female")}>
                     <SelectTrigger>
                       <SelectValue />
@@ -165,7 +165,7 @@ const Onboarding = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Objetivo fisico</Label>
+                <Label>Objetivo físico</Label>
                 <Select value={nutritionGoalType} onValueChange={(value) => setNutritionGoalType(value as typeof nutritionGoalType)}>
                   <SelectTrigger>
                     <SelectValue />

@@ -181,7 +181,7 @@ describe("Stats page", () => {
 
     renderStats();
 
-    expect(await screen.findByText("Aun no definido")).toBeInTheDocument();
+    expect(await screen.findByText("Aún no definido")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Registrar peso" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Completar onboarding" })).toBeInTheDocument();
   });

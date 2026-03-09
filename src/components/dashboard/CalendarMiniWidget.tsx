@@ -111,7 +111,7 @@ const CalendarMiniWidget = ({ month, onMonthChange, activity, loading = false }:
         <div className="rounded-lg border border-border/60 p-3 text-xs space-y-1">
           <p className="font-medium">{selectedDateKey}</p>
           <p className="text-muted-foreground">
-            Agua: {selected?.waterMl ?? 0} ml | Sueno: {((selected?.sleepMinutes ?? 0) / 60).toFixed(1)} h
+            Agua: {selected?.waterMl ?? 0} ml | Sueño: {((selected?.sleepMinutes ?? 0) / 60).toFixed(1)} h
           </p>
           <p className="text-muted-foreground">
             Peso: {selected?.weightKg !== null && selected?.weightKg !== undefined ? `${selected.weightKg} kg` : "--"} | Bio:{" "}

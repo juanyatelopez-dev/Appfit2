@@ -132,7 +132,7 @@ const Profile = () => {
     const parsedFatGoal = fatGoal ? Number(fatGoal) : 70;
 
     if (parsedBirthDate && Number.isNaN(parsedBirthDate.getTime())) {
-      toast.error("La fecha de nacimiento no es valida.");
+        toast.error("La fecha de nacimiento no es válida.");
       return;
     }
     if (parsedBirthDate) {
@@ -143,7 +143,7 @@ const Profile = () => {
         age -= 1;
       }
       if (age < 12 || age > 95) {
-        toast.error("La edad debe estar entre 12 y 95 anios.");
+        toast.error("La edad debe estar entre 12 y 95 años.");
         return;
       }
     }
@@ -164,15 +164,15 @@ const Profile = () => {
       return;
     }
     if (!Number.isFinite(parsedSleepGoal) || parsedSleepGoal <= 0 || parsedSleepGoal > 1440) {
-      toast.error("La meta de sueno debe estar entre 1 y 1440 minutos.");
+      toast.error("La meta de sueño debe estar entre 1 y 1440 minutos.");
       return;
     }
     if (!Number.isFinite(parsedCalorieGoal) || parsedCalorieGoal <= 0) {
-      toast.error("La meta de calorias debe ser mayor que 0.");
+      toast.error("La meta de calorías debe ser mayor que 0.");
       return;
     }
     if (!Number.isFinite(parsedProteinGoal) || parsedProteinGoal < 0) {
-      toast.error("La meta de proteina no puede ser negativa.");
+      toast.error("La meta de proteína no puede ser negativa.");
       return;
     }
     if (!Number.isFinite(parsedCarbGoal) || parsedCarbGoal < 0) {
@@ -260,9 +260,9 @@ const Profile = () => {
                   <Flag className="h-3.5 w-3.5" />
                   Perfil Fitness
                 </div>
-                <h1 className="mt-3 text-3xl font-black tracking-tight">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabolico")}</h1>
+                <h1 className="mt-3 text-3xl font-black tracking-tight">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabólico")}</h1>
                 <p className="mt-2 text-sm text-slate-300">
-                  Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabolicas.
+                  Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabólicas.
                 </p>
               </div>
 
@@ -305,14 +305,14 @@ const Profile = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Objetivo metabolico</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Objetivo metabólico</p>
               <p className="mt-2 text-lg font-semibold">{selectedGoal?.label ?? "Mantener peso"}</p>
               <p className="text-sm text-muted-foreground">{selectedGoal?.description}</p>
             </div>
             <div className="rounded-2xl border border-border/60 bg-background/50 p-4 text-sm">
-              <p>Sueno: {sleepGoalMinutes || "480"} min</p>
-              <p>Calorias: {calorieGoal || "2000"} kcal</p>
-              <p>Proteina: {proteinGoal || "150"} g</p>
+              <p>Sueño: {sleepGoalMinutes || "480"} min</p>
+              <p>Calorías: {calorieGoal || "2000"} kcal</p>
+              <p>Proteína: {proteinGoal || "150"} g</p>
               <p>Carbs: {carbGoal || "250"} g</p>
               <p>Grasas: {fatGoal || "70"} g</p>
             </div>
@@ -322,8 +322,8 @@ const Profile = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Configuracion del plan</CardTitle>
-          <CardDescription>Todo tu modelo metabolico y tus metas en una sola pantalla.</CardDescription>
+          <CardTitle>Configuración del plan</CardTitle>
+          <CardDescription>Todo tu modelo metabólico y tus metas en una sola pantalla.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSave}>
           <CardContent className="space-y-8">
@@ -356,7 +356,7 @@ const Profile = () => {
               <Card className="border-border/60 bg-background/40">
                 <CardHeader>
                   <CardTitle className="text-lg">Objetivo de peso</CardTitle>
-                  <CardDescription>Define la direccion, el peso meta y la fecha objetivo.</CardDescription>
+                  <CardDescription>Define la dirección, el peso meta y la fecha objetivo.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -370,7 +370,7 @@ const Profile = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Direccion de la meta</Label>
+                    <Label>Dirección de la meta</Label>
                     <Select value={goalDirection} onValueChange={(value: GoalDirection) => setGoalDirection(value)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -383,27 +383,27 @@ const Profile = () => {
                     </Select>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Si dejas el peso objetivo vacio, el plan seguira usando solo tus metas metabolicas diarias.
+                    Si dejas el peso objetivo vacío, el plan seguirá usando solo tus metas metabólicas diarias.
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="border-border/60 bg-background/40">
                 <CardHeader>
-                  <CardTitle className="text-lg">Metas metabolicas</CardTitle>
-                  <CardDescription>Calorias, macros y sueno objetivo del plan.</CardDescription>
+                  <CardTitle className="text-lg">Metas metabólicas</CardTitle>
+                  <CardDescription>Calorías, macros y sueño objetivo del plan.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="sleepGoal">Meta de sueno (min)</Label>
+                    <Label htmlFor="sleepGoal">Meta de sueño (min)</Label>
                     <Input id="sleepGoal" type="number" min="1" max="1440" value={sleepGoalMinutes} onChange={(event) => setSleepGoalMinutes(event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="calorieGoal">Calorias objetivo</Label>
+                    <Label htmlFor="calorieGoal">Calorías objetivo</Label>
                     <Input id="calorieGoal" type="number" min="1" value={calorieGoal} onChange={(event) => setCalorieGoal(event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="proteinGoal">Proteina objetivo (g)</Label>
+                    <Label htmlFor="proteinGoal">Proteína objetivo (g)</Label>
                     <Input id="proteinGoal" type="number" min="0" value={proteinGoal} onChange={(event) => setProteinGoal(event.target.value)} />
                   </div>
                   <div className="space-y-2">

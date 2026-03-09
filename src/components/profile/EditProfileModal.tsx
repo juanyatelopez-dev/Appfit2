@@ -117,7 +117,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
         age -= 1;
       }
       if (age < 12 || age > 95) {
-        toast.error("La edad debe estar entre 12 y 95 anios.");
+        toast.error("La edad debe estar entre 12 y 95 años.");
         return;
       }
     }
@@ -157,7 +157,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
       ]);
 
       if (isGuest) {
-        toast.info("Modo invitado: los cambios no se guardaran.");
+        toast.info("Modo invitado: los cambios no se guardarán.");
       } else {
         toast.success("Perfil actualizado correctamente");
       }
@@ -183,7 +183,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
         <form onSubmit={handleSave} className="space-y-4 py-4">
           {isGuest && (
             <Alert>
-              <AlertDescription>Modo invitado: los cambios no se guardaran.</AlertDescription>
+              <AlertDescription>Modo invitado: los cambios no se guardarán.</AlertDescription>
             </Alert>
           )}
 

@@ -140,7 +140,7 @@ const TodayBiofeedbackModule = () => {
               <br />
               Estres {todayData?.perceived_stress ?? "--"}/10
               <br />
-              Sueno {todayData?.sleep_quality ?? "--"}/10
+              Sueño {todayData?.sleep_quality ?? "--"}/10
             </p>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
@@ -150,14 +150,14 @@ const TodayBiofeedbackModule = () => {
               <br />
               Estres {weeklyAverages?.avg_stress ?? 0}/10
               <br />
-              Sueno {weeklyAverages?.avg_sleep_quality ?? 0}/10
+              Sueño {weeklyAverages?.avg_sleep_quality ?? 0}/10
             </p>
           </div>
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
           <p className="text-sm text-muted-foreground">
-            {todayData ? "Ya tienes check-in hoy. Puedes ajustarlo sin cambiar de pantalla." : "Aun no registras tu estado fisiologico de hoy."}
+            {todayData ? "Ya tienes check-in hoy. Puedes ajustarlo sin cambiar de pantalla." : "Aún no registras tu estado fisiológico de hoy."}
           </p>
           <Button className="mt-3" onClick={() => setDialogOpen(true)}>
             {todayData ? "Editar check-in" : "Registrar check-in"}
@@ -171,9 +171,9 @@ const TodayBiofeedbackModule = () => {
             <DialogTitle>Check-in fisiologico de hoy</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
-            <MetricInput label="Calidad de sueno" value={values.sleep_quality} onChange={(next) => setValues((prev) => ({ ...prev, sleep_quality: next }))} />
+            <MetricInput label="Calidad de sueño" value={values.sleep_quality} onChange={(next) => setValues((prev) => ({ ...prev, sleep_quality: next }))} />
             <MetricInput label="Hambre" value={values.hunger_level} onChange={(next) => setValues((prev) => ({ ...prev, hunger_level: next }))} />
-            <MetricInput label="Energia diaria" value={values.daily_energy} onChange={(next) => setValues((prev) => ({ ...prev, daily_energy: next }))} />
+            <MetricInput label="Energía diaria" value={values.daily_energy} onChange={(next) => setValues((prev) => ({ ...prev, daily_energy: next }))} />
             <MetricInput label="Energia entrenando" value={values.training_energy} onChange={(next) => setValues((prev) => ({ ...prev, training_energy: next }))} />
             <MetricInput label="Estres" value={values.perceived_stress} onChange={(next) => setValues((prev) => ({ ...prev, perceived_stress: next }))} />
             <MetricInput label="Digestion" value={values.digestion} onChange={(next) => setValues((prev) => ({ ...prev, digestion: next }))} />
@@ -185,7 +185,7 @@ const TodayBiofeedbackModule = () => {
               id="today-bio-notes"
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Contexto del dia, molestias, sensaciones..."
+              placeholder="Contexto del día, molestias, sensaciones..."
             />
           </div>
           <DialogFooter>
