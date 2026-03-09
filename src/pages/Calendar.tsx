@@ -10,6 +10,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import { addWaterIntake, getWaterGoal, getWaterLogsByDate, getWaterRangeTotals, type WaterLog } from "@/services/waterIntake";
 import {
+  getAllBodyMetrics,
   getGuestBodyMetrics,
   listBodyMetricsByRange,
   saveGuestBodyMetrics,
@@ -196,6 +197,14 @@ const Calendar = () => {
       ),
     enabled: Boolean(user?.id) || isGuest,
   });
+  const { data: selectedWeightEntry } = useQuery({
+    queryKey: ["calendar_day_weight", user?.id, selectedDateKey, isGuest],
+    queryFn: async () => {
+      const entries = await getAllBodyMetrics(user?.id ?? null, isGuest);
+      return entries.find((entry) => entry.measured_at === selectedDateKey) ?? null;
+    },
+    enabled: Boolean(user?.id) || isGuest,
+  });
 
   useEffect(() => {
     setNoteTitle(selectedNote?.title ?? "");
@@ -207,26 +216,32 @@ const Calendar = () => {
   const selectedDayMissingModules = useMemo(() => {
     if (!selectedDay) return [];
 
+    const hasWeight = Boolean(selectedWeightEntry) || selectedDay.weightKg !== null;
+    const hasWater = selectedDayLogs.length > 0 || selectedDay.totalWaterMl > 0;
+    const hasSleep = (selectedSleepDay?.total_minutes ?? 0) > 0 || selectedDay.totalSleepMinutes > 0;
+    const hasBiofeedback = Boolean(selectedBiofeedback) || selectedDay.hasBiofeedback;
+    const hasNutrition = Boolean(selectedNutrition && selectedNutrition.totals.calories > 0) || selectedDay.hasNutrition;
+
     const modules: Array<{ key: string; label: string; mode: "scroll" | "link"; target: string }> = [];
 
-    if (!selectedDay.hasWeight) {
+    if (!hasWeight) {
       modules.push({ key: "weight", label: "Peso", mode: "scroll", target: "quick-weight" });
     }
-    if (!selectedDay.hasWater) {
+    if (!hasWater) {
       modules.push({ key: "water", label: "Agua", mode: "scroll", target: "quick-water" });
     }
-    if (!selectedDay.hasSleep) {
+    if (!hasSleep) {
       modules.push({ key: "sleep", label: "Sueno", mode: "scroll", target: "quick-sleep" });
     }
-    if (!selectedDay.hasBiofeedback) {
+    if (!hasBiofeedback) {
       modules.push({ key: "biofeedback", label: "Biofeedback", mode: "link", target: `/biofeedback?date=${selectedDateKey}` });
     }
-    if (!selectedDay.hasNutrition) {
+    if (!hasNutrition) {
       modules.push({ key: "nutrition", label: "Alimentacion", mode: "link", target: `/nutrition?date=${selectedDateKey}` });
     }
 
     return modules;
-  }, [selectedDateKey, selectedDay]);
+  }, [selectedBiofeedback, selectedDateKey, selectedDay, selectedDayLogs.length, selectedNutrition, selectedSleepDay?.total_minutes, selectedWeightEntry]);
 
   const scrollToQuickAdd = (sectionId: string) => {
     const target = document.getElementById(sectionId);
@@ -349,6 +364,7 @@ const Calendar = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
         queryClient.invalidateQueries({ queryKey: ["body_metrics"] }),
+        queryClient.invalidateQueries({ queryKey: ["calendar_day_weight"] }),
         queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
         queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
         queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
