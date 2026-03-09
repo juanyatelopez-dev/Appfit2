@@ -245,7 +245,7 @@ const Profile = () => {
   return (
     <div className="container max-w-6xl space-y-6 py-8">
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="overflow-hidden rounded-[30px] border-border/60 bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.14),_transparent_35%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(15,23,42,0.92))] text-slate-100">
+        <Card className="app-surface-hero overflow-hidden rounded-[30px] text-slate-100">
           <CardContent className="grid gap-5 p-6 md:grid-cols-[auto_1fr]">
             <div className="flex items-start justify-center">
               <Avatar className="h-24 w-24">
@@ -256,7 +256,7 @@ const Profile = () => {
             </div>
             <div className="space-y-4">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-300">
+                <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
                   <Flag className="h-3.5 w-3.5" />
                   Perfil Fitness
                 </div>
@@ -267,19 +267,19 @@ const Profile = () => {
               </div>
 
               <div className="grid gap-3 md:grid-cols-4">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="app-surface-tile rounded-2xl p-4">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Actual</p>
                   <p className="mt-2 text-xl font-semibold text-white">{formatNumber(latestWeight)}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="app-surface-tile rounded-2xl p-4">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Inicial</p>
                   <p className="mt-2 text-xl font-semibold text-white">{formatNumber(initialWeight)}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="app-surface-tile rounded-2xl p-4">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Objetivo</p>
                   <p className="mt-2 text-xl font-semibold text-white">{formatNumber(targetWeightValue)}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="app-surface-tile rounded-2xl p-4">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progreso</p>
                   <p className="mt-2 text-xl font-semibold text-white">{progress === null ? "--" : `${progress.toFixed(0)}%`}</p>
                 </div>

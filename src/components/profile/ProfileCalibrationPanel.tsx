@@ -65,10 +65,10 @@ const ProfileCalibrationPanel = ({
   const age = calculateAge(birthDate);
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-slate-800/80 bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.18),_transparent_35%),linear-gradient(180deg,_rgba(2,6,23,0.98),_rgba(3,10,28,0.96))] text-slate-100 shadow-[0_24px_80px_-40px_rgba(8,145,178,0.55)]">
+    <section className="app-surface-hero overflow-hidden rounded-[28px] text-slate-100">
       <div className="border-b border-white/5 px-5 py-5 sm:px-6">
         <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-100/90">
-          <UserRound className="h-4 w-4 text-teal-300" />
+          <UserRound className="h-4 w-4 text-primary" />
           Calibracion de perfil
         </div>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
@@ -84,14 +84,14 @@ const ProfileCalibrationPanel = ({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div className="app-surface-tile rounded-2xl p-3">
               <Label className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Edad</Label>
               <div className="mt-2 flex h-12 items-center rounded-xl border border-white/5 bg-slate-950/80 px-4 text-lg font-semibold">
                 {age ?? "--"}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div className="app-surface-tile rounded-2xl p-3">
               <Label className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Sexo</Label>
               <div className="mt-2 grid h-12 grid-cols-2 gap-2">
                 {sexOptions.map((option) => {
@@ -105,7 +105,7 @@ const ProfileCalibrationPanel = ({
                       className={cn(
                         "rounded-xl border text-sm font-semibold transition-colors",
                         isSelected
-                          ? "border-teal-400/70 bg-teal-400/15 text-white"
+                          ? "border-primary/70 bg-primary/15 text-white"
                           : "border-white/10 bg-slate-950/80 text-slate-300 hover:border-white/20 hover:text-white",
                       )}
                     >
@@ -116,7 +116,7 @@ const ProfileCalibrationPanel = ({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div className="app-surface-tile rounded-2xl p-3">
               <Label htmlFor="calibration-height" className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
                 <Ruler className="h-3.5 w-3.5" />
                 Altura (cm)
@@ -134,7 +134,7 @@ const ProfileCalibrationPanel = ({
               />
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <div className="app-surface-tile rounded-2xl p-3">
               <Label htmlFor="calibration-weight" className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
                 <Scale className="h-3.5 w-3.5" />
                 Peso (kg)
@@ -153,7 +153,7 @@ const ProfileCalibrationPanel = ({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <div className="app-surface-tile rounded-2xl p-3">
             <Label htmlFor="calibration-birth-date" className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
               Fecha de nacimiento
             </Label>
@@ -184,7 +184,7 @@ const ProfileCalibrationPanel = ({
                   className={cn(
                     optionCardClassName,
                     isSelected
-                      ? "border-teal-300/70 bg-teal-400/10 shadow-[0_0_0_1px_rgba(94,234,212,0.25)]"
+                      ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.25)]"
                       : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]",
                   )}
                 >
@@ -196,8 +196,8 @@ const ProfileCalibrationPanel = ({
                     value={option.value}
                     id={`activity-${option.value}`}
                     className={cn(
-                      "mt-1 h-5 w-5 border-slate-500 text-teal-300 ring-offset-slate-950",
-                      isSelected && "border-teal-300",
+                       "mt-1 h-5 w-5 border-slate-500 text-primary ring-offset-slate-950",
+                       isSelected && "border-primary",
                     )}
                   />
                 </Label>
@@ -223,12 +223,12 @@ const ProfileCalibrationPanel = ({
                   className={cn(
                     optionCardClassName,
                     isSelected
-                      ? "border-amber-400/80 bg-amber-400/12 shadow-[0_0_0_1px_rgba(251,191,36,0.25)]"
+                      ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.25)]"
                       : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]",
                   )}
                 >
                   <div className="space-y-1">
-                    <div className={cn("text-sm font-semibold uppercase tracking-[0.08em]", isSelected ? "text-amber-300" : "text-white")}>
+                    <div className={cn("text-sm font-semibold uppercase tracking-[0.08em]", isSelected ? "text-primary" : "text-white")}>
                       {option.label}
                     </div>
                     <p className="text-xs text-slate-400">{option.description}</p>
@@ -237,8 +237,8 @@ const ProfileCalibrationPanel = ({
                     value={option.value}
                     id={`goal-${option.value}`}
                     className={cn(
-                      "mt-1 h-5 w-5 border-slate-500 text-amber-300 ring-offset-slate-950",
-                      isSelected && "border-amber-300",
+                       "mt-1 h-5 w-5 border-slate-500 text-primary ring-offset-slate-950",
+                       isSelected && "border-primary",
                     )}
                   />
                 </Label>

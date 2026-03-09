@@ -52,6 +52,12 @@
     --sidebar-border: 214 18% 92%;
     --sidebar-ring: 174 62% 47%;
     --sidebar-muted: 215 12% 60%;
+
+    --app-shell-bg:
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.12), transparent 28%),
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 24%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --app-shell-size: auto;
   }
 
   .dark {
@@ -83,6 +89,34 @@
     --sidebar-border: 220 14% 20%;
     --sidebar-ring: 174 62% 47%;
     --sidebar-muted: 215 12% 50%;
+
+    --app-shell-bg:
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.12), transparent 30%),
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 24%),
+      linear-gradient(180deg, hsl(222 47% 8%), hsl(220 44% 9%) 50%, hsl(224 38% 10%));
+    --app-shell-size: auto;
+  }
+
+  html[data-app-bg="focus"] {
+    --app-shell-bg:
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.12), transparent 28%),
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 24%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+
+  html[data-app-bg="mesh"] {
+    --app-shell-bg:
+      linear-gradient(hsl(var(--border) / 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.12) 1px, transparent 1px),
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.14), transparent 30%),
+      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 24%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --app-shell-size: 28px 28px, 28px 28px, auto, auto, auto;
+  }
+
+  html[data-app-bg="plain"] {
+    --app-shell-bg: linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    --app-shell-size: auto;
   }
 }
 
@@ -97,6 +131,57 @@
 }
 
 @layer utilities {
+  .app-shell {
+    background: var(--app-shell-bg);
+    background-attachment: fixed;
+    background-size: var(--app-shell-size);
+  }
+
+  .glass-card,
+  .app-surface-panel {
+    border: 1px solid hsl(var(--border) / 0.65);
+    background:
+      linear-gradient(180deg, hsl(222 47% 11% / 0.88), hsl(224 43% 10% / 0.82));
+    box-shadow: 0 24px 70px -45px hsl(var(--primary) / 0.32);
+    backdrop-filter: blur(14px);
+  }
+
+  .app-surface-hero {
+    border: 1px solid hsl(var(--border) / 0.65);
+    background:
+      radial-gradient(circle at top, hsl(var(--primary) / 0.16), transparent 34%),
+      linear-gradient(180deg, hsl(222 47% 11% / 0.96), hsl(224 43% 10% / 0.9));
+    box-shadow: 0 30px 80px -45px hsl(var(--primary) / 0.35);
+    backdrop-filter: blur(16px);
+  }
+
+  .app-surface-tile {
+    border: 1px solid hsl(0 0% 100% / 0.08);
+    background: hsl(224 47% 8% / 0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  .app-chip {
+    border: 1px solid hsl(var(--primary) / 0.22);
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+  }
+
+  .app-chip-muted {
+    border: 1px solid hsl(0 0% 100% / 0.08);
+    background: hsl(0 0% 100% / 0.04);
+    color: rgb(203 213 225);
+  }
+
+  .app-dialog-surface {
+    border: 1px solid hsl(var(--border) / 0.65);
+    background:
+      radial-gradient(circle at top, hsl(var(--primary) / 0.12), transparent 28%),
+      linear-gradient(180deg, hsl(222 47% 11% / 0.98), hsl(224 43% 10% / 0.94));
+    color: rgb(241 245 249);
+    box-shadow: 0 28px 80px -45px hsl(var(--primary) / 0.32);
+  }
+
   .gradient-exercise {
     background: var(--gradient-exercise);
   }

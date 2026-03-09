@@ -45,10 +45,10 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 py-4">
-      <Card className="overflow-hidden rounded-[32px] border-border/60 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.12),_transparent_30%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(15,23,42,0.92))] text-slate-100 shadow-[0_30px_80px_-40px_rgba(59,130,246,0.4)]">
+      <Card className="app-surface-hero overflow-hidden rounded-[32px] text-slate-100">
         <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.5fr_0.9fr]">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-300">
+            <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
               <Crosshair className="h-3.5 w-3.5" />
               Daily Check-In
             </div>
@@ -59,21 +59,21 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+              <div className="app-surface-tile rounded-2xl p-4">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Fecha</div>
                 <div className="mt-2 text-lg font-semibold text-white">{core?.todayLabel ?? "Cargando..."}</div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+              <div className="app-surface-tile rounded-2xl p-4">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Modulos completos</div>
                 <div className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                  <CheckCircle2 className="h-4 w-4 text-lime-300" />
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
                   {completionCount}/5
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+              <div className="app-surface-tile rounded-2xl p-4">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Consistencia 7d</div>
                 <div className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                  <TimerReset className="h-4 w-4 text-cyan-300" />
+                  <TimerReset className="h-4 w-4 text-primary" />
                   {core?.activeDays7 ?? 0} dias activos
                 </div>
               </div>
@@ -81,12 +81,12 @@ const Dashboard = () => {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-            <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="app-surface-tile rounded-2xl p-4">
               <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Recuperacion</div>
               <div className="mt-2 text-4xl font-black text-white">{core?.recovery.score ?? 0}</div>
               <p className="mt-2 text-sm text-slate-300">{core?.recovery.status ?? "Analizando..."}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+            <div className="app-surface-tile rounded-2xl p-4">
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-500">
                 <CalendarDays className="h-3.5 w-3.5" />
                 Enfoque

@@ -63,7 +63,7 @@ const Auth = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
+        <div className="app-shell min-h-screen flex items-center justify-center bg-background p-4">
             <Card className="w-full max-w-md glass-card animate-in fade-in zoom-in duration-300">
                 <CardHeader className="text-center">
                     <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">

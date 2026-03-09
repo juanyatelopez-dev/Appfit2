@@ -9,6 +9,11 @@ import {
   getDefaultAccentColorId,
   isAccentColorId,
 } from "@/theme/accentPalette";
+import {
+  AppBackgroundStyleId,
+  getDefaultBackgroundStyleId,
+  isAppBackgroundStyleId,
+} from "@/theme/backgroundStyles";
 
 export type ThemePreference = "light" | "dark" | "system";
 
@@ -16,15 +21,18 @@ type PreferencesContextValue = {
   language: AppLanguage;
   themePreference: ThemePreference;
   accentColorId: AccentColorId;
+  backgroundStyleId: AppBackgroundStyleId;
   setLanguagePreference: (language: AppLanguage) => Promise<void>;
   setThemePreference: (theme: ThemePreference) => Promise<void>;
   setAccentColorPreference: (colorId: AccentColorId) => Promise<void>;
+  setBackgroundStylePreference: (styleId: AppBackgroundStyleId) => Promise<void>;
   t: (key: TranslationKey) => string;
 };
 
 const LANGUAGE_STORAGE_KEY = "appfit_language";
 const THEME_STORAGE_KEY = "appfit_theme_preference";
 const ACCENT_STORAGE_KEY = "appfit_accent_color";
+const BACKGROUND_STYLE_STORAGE_KEY = "appfit_background_style";
 
 const PreferencesContext = createContext<PreferencesContextValue | undefined>(undefined);
 
@@ -39,6 +47,7 @@ const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [language, setLanguage] = useState<AppLanguage>("en");
   const [themePreference, setThemePreferenceState] = useState<ThemePreference>("system");
   const [accentColorId, setAccentColorId] = useState<AccentColorId>(getDefaultAccentColorId());
+  const [backgroundStyleId, setBackgroundStyleId] = useState<AppBackgroundStyleId>(getDefaultBackgroundStyleId());
 
   useEffect(() => {
     const profileLanguage = profile?.app_language;
@@ -72,9 +81,21 @@ const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   useEffect(() => {
+    const storedBackground = localStorage.getItem(BACKGROUND_STYLE_STORAGE_KEY);
+    const nextBackground = isAppBackgroundStyleId(storedBackground) ? storedBackground : getDefaultBackgroundStyleId();
+    setBackgroundStyleId(nextBackground);
+    localStorage.setItem(BACKGROUND_STYLE_STORAGE_KEY, nextBackground);
+    document.documentElement.dataset.appBg = nextBackground;
+  }, []);
+
+  useEffect(() => {
     const mode = resolvedTheme === "dark" ? "dark" : "light";
     applyAccentThemeVars(accentColorId, mode);
   }, [accentColorId, resolvedTheme]);
+
+  useEffect(() => {
+    document.documentElement.dataset.appBg = backgroundStyleId;
+  }, [backgroundStyleId]);
 
   const setLanguagePreference = async (nextLanguage: AppLanguage) => {
     setLanguage(nextLanguage);
@@ -99,13 +120,21 @@ const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.setItem(ACCENT_STORAGE_KEY, nextColorId);
   };
 
+  const setBackgroundStylePreference = async (nextStyleId: AppBackgroundStyleId) => {
+    setBackgroundStyleId(nextStyleId);
+    localStorage.setItem(BACKGROUND_STYLE_STORAGE_KEY, nextStyleId);
+    document.documentElement.dataset.appBg = nextStyleId;
+  };
+
   const value: PreferencesContextValue = {
     language,
     themePreference,
     accentColorId,
+    backgroundStyleId,
     setLanguagePreference,
     setThemePreference,
     setAccentColorPreference,
+    setBackgroundStylePreference,
     t: (key) => translations[language][key] || key,
   };
 

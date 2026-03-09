@@ -437,16 +437,16 @@ const Nutrition = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(132,204,22,0.12),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(34,211,238,0.1),_transparent_24%),linear-gradient(180deg,_#020617,_#040b18_48%,_#07101e)] px-6 py-8 text-slate-100">
+    <div className="app-shell min-h-screen px-6 py-8 text-slate-100">
       <div className="mx-auto max-w-[1540px] space-y-6">
-        <section className="flex items-start justify-between rounded-[28px] border border-white/10 bg-slate-950/70 px-8 py-8 shadow-[0_30px_80px_-45px_rgba(56,189,248,0.28)]">
+        <section className="app-surface-hero flex items-start justify-between rounded-[28px] px-8 py-8">
           <div className="space-y-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-lime-300/70">Sistema Titan Blue</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/80">Panel diario</p>
               <h1 className="text-4xl font-black uppercase tracking-tight text-white">Nutricion & Combustible</h1>
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">El rendimiento no es negociable</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Registro operativo y control de macros</p>
             </div>
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div className="app-chip-muted flex items-center gap-3 rounded-2xl px-3 py-2">
               {DAY_ARCHETYPE_OPTIONS.map((option) => (
                 <button
                   key={option.value}
@@ -454,7 +454,7 @@ const Nutrition = () => {
                   onClick={() => setDayArchetype(option.value)}
                   className={cn(
                     "rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors",
-                    dayArchetype === option.value ? "bg-lime-400 text-slate-950" : "text-slate-400 hover:bg-white/[0.05] hover:text-white",
+                    dayArchetype === option.value ? "bg-primary text-primary-foreground" : "text-slate-400 hover:bg-white/[0.05] hover:text-white",
                   )}
                 >
                   {option.label}
@@ -464,7 +464,7 @@ const Nutrition = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div className="app-chip-muted flex items-center gap-2 rounded-2xl px-3 py-2">
               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-300 hover:bg-white/[0.05] hover:text-white" onClick={() => setSelectedDate((prev) => addDays(prev, -1))}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -476,22 +476,22 @@ const Nutrition = () => {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="rounded-2xl border border-lime-400/25 bg-lime-400/10 px-4 py-3 text-right">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-300/70">Acumulado</div>
-              <div className="text-2xl font-black text-lime-300">{formatMetric(totals?.calories, " kcal")}</div>
+            <div className="app-chip rounded-2xl px-4 py-3 text-right">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">Acumulado</div>
+              <div className="text-2xl font-black text-primary">{formatMetric(totals?.calories, " kcal")}</div>
             </div>
           </div>
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[1.65fr_0.8fr]">
           <section className="space-y-5">
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/70">
+            <div className="app-surface-panel rounded-[28px]">
               <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Logbook</p>
                   <h2 className="mt-1 text-2xl font-bold text-white">Registro operativo de comidas</h2>
                 </div>
-                <Button onClick={() => openDialogForMeal("breakfast")} className="rounded-2xl bg-lime-400 px-4 text-slate-950 hover:bg-lime-300">
+                <Button onClick={() => openDialogForMeal("breakfast")} className="rounded-2xl bg-primary px-4 text-primary-foreground hover:bg-primary/90">
                   <CirclePlus className="mr-2 h-4 w-4" />
                   Anadir nueva comida
                 </Button>
@@ -565,10 +565,10 @@ const Nutrition = () => {
           </section>
 
           <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/70 p-5">
+            <div className="app-surface-panel rounded-[28px] p-5">
               <div className="flex items-center justify-between">
-                <div><p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-lime-300/70">Telemetria metabolica</p><h3 className="mt-1 text-lg font-bold text-white">Control de biometria</h3></div>
-                <div className="rounded-xl bg-lime-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-lime-300">
+                <div><p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Resumen metabolico</p><h3 className="mt-1 text-lg font-bold text-white">Base del plan diario</h3></div>
+                <div className="app-chip rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
                   {GOAL_LABELS[metabolicProfile?.goalType ?? "maintain"] ?? "Objetivo"}
                 </div>
               </div>
@@ -582,14 +582,14 @@ const Nutrition = () => {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/70 p-5">
+            <div className="app-surface-panel rounded-[28px] p-5">
               <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500">Balance energetico</div>
-              <div className="mt-4 flex items-end justify-between"><div><div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Consumido</div><div className="text-4xl font-black text-white">{formatMetric(totals?.calories)}</div></div><div className="text-right"><div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Meta</div><div className="text-3xl font-black text-lime-300">{formatMetric(goals?.calorie_goal)}</div></div></div>
+              <div className="mt-4 flex items-end justify-between"><div><div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Consumido</div><div className="text-4xl font-black text-white">{formatMetric(totals?.calories)}</div></div><div className="text-right"><div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Meta</div><div className="text-3xl font-black text-primary">{formatMetric(goals?.calorie_goal)}</div></div></div>
               <Progress value={caloriesPct} className="mt-4 h-3 bg-slate-800" />
               <div className="mt-3 flex justify-between text-xs text-slate-500"><span>Restante</span><span>{formatMetric(remaining?.calories, " kcal")}</span></div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/70 p-5">
+            <div className="app-surface-panel rounded-[28px] p-5">
               <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500">Macros</div>
               <div className="mt-4 space-y-4">
                 <div><div className="mb-2 flex justify-between text-sm"><span className="font-medium text-emerald-300">Proteinas</span><span className="text-slate-400">{formatMetric(totals?.protein_g, "g")} / {formatMetric(goals?.protein_goal_g, "g")}</span></div><Progress value={proteinPct} className="h-2.5 bg-slate-800 [&>div]:bg-emerald-400" /></div>
@@ -598,8 +598,8 @@ const Nutrition = () => {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-slate-950/70 p-5">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500"><Flame className="h-3.5 w-3.5 text-lime-300" />Perfil metabolico</div>
+            <div className="app-surface-panel rounded-[28px] p-5">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500"><Flame className="h-3.5 w-3.5 text-primary" />Perfil metabolico</div>
               <div className="mt-4 grid gap-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-white/8 bg-slate-950/80 p-3">
@@ -629,7 +629,7 @@ const Nutrition = () => {
                   <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Objetivo</div>
                   <div className="mt-2 text-sm text-white">{GOAL_LABELS[metabolicProfile?.goalType ?? "maintain"] ?? "--"}</div>
                 </div>
-                <Button asChild className="rounded-2xl bg-lime-400 text-slate-950 hover:bg-lime-300">
+                <Button asChild className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link to="/fitness-profile">Abrir Perfil Fitness</Link>
                 </Button>
               </div>
@@ -639,7 +639,7 @@ const Nutrition = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl border-white/10 bg-slate-950 text-slate-100">
+        <DialogContent className="app-dialog-surface max-w-3xl">
           <DialogHeader><DialogTitle className="text-xl font-bold">Agregar comida - {MEAL_SECTIONS.find((m) => m.key === activeMeal)?.label}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-[200px_1fr] gap-4">
@@ -677,7 +677,7 @@ const Nutrition = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="border-white/10 bg-transparent text-slate-300 hover:bg-white/[0.05] hover:text-white">Cancelar</Button>
-            <Button onClick={handleAddEntry} disabled={addMutation.isPending} className="bg-lime-400 text-slate-950 hover:bg-lime-300">Guardar</Button>
+            <Button onClick={handleAddEntry} disabled={addMutation.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

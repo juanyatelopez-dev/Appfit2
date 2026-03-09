@@ -9,7 +9,7 @@ const MainLayout = () => {
   const { isGuest } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="app-shell min-h-screen bg-background flex">
       <div className="hidden md:block">
         <Sidebar />
       </div>

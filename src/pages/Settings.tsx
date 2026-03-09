@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
 import { clearUserDayData, clearUserHistory, resetUserAccount, RESETTABLE_DAY_SCOPES, type ResettableDayScope } from "@/services/dataManagement";
 import { MINECRAFT_WOOL_COLORS } from "@/theme/accentPalette";
+import { APP_BACKGROUND_STYLES } from "@/theme/backgroundStyles";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -33,7 +34,17 @@ const Settings = () => {
   const { user, profile, refreshProfile, isGuest, loading, signOut, exitGuest, updateProfile } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { t, language, themePreference, accentColorId, setLanguagePreference, setThemePreference, setAccentColorPreference } =
+  const {
+    t,
+    language,
+    themePreference,
+    accentColorId,
+    backgroundStyleId,
+    setLanguagePreference,
+    setThemePreference,
+    setAccentColorPreference,
+    setBackgroundStylePreference,
+  } =
     usePreferences();
 
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
@@ -118,6 +129,14 @@ const Settings = () => {
   const handleAccentColorChange = async (colorId: (typeof MINECRAFT_WOOL_COLORS)[number]["id"]) => {
     try {
       await setAccentColorPreference(colorId);
+    } catch (error: any) {
+      toast.error(error?.message || t("settings.fail"));
+    }
+  };
+
+  const handleBackgroundStyleChange = async (styleId: (typeof APP_BACKGROUND_STYLES)[number]["id"]) => {
+    try {
+      await setBackgroundStylePreference(styleId);
     } catch (error: any) {
       toast.error(error?.message || t("settings.fail"));
     }
@@ -317,6 +336,33 @@ const Settings = () => {
             </div>
             <p className="text-xs text-muted-foreground">
               {t("settings.accentSelected")}: {selectedAccentLabel}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="background-style" className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              Fondo de la app
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Ajusta el ambiente visual general sin cambiar tu color primario.
+            </p>
+            <Select value={backgroundStyleId} onValueChange={(value) => handleBackgroundStyleChange(value as (typeof APP_BACKGROUND_STYLES)[number]["id"])}>
+              <SelectTrigger id="background-style" className="bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {APP_BACKGROUND_STYLES.map((style) => (
+                  <SelectItem key={style.id} value={style.id}>
+                    {language === "es" ? style.label.es : style.label.en}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {language === "es"
+                ? APP_BACKGROUND_STYLES.find((style) => style.id === backgroundStyleId)?.description.es
+                : APP_BACKGROUND_STYLES.find((style) => style.id === backgroundStyleId)?.description.en}
             </p>
           </div>
         </CardContent>
