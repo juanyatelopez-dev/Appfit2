@@ -30,9 +30,9 @@ const dotTone: Record<NonNullable<MeasurementPoint["tone"]>, string> = {
 const offsets: Record<PointKey, { dx: number; dy: number }> = {
   neck: { dx: 0, dy: -28 },
   arm: { dx: -46, dy: -8 },
-  waist: { dx: 0, dy: -26 },
-  hip: { dx: 0, dy: 20 },
-  thigh: { dx: -16, dy: 20 },
+  waist: { dx: 28, dy: -8 },
+  hip: { dx: 28, dy: -8 },
+  thigh: { dx: -46, dy: -8 },
 };
 
 export function BodyMannequin({
