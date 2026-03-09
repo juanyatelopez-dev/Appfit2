@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
-import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
+import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import { addWaterIntake, getWaterGoal, getWaterLogsByDate, getWaterRangeTotals, type WaterLog } from "@/services/waterIntake";
 import {
   getGuestBodyMetrics,
@@ -58,6 +58,7 @@ const Calendar = () => {
   const [noteContent, setNoteContent] = useState("");
 
   const timezone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const todayKey = getDateKeyForTimezone(new Date(), timezone);
   const metabolicProfileKey = [
     profile?.weight ?? "",
     profile?.height ?? "",
@@ -202,6 +203,39 @@ const Calendar = () => {
   }, [selectedNote?.content, selectedNote?.title]);
 
   const selectedDay = calendarData?.daily.get(selectedDateKey);
+  const isPastSelectedDate = selectedDateKey < todayKey;
+  const selectedDayMissingModules = useMemo(() => {
+    if (!selectedDay) return [];
+
+    const modules: Array<{ key: string; label: string; mode: "scroll" | "link"; target: string }> = [];
+
+    if (!selectedDay.hasWeight) {
+      modules.push({ key: "weight", label: "Peso", mode: "scroll", target: "quick-weight" });
+    }
+    if (!selectedDay.hasWater) {
+      modules.push({ key: "water", label: "Agua", mode: "scroll", target: "quick-water" });
+    }
+    if (!selectedDay.hasSleep) {
+      modules.push({ key: "sleep", label: "Sueno", mode: "scroll", target: "quick-sleep" });
+    }
+    if (!selectedDay.hasBiofeedback) {
+      modules.push({ key: "biofeedback", label: "Biofeedback", mode: "link", target: `/biofeedback?date=${selectedDateKey}` });
+    }
+    if (!selectedDay.hasNutrition) {
+      modules.push({ key: "nutrition", label: "Alimentacion", mode: "link", target: `/nutrition?date=${selectedDateKey}` });
+    }
+
+    return modules;
+  }, [selectedDateKey, selectedDay]);
+
+  const scrollToQuickAdd = (sectionId: string) => {
+    const target = document.getElementById(sectionId);
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const input = target?.querySelector("input");
+    if (input instanceof HTMLInputElement) {
+      window.setTimeout(() => input.focus(), 200);
+    }
+  };
 
   const monthStats = useMemo(() => {
     if (!calendarData) {
@@ -518,6 +552,37 @@ const Calendar = () => {
         </Card>
 
         <div className="space-y-4">
+          {selectedDay && selectedDayMissingModules.length > 0 && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-base">Completar este dia</CardTitle>
+                <CardDescription>
+                  {isPastSelectedDate
+                    ? "Si olvidaste registrar algo, puedes completar este dia ahora mismo."
+                    : "Todavia faltan registros para cerrar este dia."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Faltan: {selectedDayMissingModules.map((module) => module.label).join(", ")}.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedDayMissingModules.map((module) =>
+                    module.mode === "link" ? (
+                      <Button key={module.key} asChild size="sm" variant="outline">
+                        <Link to={module.target}>Registrar {module.label}</Link>
+                      </Button>
+                    ) : (
+                      <Button key={module.key} size="sm" variant="outline" onClick={() => scrollToQuickAdd(module.target)}>
+                        Registrar {module.label}
+                      </Button>
+                    ),
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle>{t("calendar.summaryTitle")}</CardTitle>
@@ -660,12 +725,13 @@ const Calendar = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="calendar-quick-add">
             <CardHeader>
               <CardTitle>{t("calendar.quickAddTitle")}</CardTitle>
+              <CardDescription>Los registros rapidos se guardaran en {selectedDateKey}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="space-y-2">
+              <div id="quick-water" className="space-y-2">
                 <label className="text-sm flex items-center gap-2">
                   <Droplets className="h-4 w-4" />
                   {t("calendar.quickAdd.water")}
@@ -683,7 +749,7 @@ const Calendar = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div id="quick-weight" className="space-y-2">
                 <label className="text-sm flex items-center gap-2">
                   <Scale className="h-4 w-4" />
                   {t("calendar.quickAdd.weight")}
@@ -702,7 +768,7 @@ const Calendar = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div id="quick-sleep" className="space-y-2">
                 <label className="text-sm flex items-center gap-2">
                   <Moon className="h-4 w-4" />
                   {t("calendar.quickAdd.sleep")}
