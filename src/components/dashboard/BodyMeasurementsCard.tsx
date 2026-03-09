@@ -115,8 +115,8 @@ const BodyMeasurementsCard = ({
       label: "Cintura",
       valueText: `${latest.waist_cm.toFixed(1)} cm`,
       deltaText: formatDelta(waistDelta),
-      x: 46,
-      y: 40,
+      x: 59,
+      y: 42,
       tone: measurementTone("waist", waistDelta, goalDirection),
     },
     {
@@ -124,8 +124,8 @@ const BodyMeasurementsCard = ({
       label: "Cadera",
       valueText: latest.hip_cm ? `${Number(latest.hip_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(hipDelta),
-      x: 47,
-      y: 48,
+      x: 60,
+      y: 50,
       tone: measurementTone("hip", hipDelta, goalDirection),
     },
     {
@@ -133,8 +133,8 @@ const BodyMeasurementsCard = ({
       label: "Muslo",
       valueText: latest.thigh_cm ? `${Number(latest.thigh_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(thighDelta),
-      x: 27,
-      y: 64,
+      x: 31,
+      y: 68,
       tone: measurementTone("thigh", thighDelta, goalDirection),
     },
   ];
