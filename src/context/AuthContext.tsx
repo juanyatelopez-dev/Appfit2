@@ -9,6 +9,10 @@ interface Profile {
     avatar_url: string | null;
     weight: number | null;
     height: number | null;
+    biological_sex: "male" | "female" | null;
+    activity_level: "low" | "moderate" | "high" | "very_high" | "hyperactive" | null;
+    nutrition_goal_type: "lose" | "maintain" | "gain" | null;
+    day_archetype: "base" | "heavy" | "recovery" | null;
     goal_type: string | null;
     target_weight_kg: number | null;
     target_date: string | null;
@@ -80,6 +84,10 @@ const createGuestProfile = (): Profile => ({
     avatar_url: null,
     weight: null,
     height: null,
+    biological_sex: "male",
+    activity_level: "moderate",
+    nutrition_goal_type: "maintain",
+    day_archetype: "base",
     goal_type: null,
     target_weight_kg: null,
     target_date: null,
@@ -103,6 +111,10 @@ const createEmptyProfile = (): Profile => ({
     avatar_url: null,
     weight: null,
     height: null,
+    biological_sex: "male",
+    activity_level: "moderate",
+    nutrition_goal_type: "maintain",
+    day_archetype: "base",
     goal_type: null,
     target_weight_kg: null,
     target_date: null,
@@ -150,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchProfile = async (userId: string): Promise<Profile> => {
         let { data, error } = await supabase
             .from('profiles')
-            .select('full_name,birth_date,height,weight,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,sleep_goal_minutes,calorie_goal,protein_goal_g,carb_goal_g,fat_goal_g,onboarding_completed,app_language,theme_preference')
+            .select('full_name,birth_date,height,weight,biological_sex,activity_level,nutrition_goal_type,day_archetype,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,sleep_goal_minutes,calorie_goal,protein_goal_g,carb_goal_g,fat_goal_g,onboarding_completed,app_language,theme_preference')
             .eq('id', userId)
             .limit(1)
             .maybeSingle();
@@ -163,6 +175,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 error.message?.includes("protein_goal_g") ||
                 error.message?.includes("carb_goal_g") ||
                 error.message?.includes("fat_goal_g") ||
+                error.message?.includes("biological_sex") ||
+                error.message?.includes("activity_level") ||
+                error.message?.includes("nutrition_goal_type") ||
+                error.message?.includes("day_archetype") ||
                 error.message?.toLowerCase().includes("column")
             )
         ) {
@@ -185,6 +201,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             birth_date: data?.birth_date ?? null,
             height: data?.height ?? null,
             weight: data?.weight ?? null,
+            biological_sex: (data?.biological_sex as Profile["biological_sex"]) ?? "male",
+            activity_level: (data?.activity_level as Profile["activity_level"]) ?? "moderate",
+            nutrition_goal_type: (data?.nutrition_goal_type as Profile["nutrition_goal_type"]) ?? "maintain",
+            day_archetype: (data?.day_archetype as Profile["day_archetype"]) ?? "base",
             goal_type: data?.goal_type ?? null,
             avatar_url: data?.avatar_url ?? null,
             target_weight_kg: data?.target_weight_kg ?? null,

@@ -59,11 +59,19 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
           days: [],
           averages: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
         })),
-        getNutritionGoals(userId, { isGuest }).catch(() => ({
+        getNutritionGoals(userId, { isGuest, profile: profile as any }).catch(() => ({
           calorie_goal: 2000,
           protein_goal_g: 150,
           carb_goal_g: 250,
           fat_goal_g: 70,
+          day_archetype: "base",
+          bmr: 0,
+          tdee: 0,
+          activity_multiplier: 1.375,
+          goal_multiplier: 1,
+          archetype_delta: 0,
+          calorie_target: 2000,
+          final_target_calories: 2000,
         })),
       ]);
       return { range, goals };

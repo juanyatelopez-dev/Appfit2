@@ -180,7 +180,9 @@ const Calendar = () => {
   const { data: selectedNutrition } = useQuery({
     queryKey: ["calendar_day_nutrition", user?.id, selectedDateKey, timezone, isGuest],
     queryFn: () =>
-      getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone }).catch(() => null),
+      getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone, profile: profile as any }).catch(
+        () => null,
+      ),
     enabled: Boolean(user?.id) || isGuest,
   });
 

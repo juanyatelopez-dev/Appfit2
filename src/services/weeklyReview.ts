@@ -63,6 +63,14 @@ export const getWeeklyReviewSummary = async (
       protein_goal_g: 150,
       carb_goal_g: 250,
       fat_goal_g: 70,
+      day_archetype: "base",
+      bmr: 0,
+      tdee: 0,
+      activity_multiplier: 1.375,
+      goal_multiplier: 1,
+      archetype_delta: 0,
+      calorie_target: 2000,
+      final_target_calories: 2000,
     })),
   ]);
 

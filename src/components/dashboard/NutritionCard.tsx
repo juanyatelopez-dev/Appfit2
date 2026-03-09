@@ -18,7 +18,7 @@ const NutritionCard = () => {
 
   const dayQuery = useQuery({
     queryKey: ["nutrition_day_summary", userId, "dashboard_today", isGuest, timeZone],
-    queryFn: () => getNutritionDaySummary(userId, today, { isGuest, timeZone }).catch(() => null),
+    queryFn: () => getNutritionDaySummary(userId, today, { isGuest, timeZone, profile: profile as any }).catch(() => null),
     enabled: Boolean(userId) || isGuest,
   });
 

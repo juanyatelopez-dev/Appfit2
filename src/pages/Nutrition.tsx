@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNutritionTargets } from "@/hooks/useNutritionTargets";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import {
   addNutritionEntry,
@@ -42,7 +43,7 @@ type AddMode = "manual" | "database" | "favorite" | "yesterday" | "recent";
 const Nutrition = () => {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const { user, isGuest, profile } = useAuth();
+  const { user, isGuest, profile, updateProfile } = useAuth();
   const userId = user?.id ?? null;
   const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -65,6 +66,8 @@ const Nutrition = () => {
   const [fat, setFat] = useState("0");
   const [fiber, setFiber] = useState("0");
   const [sugar, setSugar] = useState("0");
+  const [sodium, setSodium] = useState("0");
+  const [potassium, setPotassium] = useState("0");
   const [selectedFavoriteId, setSelectedFavoriteId] = useState<string>("");
   const [selectedYesterdayId, setSelectedYesterdayId] = useState<string>("");
   const [selectedRecentId, setSelectedRecentId] = useState<string>("");
@@ -73,13 +76,44 @@ const Nutrition = () => {
   const [selectedFoodDatabaseId, setSelectedFoodDatabaseId] = useState("");
   const [consumedAmount, setConsumedAmount] = useState("100");
   const [saveAsFavorite, setSaveAsFavorite] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+  const [profileWeightKg, setProfileWeightKg] = useState("");
+  const [profileHeightCm, setProfileHeightCm] = useState("");
+  const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
+  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
+  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "maintain" | "gain">("maintain");
+  const [dayArchetype, setDayArchetype] = useState<"base" | "heavy" | "recovery">("base");
+  const [calorieOverride, setCalorieOverride] = useState("");
 
   const todayKey = getDateKeyForTimezone(selectedDate, timeZone);
   const previousDate = addDays(selectedDate, -1);
+  const nutritionTargets = useNutritionTargets({
+    userId,
+    date: selectedDate,
+    isGuest,
+    timeZone,
+    profile: profile as any,
+  });
+
+  useEffect(() => {
+    const targetProfile = nutritionTargets.metabolicProfile;
+    if (!targetProfile) return;
+
+    setBirthDate(targetProfile.birthDate || "");
+    setProfileWeightKg(String(targetProfile.weightKg ?? ""));
+    setProfileHeightCm(String(targetProfile.heightCm ?? ""));
+    setBiologicalSex(targetProfile.sex);
+    setActivityLevel(targetProfile.activityLevel);
+    setNutritionGoalType(targetProfile.goalType);
+    setDayArchetype(targetProfile.dayArchetype);
+    setCalorieOverride(
+      targetProfile.isCalorieOverrideEnabled && targetProfile.calorieOverride !== null ? String(targetProfile.calorieOverride) : "",
+    );
+  }, [nutritionTargets.metabolicProfile]);
 
   const summaryQuery = useQuery({
     queryKey: ["nutrition_day_summary", userId, todayKey, isGuest, timeZone],
-    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone }),
+    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile: profile as any }),
     enabled: Boolean(userId) || isGuest,
   });
 
@@ -116,6 +150,7 @@ const Nutrition = () => {
   const invalidateNutrition = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+      queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
       queryClient.invalidateQueries({ queryKey: ["nutrition_recent_entries"] }),
       queryClient.invalidateQueries({ queryKey: ["nutrition_range_summary"] }),
       queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
@@ -152,11 +187,51 @@ const Nutrition = () => {
       carbs_g: number;
       fat_g: number;
       fiber_g?: number | null;
+      sodium_mg?: number | null;
+      potassium_mg?: number | null;
+      micronutrients?: Record<string, number> | null;
+      nutrient_density_score?: number | null;
     }) => saveFavoriteFood(userId, payload, { isGuest }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["nutrition_favorites"] });
       toast.success("Guardado en favoritos.");
     },
+  });
+
+  const saveMetabolicConfigMutation = useMutation({
+    mutationFn: async () => {
+      const parsedWeight = Number(profileWeightKg);
+      const parsedHeight = Number(profileHeightCm);
+      const parsedOverride = calorieOverride.trim() ? Number(calorieOverride) : null;
+
+      if (!Number.isFinite(parsedWeight) || parsedWeight <= 0) {
+        throw new Error("Peso invalido.");
+      }
+      if (!Number.isFinite(parsedHeight) || parsedHeight <= 0) {
+        throw new Error("Altura invalida.");
+      }
+      if (parsedOverride !== null && (!Number.isFinite(parsedOverride) || parsedOverride <= 0)) {
+        throw new Error("Override calorico invalido.");
+      }
+
+      await updateProfile({
+        birth_date: birthDate || null,
+        weight: parsedWeight,
+        height: parsedHeight,
+        biological_sex: biologicalSex,
+        activity_level: activityLevel,
+        nutrition_goal_type: nutritionGoalType,
+        day_archetype: dayArchetype,
+      } as any);
+
+      await nutritionTargets.setDayArchetype(dayArchetype);
+      await nutritionTargets.setCalorieOverride(parsedOverride);
+    },
+    onSuccess: async () => {
+      toast.success("Configuracion metabolica actualizada.");
+      await invalidateNutrition();
+    },
+    onError: (error: any) => toast.error(error?.message || "No se pudo actualizar la configuracion metabolica."),
   });
 
   const openDialogForMeal = (meal: NutritionMealType) => {
@@ -168,6 +243,8 @@ const Nutrition = () => {
   const daySummary = summaryQuery.data;
   const goals = daySummary?.goals;
   const totals = daySummary?.totals;
+  const target = daySummary?.targetBreakdown ?? nutritionTargets.target;
+  const remaining = daySummary?.remaining;
   const caloriesPct = goals ? Math.min(100, Math.round((totals!.calories / Math.max(goals.calorie_goal, 1)) * 100)) : 0;
   const proteinPct = goals ? Math.min(100, Math.round((totals!.protein_g / Math.max(goals.protein_goal_g, 1)) * 100)) : 0;
   const carbsPct = goals ? Math.min(100, Math.round((totals!.carbs_g / Math.max(goals.carb_goal_g, 1)) * 100)) : 0;
@@ -194,6 +271,8 @@ const Nutrition = () => {
         fat_g: Number(fat),
         fiber_g: Number(fiber),
         sugar_g: Number(sugar),
+        sodium_mg: Number(sodium),
+        potassium_mg: Number(potassium),
         isGuest,
         timeZone,
       } as const;
@@ -209,6 +288,8 @@ const Nutrition = () => {
           carbs_g: payload.carbs_g,
           fat_g: payload.fat_g,
           fiber_g: payload.fiber_g,
+          sodium_mg: payload.sodium_mg,
+          potassium_mg: payload.potassium_mg,
         });
       }
       return;
@@ -239,6 +320,10 @@ const Nutrition = () => {
         fat_g: computed.fat_g,
         fiber_g: computed.fiber_g,
         sugar_g: computed.sugar_g,
+        sodium_mg: computed.sodium_mg,
+        potassium_mg: computed.potassium_mg,
+        micronutrients: computed.micronutrients,
+        nutrient_density_score: computed.nutrient_density_score,
         notes: `Base food_database (${food.category})`,
         isGuest,
         timeZone,
@@ -264,6 +349,10 @@ const Nutrition = () => {
         carbs_g: favorite.carbs_g,
         fat_g: favorite.fat_g,
         fiber_g: favorite.fiber_g,
+        sodium_mg: favorite.sodium_mg,
+        potassium_mg: favorite.potassium_mg,
+        micronutrients: favorite.micronutrients,
+        nutrient_density_score: favorite.nutrient_density_score,
         isGuest,
         timeZone,
       });
@@ -289,6 +378,10 @@ const Nutrition = () => {
         fat_g: entry.fat_g,
         fiber_g: entry.fiber_g,
         sugar_g: entry.sugar_g,
+        sodium_mg: entry.sodium_mg,
+        potassium_mg: entry.potassium_mg,
+        micronutrients: entry.micronutrients,
+        nutrient_density_score: entry.nutrient_density_score,
         notes: entry.notes,
         isGuest,
         timeZone,
@@ -314,6 +407,10 @@ const Nutrition = () => {
       fat_g: recent.fat_g,
       fiber_g: recent.fiber_g,
       sugar_g: recent.sugar_g,
+      sodium_mg: recent.sodium_mg,
+      potassium_mg: recent.potassium_mg,
+      micronutrients: recent.micronutrients,
+      nutrient_density_score: recent.nutrient_density_score,
       notes: recent.notes,
       isGuest,
       timeZone,
@@ -327,7 +424,7 @@ const Nutrition = () => {
           <h1 className="text-3xl font-bold">Alimentacion</h1>
           <p className="text-sm text-muted-foreground">Diario por comida y seguimiento de macros.</p>
         </div>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setSelectedDate((prev) => addDays(prev, -1))}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -336,6 +433,123 @@ const Nutrition = () => {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Configuracion metabolica</CardTitle>
+            <CardDescription>Mifflin-St Jeor + actividad + meta + arquetipo diario.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label>Sexo biologico</Label>
+                <Select value={biologicalSex} onValueChange={(value) => setBiologicalSex(value as "male" | "female")}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Masculino</SelectItem>
+                    <SelectItem value="female">Femenino</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Fecha de nacimiento</Label>
+                <Input type="date" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Peso (kg)</Label>
+                <Input type="number" min="1" value={profileWeightKg} onChange={(event) => setProfileWeightKg(event.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Altura (cm)</Label>
+                <Input type="number" min="1" value={profileHeightCm} onChange={(event) => setProfileHeightCm(event.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Nivel de actividad</Label>
+                <Select value={activityLevel} onValueChange={(value) => setActivityLevel(value as typeof activityLevel)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Bajo</SelectItem>
+                    <SelectItem value="moderate">Moderado</SelectItem>
+                    <SelectItem value="high">Alto</SelectItem>
+                    <SelectItem value="very_high">Muy alto</SelectItem>
+                    <SelectItem value="hyperactive">Hiperactivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Objetivo nutricional</Label>
+                <Select value={nutritionGoalType} onValueChange={(value) => setNutritionGoalType(value as typeof nutritionGoalType)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lose">Perder peso</SelectItem>
+                    <SelectItem value="maintain">Mantener</SelectItem>
+                    <SelectItem value="gain">Aumentar peso</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Arquetipo del dia</Label>
+                <Select value={dayArchetype} onValueChange={(value) => setDayArchetype(value as typeof dayArchetype)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="base">Base</SelectItem>
+                    <SelectItem value="heavy">Heavy (+150 kcal)</SelectItem>
+                    <SelectItem value="recovery">Recovery (-300 kcal)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Override calorico (opcional)</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Vacio = calculo automatico"
+                  value={calorieOverride}
+                  onChange={(event) => setCalorieOverride(event.target.value)}
+                />
+              </div>
+            </div>
+            <Button onClick={() => saveMetabolicConfigMutation.mutate()} disabled={saveMetabolicConfigMutation.isPending || nutritionTargets.isSaving}>
+              Guardar configuracion metabolica
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Detalle del calculo</CardTitle>
+            <CardDescription>Motor metabolico activo para este dia.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>Edad: {nutritionTargets.metabolicProfile?.age ?? "--"} anios</p>
+            <p>BMR: {target?.bmr ?? "--"} kcal</p>
+            <p>TDEE: {target?.tdee ?? "--"} kcal</p>
+            <p>Multiplicador actividad: {target?.activityMultiplier ?? "--"}</p>
+            <p>Multiplicador meta: {target?.goalMultiplier ?? "--"}</p>
+            <p>Delta arquetipo: {target?.archetypeDelta ?? "--"} kcal</p>
+            <p>Calorias target (meta): {target?.calorieTarget ?? "--"} kcal</p>
+            <p>Calorias finales: {target?.finalTargetCalories ?? "--"} kcal</p>
+            <p>
+              Proteina: {target?.proteinGrams ?? "--"} g ({target?.proteinCalories ?? "--"} kcal)
+            </p>
+            <p>
+              Grasas: {target?.fatGrams ?? "--"} g ({target?.fatCalories ?? "--"} kcal)
+            </p>
+            <p>
+              Carbohidratos: {target?.carbGrams ?? "--"} g ({target?.carbCalories ?? "--"} kcal)
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -377,6 +591,14 @@ const Nutrition = () => {
           <p className="text-xs text-muted-foreground">
             Fibra: {totals?.fiber_g ?? 0} g | Azucar: {totals?.sugar_g ?? 0} g
           </p>
+          <p className="text-xs text-muted-foreground">
+            Sodio: {totals?.sodium_mg ?? 0} mg | Potasio: {totals?.potassium_mg ?? 0} mg | Ratio Na/K:{" "}
+            {totals?.sodium_potassium_ratio ?? "--"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Densidad nutricional: {daySummary?.nutrientDensityScore ?? "--"} | Restante: {remaining?.calories ?? "--"} kcal, P{" "}
+            {remaining?.protein_g ?? "--"} g, C {remaining?.carbs_g ?? "--"} g, G {remaining?.fat_g ?? "--"} g
+          </p>
         </CardContent>
       </Card>
 
@@ -411,7 +633,7 @@ const Nutrition = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {entry.serving_size} {entry.serving_unit} | {entry.calories} kcal | P {entry.protein_g} | C {entry.carbs_g} | G{" "}
-                      {entry.fat_g}
+                      {entry.fat_g} | Na {entry.sodium_mg ?? 0} mg | K {entry.potassium_mg ?? 0} mg
                     </p>
                   </div>
                 ))}
@@ -429,7 +651,7 @@ const Nutrition = () => {
 
           <div className="space-y-3">
             <Label>Modo rapido</Label>
-            <Select value={mode} onValueChange={(value: AddMode) => setMode(value)}>
+            <Select value={mode} onValueChange={(value) => setMode(value as AddMode)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -496,7 +718,8 @@ const Nutrition = () => {
                   const computed = calculateNutritionFromFood(selectedFood as FoodDatabaseItem, amount);
                   return (
                     <p className="text-xs text-muted-foreground">
-                      Vista previa: {computed.calories} kcal | P {computed.protein_g} | C {computed.carbs_g} | G {computed.fat_g}
+                      Vista previa: {computed.calories} kcal | P {computed.protein_g} | C {computed.carbs_g} | G {computed.fat_g} | Na{" "}
+                      {computed.sodium_mg} | K {computed.potassium_mg}
                     </p>
                   );
                 })()}
@@ -517,13 +740,16 @@ const Nutrition = () => {
                   <Input value={fat} onChange={(e) => setFat(e.target.value)} type="number" min="0" placeholder="Grasas g" />
                   <Input value={fiber} onChange={(e) => setFiber(e.target.value)} type="number" min="0" placeholder="Fibra g" />
                   <Input value={sugar} onChange={(e) => setSugar(e.target.value)} type="number" min="0" placeholder="Azucar g" />
+                  <Input value={sodium} onChange={(e) => setSodium(e.target.value)} type="number" min="0" placeholder="Sodio mg" />
+                  <Input value={potassium} onChange={(e) => setPotassium(e.target.value)} type="number" min="0" placeholder="Potasio mg" />
                 </div>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={saveAsFavorite} onChange={(e) => setSaveAsFavorite(e.target.checked)} />
                   Guardar en favoritos
                 </label>
                 <p className="text-xs text-muted-foreground">
-                  Vista previa: {Number(calories || 0)} kcal | P {Number(protein || 0)} | C {Number(carbs || 0)} | G {Number(fat || 0)}
+                  Vista previa: {Number(calories || 0)} kcal | P {Number(protein || 0)} | C {Number(carbs || 0)} | G {Number(fat || 0)} |
+                  {" "}Na {Number(sodium || 0)} | K {Number(potassium || 0)}
                 </p>
               </div>
             )}
