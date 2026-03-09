@@ -116,7 +116,7 @@ const BodyMeasurementsCard = ({
       valueText: `${latest.waist_cm.toFixed(1)} cm`,
       deltaText: formatDelta(waistDelta),
       x: 59,
-      y: 37,
+      y: 36,
       tone: measurementTone("waist", waistDelta, goalDirection),
     },
     {
@@ -125,7 +125,7 @@ const BodyMeasurementsCard = ({
       valueText: latest.hip_cm ? `${Number(latest.hip_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(hipDelta),
       x: 60,
-      y: 45,
+      y: 44,
       tone: measurementTone("hip", hipDelta, goalDirection),
     },
     {
@@ -134,7 +134,7 @@ const BodyMeasurementsCard = ({
       valueText: latest.thigh_cm ? `${Number(latest.thigh_cm).toFixed(1)} cm` : "--",
       deltaText: formatDelta(thighDelta),
       x: 38,
-      y: 63,
+      y: 58,
       tone: measurementTone("thigh", thighDelta, goalDirection),
     },
   ];
