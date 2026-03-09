@@ -23,6 +23,8 @@ describe("nutritionCalculator", () => {
   it("resolves multipliers and archetype deltas", () => {
     expect(getActivityMultiplier("moderate")).toBe(1.375);
     expect(getGoalMultiplier("lose")).toBe(0.8);
+    expect(getGoalMultiplier("lose_slow")).toBe(0.9);
+    expect(getGoalMultiplier("gain_slow")).toBe(1.1);
     expect(getDayArchetypeDelta("heavy")).toBe(150);
   });
 

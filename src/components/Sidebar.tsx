@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
+import { findGoalOption } from "@/lib/metabolismOptions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import EditProfileModal from "@/components/profile/EditProfileModal";
@@ -54,7 +55,7 @@ const Sidebar = () => {
   const displayName = isGuest ? t("sidebar.guest") : profile?.full_name?.trim() || user?.email || t("sidebar.user");
   const heightLabel = profile?.height ? `${profile.height} cm` : "--";
   const weightLabel = profile?.weight ? `${profile.weight} kg` : "--";
-  const goalLabel = profile?.goal_type || "--";
+  const goalLabel = profile?.goal_type || findGoalOption(profile?.nutrition_goal_type).label || "--";
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col z-30">

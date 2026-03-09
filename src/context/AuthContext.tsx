@@ -11,7 +11,7 @@ interface Profile {
     height: number | null;
     biological_sex: "male" | "female" | null;
     activity_level: "low" | "moderate" | "high" | "very_high" | "hyperactive" | null;
-    nutrition_goal_type: "lose" | "maintain" | "gain" | null;
+    nutrition_goal_type: "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain" | null;
     day_archetype: "base" | "heavy" | "recovery" | null;
     goal_type: string | null;
     target_weight_kg: number | null;
@@ -140,7 +140,9 @@ const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
         resolvedProfile.full_name ||
         resolvedProfile.weight !== null ||
         resolvedProfile.height !== null ||
-        resolvedProfile.goal_type
+        resolvedProfile.goal_type ||
+        resolvedProfile.nutrition_goal_type ||
+        resolvedProfile.activity_level
     );
 };
 

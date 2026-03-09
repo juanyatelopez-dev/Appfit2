@@ -43,6 +43,16 @@ const trendLabel = (trend: "up" | "down" | "stable" | null) => {
 const Stats = () => {
   const { user, isGuest, profile } = useAuth();
   const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const metabolicProfileKey = [
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.birth_date ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
   const [range, setRange] = useState<Range>("30d");
 
   const { data: chartEntries = [] } = useQuery({
@@ -207,7 +217,7 @@ const Stats = () => {
   });
 
   const { data: nutritionGoals } = useQuery({
-    queryKey: ["stats_nutrition_goals", user?.id, isGuest],
+    queryKey: ["stats_nutrition_goals", user?.id, isGuest, metabolicProfileKey],
     queryFn: () =>
       getNutritionGoals(user?.id ?? null, { isGuest, profile: profile as any }).catch(() => ({
         calorie_goal: 2000,

@@ -39,9 +39,19 @@ const invalidateNutrition = async (queryClient: ReturnType<typeof useQueryClient
 
 export const useNutritionTargets = ({ userId, date, isGuest = false, timeZone, profile }: UseNutritionTargetsParams) => {
   const queryClient = useQueryClient();
+  const metabolicProfileKey = [
+    profile?.birth_date ?? "",
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
 
   const targetQuery = useQuery({
-    queryKey: ["nutrition_target_breakdown", userId, date.toISOString().slice(0, 10), isGuest, timeZone],
+    queryKey: ["nutrition_target_breakdown", userId, date.toISOString().slice(0, 10), isGuest, timeZone, metabolicProfileKey],
     queryFn: () => getNutritionTargetBreakdown(userId, date, { isGuest, timeZone, profile }),
     enabled: Boolean(userId) || isGuest,
   });

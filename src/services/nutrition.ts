@@ -341,8 +341,31 @@ const normalizeActivityLevel = (value: string | null | undefined): NutritionMeta
 
 const normalizeGoalType = (value: string | null | undefined): NutritionMetabolicProfile["goalType"] => {
   const normalized = String(value ?? "").trim().toLowerCase();
+  if (
+    [
+      "lose_slow",
+      "lose slow",
+      "perder peso lentamente",
+      "slow cut",
+      "deficit moderado",
+      "lose weight slowly",
+    ].some((item) => normalized.includes(item))
+  ) {
+    return "lose_slow";
+  }
   if (["lose", "lose weight", "bajar", "bajar de peso", "fat loss", "cut"].some((item) => normalized.includes(item))) {
     return "lose";
+  }
+  if (
+    [
+      "gain_slow",
+      "gain slow",
+      "aumentar peso lentamente",
+      "superavit moderado",
+      "gain weight slowly",
+    ].some((item) => normalized.includes(item))
+  ) {
+    return "gain_slow";
   }
   if (["gain", "build", "muscle", "bulk", "aumentar", "ganar"].some((item) => normalized.includes(item))) {
     return "gain";

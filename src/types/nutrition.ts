@@ -2,7 +2,7 @@ export type NutritionMealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 export type NutritionSex = "male" | "female";
 export type NutritionActivityLevel = "low" | "moderate" | "high" | "very_high" | "hyperactive";
-export type NutritionGoalType = "lose" | "maintain" | "gain";
+export type NutritionGoalType = "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain";
 export type NutritionDayArchetype = "base" | "heavy" | "recovery";
 
 export type NutritionMicronutrients = Record<string, number>;

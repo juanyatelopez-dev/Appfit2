@@ -17,7 +17,9 @@ const ACTIVITY_MULTIPLIERS: Record<NutritionActivityLevel, number> = {
 
 const GOAL_MULTIPLIERS: Record<NutritionGoalType, number> = {
   lose: 0.8,
+  lose_slow: 0.9,
   maintain: 1,
+  gain_slow: 1.1,
   gain: 1.2,
 };
 

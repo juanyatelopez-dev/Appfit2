@@ -58,6 +58,16 @@ const Calendar = () => {
   const [noteContent, setNoteContent] = useState("");
 
   const timezone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const metabolicProfileKey = [
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.birth_date ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -178,7 +188,7 @@ const Calendar = () => {
     enabled: Boolean(user?.id) || isGuest,
   });
   const { data: selectedNutrition } = useQuery({
-    queryKey: ["calendar_day_nutrition", user?.id, selectedDateKey, timezone, isGuest],
+    queryKey: ["calendar_day_nutrition", user?.id, selectedDateKey, timezone, isGuest, metabolicProfileKey],
     queryFn: () =>
       getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone, profile: profile as any }).catch(
         () => null,
@@ -305,6 +315,10 @@ const Calendar = () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
         queryClient.invalidateQueries({ queryKey: ["body_metrics"] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+        queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
       ]);
     },
     onError: (error: any) => {

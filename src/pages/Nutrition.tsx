@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNutritionTargets } from "@/hooks/useNutritionTargets";
+import { ACTIVITY_OPTIONS, GOAL_OPTIONS } from "@/lib/metabolismOptions";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import {
   addNutritionEntry,
@@ -46,6 +47,16 @@ const Nutrition = () => {
   const { user, isGuest, profile, updateProfile } = useAuth();
   const userId = user?.id ?? null;
   const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const metabolicProfileKey = [
+    profile?.birth_date ?? "",
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
   const [selectedDate, setSelectedDate] = useState(() => {
     const fromQuery = searchParams.get("date");
     if (fromQuery && /^\d{4}-\d{2}-\d{2}$/.test(fromQuery)) {
@@ -81,7 +92,7 @@ const Nutrition = () => {
   const [profileHeightCm, setProfileHeightCm] = useState("");
   const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
   const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
-  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "maintain" | "gain">("maintain");
+  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
   const [dayArchetype, setDayArchetype] = useState<"base" | "heavy" | "recovery">("base");
   const [calorieOverride, setCalorieOverride] = useState("");
 
@@ -110,9 +121,11 @@ const Nutrition = () => {
       targetProfile.isCalorieOverrideEnabled && targetProfile.calorieOverride !== null ? String(targetProfile.calorieOverride) : "",
     );
   }, [nutritionTargets.metabolicProfile]);
+  const selectedActivity = useMemo(() => ACTIVITY_OPTIONS.find((option) => option.value === activityLevel), [activityLevel]);
+  const selectedGoal = useMemo(() => GOAL_OPTIONS.find((option) => option.value === nutritionGoalType), [nutritionGoalType]);
 
   const summaryQuery = useQuery({
-    queryKey: ["nutrition_day_summary", userId, todayKey, isGuest, timeZone],
+    queryKey: ["nutrition_day_summary", userId, todayKey, isGuest, timeZone, metabolicProfileKey],
     queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile: profile as any }),
     enabled: Boolean(userId) || isGuest,
   });
@@ -203,6 +216,7 @@ const Nutrition = () => {
       const parsedWeight = Number(profileWeightKg);
       const parsedHeight = Number(profileHeightCm);
       const parsedOverride = calorieOverride.trim() ? Number(calorieOverride) : null;
+      const parsedBirthDate = birthDate ? new Date(`${birthDate}T00:00:00`) : null;
 
       if (!Number.isFinite(parsedWeight) || parsedWeight <= 0) {
         throw new Error("Peso invalido.");
@@ -213,6 +227,20 @@ const Nutrition = () => {
       if (parsedOverride !== null && (!Number.isFinite(parsedOverride) || parsedOverride <= 0)) {
         throw new Error("Override calorico invalido.");
       }
+      if (parsedBirthDate && Number.isNaN(parsedBirthDate.getTime())) {
+        throw new Error("Fecha de nacimiento invalida.");
+      }
+      if (parsedBirthDate) {
+        const now = new Date();
+        let age = now.getFullYear() - parsedBirthDate.getFullYear();
+        const monthDiff = now.getMonth() - parsedBirthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < parsedBirthDate.getDate())) {
+          age -= 1;
+        }
+        if (age < 12 || age > 95) {
+          throw new Error("La edad debe estar entre 12 y 95 anios.");
+        }
+      }
 
       await updateProfile({
         birth_date: birthDate || null,
@@ -221,6 +249,7 @@ const Nutrition = () => {
         biological_sex: biologicalSex,
         activity_level: activityLevel,
         nutrition_goal_type: nutritionGoalType,
+        goal_type: GOAL_OPTIONS.find((option) => option.value === nutritionGoalType)?.legacyGoalTypeLabel ?? "Maintain Weight",
         day_archetype: dayArchetype,
       } as any);
 
@@ -474,13 +503,14 @@ const Nutrition = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Bajo</SelectItem>
-                    <SelectItem value="moderate">Moderado</SelectItem>
-                    <SelectItem value="high">Alto</SelectItem>
-                    <SelectItem value="very_high">Muy alto</SelectItem>
-                    <SelectItem value="hyperactive">Hiperactivo</SelectItem>
+                    {ACTIVITY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">{selectedActivity?.description}</p>
               </div>
               <div className="space-y-1">
                 <Label>Objetivo nutricional</Label>
@@ -489,11 +519,14 @@ const Nutrition = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="lose">Perder peso</SelectItem>
-                    <SelectItem value="maintain">Mantener</SelectItem>
-                    <SelectItem value="gain">Aumentar peso</SelectItem>
+                    {GOAL_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">{selectedGoal?.description}</p>
               </div>
               <div className="space-y-1">
                 <Label>Arquetipo del dia</Label>

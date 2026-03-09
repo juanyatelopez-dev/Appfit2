@@ -24,13 +24,16 @@ begin
     check (activity_level is null or activity_level in ('low', 'moderate', 'high', 'very_high', 'hyperactive'));
   end if;
 
-  if not exists (
+  if exists (
     select 1 from pg_constraint where conname = 'profiles_nutrition_goal_type_check'
   ) then
     alter table public.profiles
-    add constraint profiles_nutrition_goal_type_check
-    check (nutrition_goal_type is null or nutrition_goal_type in ('lose', 'maintain', 'gain'));
+    drop constraint profiles_nutrition_goal_type_check;
   end if;
+
+  alter table public.profiles
+  add constraint profiles_nutrition_goal_type_check
+  check (nutrition_goal_type is null or nutrition_goal_type in ('lose', 'lose_slow', 'maintain', 'gain_slow', 'gain'));
 
   if not exists (
     select 1 from pg_constraint where conname = 'profiles_day_archetype_check'

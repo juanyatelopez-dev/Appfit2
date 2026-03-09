@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
+import { ACTIVITY_OPTIONS, GOAL_OPTIONS } from "@/lib/metabolismOptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +23,7 @@ import { MINECRAFT_WOOL_COLORS } from "@/theme/accentPalette";
 
 const Settings = () => {
   const { profile, updateProfile, isGuest, loading, signOut, exitGuest } = useAuth();
+  const queryClient = useQueryClient();
   const { t, language, themePreference, accentColorId, setLanguagePreference, setThemePreference, setAccentColorPreference } =
     usePreferences();
   const navigate = useNavigate();
@@ -28,7 +31,8 @@ const Settings = () => {
   const [birthDate, setBirthDate] = useState("");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
-  const [goalType, setGoalType] = useState("");
+  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
+  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
   const [sleepGoalMinutes, setSleepGoalMinutes] = useState("");
   const [calorieGoal, setCalorieGoal] = useState("");
   const [proteinGoal, setProteinGoal] = useState("");
@@ -43,7 +47,8 @@ const Settings = () => {
       setBirthDate(profile.birth_date || "");
       setWeight(profile.weight?.toString() || "");
       setHeight(profile.height?.toString() || "");
-      setGoalType(profile.goal_type || "");
+      setActivityLevel((profile.activity_level as "low" | "moderate" | "high" | "very_high" | "hyperactive" | null) ?? "moderate");
+      setNutritionGoalType((profile.nutrition_goal_type as "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain" | null) ?? "maintain");
       setSleepGoalMinutes(profile.sleep_goal_minutes?.toString() || "480");
       setCalorieGoal((profile as any).calorie_goal?.toString() || "2000");
       setProteinGoal((profile as any).protein_goal_g?.toString() || "150");
@@ -99,13 +104,25 @@ const Settings = () => {
         birth_date: birthDate || null,
         weight: parsedWeight,
         height: parsedHeight,
-        goal_type: goalType,
+        activity_level: activityLevel,
+        nutrition_goal_type: nutritionGoalType,
+        goal_type: GOAL_OPTIONS.find((option) => option.value === nutritionGoalType)?.legacyGoalTypeLabel ?? "Maintain Weight",
         sleep_goal_minutes: parsedSleepGoal,
         calorie_goal: parsedCalorieGoal,
         protein_goal_g: parsedProteinGoal,
         carb_goal_g: parsedCarbGoal,
         fat_goal_g: parsedFatGoal,
       });
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+        queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard_snapshot"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
+        queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+        queryClient.invalidateQueries({ queryKey: ["calendar_day_nutrition"] }),
+        queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
+      ]);
 
       if (isGuest) {
         toast.info("Modo invitado: los cambios no se guardan de forma permanente.");
@@ -263,21 +280,47 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="goalType" className="flex items-center gap-2">
-                <Target className="h-4 w-4" /> {t("settings.fitnessGoal")}
-              </Label>
-              <Select value={goalType} onValueChange={setGoalType}>
-                <SelectTrigger id="goalType" className="bg-background/50">
-                  <SelectValue placeholder={t("settings.selectGoal")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Build Muscles">{t("settings.goal.buildMuscles")}</SelectItem>
-                  <SelectItem value="Lose Weight">{t("settings.goal.loseWeight")}</SelectItem>
-                  <SelectItem value="Keep Fit">{t("settings.goal.keepFit")}</SelectItem>
-                  <SelectItem value="Improve Endurance">{t("settings.goal.improveEndurance")}</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="nutritionGoalType" className="flex items-center gap-2">
+                  <Target className="h-4 w-4" /> {t("settings.fitnessGoal")}
+                </Label>
+                <Select value={nutritionGoalType} onValueChange={(value) => setNutritionGoalType(value as typeof nutritionGoalType)}>
+                  <SelectTrigger id="nutritionGoalType" className="bg-background/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GOAL_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {GOAL_OPTIONS.find((option) => option.value === nutritionGoalType)?.description}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activityLevel" className="flex items-center gap-2">
+                  <Target className="h-4 w-4" /> Nivel de actividad
+                </Label>
+                <Select value={activityLevel} onValueChange={(value) => setActivityLevel(value as typeof activityLevel)}>
+                  <SelectTrigger id="activityLevel" className="bg-background/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ACTIVITY_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {ACTIVITY_OPTIONS.find((option) => option.value === activityLevel)?.description}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">

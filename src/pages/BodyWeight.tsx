@@ -86,6 +86,10 @@ const BodyWeight = () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["body_metrics", user.id] }),
           queryClient.invalidateQueries({ queryKey: ["body_metrics_trend"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+          queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
           queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
           queryClient.invalidateQueries({ queryKey: ["stats"] }),
         ]);
@@ -103,6 +107,10 @@ const BodyWeight = () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["body_metrics", user.id] }),
           queryClient.invalidateQueries({ queryKey: ["body_metrics_trend"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+          queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
           queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
           queryClient.invalidateQueries({ queryKey: ["stats"] }),
         ]);
@@ -165,6 +173,10 @@ const BodyWeight = () => {
         saveGuestBodyMetrics(nextEntries);
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["body_metrics_trend"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+          queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
           queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
           queryClient.invalidateQueries({ queryKey: ["stats"] }),
         ]);
@@ -208,6 +220,10 @@ const BodyWeight = () => {
         saveGuestBodyMetrics(nextEntries);
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["body_metrics_trend"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
+          queryClient.invalidateQueries({ queryKey: ["nutrition_target_breakdown"] }),
+          queryClient.invalidateQueries({ queryKey: ["stats_nutrition_goals"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard_tremor_nutrition_7d"] }),
           queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
           queryClient.invalidateQueries({ queryKey: ["stats"] }),
         ]);

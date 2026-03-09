@@ -19,6 +19,16 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
   const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const metabolicProfileKey = [
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.birth_date ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
   const today = useMemo(() => new Date(), []);
   const todayKey = getDateKeyForTimezone(today, timeZone);
 
@@ -94,7 +104,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
   });
 
   const coreQuery = useQuery({
-    queryKey: ["dashboard_snapshot", "core", userId, todayKey, isGuest, timeZone],
+    queryKey: ["dashboard_snapshot", "core", userId, todayKey, isGuest, timeZone, metabolicProfileKey],
     queryFn: async () => {
       const sevenDaysAgo = new Date(today);
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);

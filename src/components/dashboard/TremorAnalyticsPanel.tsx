@@ -42,6 +42,16 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
   const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const metabolicProfileKey = [
+    profile?.weight ?? "",
+    profile?.height ?? "",
+    profile?.birth_date ?? "",
+    profile?.biological_sex ?? "",
+    profile?.activity_level ?? "",
+    profile?.nutrition_goal_type ?? "",
+    profile?.day_archetype ?? "",
+    profile?.goal_type ?? "",
+  ].join("|");
 
   const today = useMemo(() => {
     const d = new Date();
@@ -50,7 +60,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
   }, []);
 
   const nutritionWeekQuery = useQuery({
-    queryKey: ["dashboard_tremor_nutrition_7d", userId, isGuest, timeZone],
+    queryKey: ["dashboard_tremor_nutrition_7d", userId, isGuest, timeZone, metabolicProfileKey],
     queryFn: async () => {
       const from = new Date(today);
       from.setDate(from.getDate() - 6);
