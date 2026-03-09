@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
 import { getLatestWeight } from "@/services/bodyMetrics";
 import { addBodyMeasurement, getBodyMeasurementsRange, getLatestBodyMeasurement } from "@/services/bodyMeasurements";
+import BodyMeasurementsCard from "@/components/dashboard/BodyMeasurementsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -115,15 +116,42 @@ const BodyMeasurements = () => {
       body_fat_pct: Number(row.body_fat_pct),
     }));
 
+  const sortedMeasurements = useMemo(() => [...measurementRows].sort((a, b) => a.date_key.localeCompare(b.date_key)), [measurementRows]);
+  const latestMeasuredRow = latestMeasurement ?? sortedMeasurements.at(-1) ?? null;
+  const previousMeasuredRow =
+    latestMeasuredRow === null
+      ? null
+      : [...sortedMeasurements].reverse().find((row) => row.date_key < latestMeasuredRow.date_key) ?? null;
+  const latestWeightKg =
+    latestWeightEntry?.weight_kg !== null && latestWeightEntry?.weight_kg !== undefined
+      ? Number(latestWeightEntry.weight_kg)
+      : profile?.weight ?? null;
+  const weeklyWaistDeltaCm =
+    latestMeasuredRow && previousMeasuredRow
+      ? Number((Number(latestMeasuredRow.waist_cm) - Number(previousMeasuredRow.waist_cm)).toFixed(1))
+      : null;
+  const goalDirection =
+    profile?.goal_direction === "lose" || profile?.goal_direction === "gain" || profile?.goal_direction === "maintain"
+      ? profile.goal_direction
+      : null;
+
   return (
     <div className="container max-w-6xl py-8 space-y-6">
       <div className="flex items-center gap-3">
         <Ruler className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Body Measurements</h1>
-          <p className="text-sm text-muted-foreground">Perimetros semanales y composicion corporal estimada.</p>
+          <h1 className="text-3xl font-bold">Cuerpo</h1>
+          <p className="text-sm text-muted-foreground">Perímetros semanales, composición corporal estimada y mapa visual de medidas.</p>
         </div>
       </div>
+
+      <BodyMeasurementsCard
+        latest={latestMeasuredRow}
+        previous={previousMeasuredRow}
+        latestWeight={latestWeightKg}
+        weeklyWaistDeltaCm={weeklyWaistDeltaCm}
+        goalDirection={goalDirection}
+      />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
@@ -175,8 +203,8 @@ const BodyMeasurements = () => {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.3fr_1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Nueva medicion</CardTitle>
-            <CardDescription>La formula Navy usa altura + perimetros para estimar % de grasa.</CardDescription>
+            <CardTitle>Nueva medición</CardTitle>
+            <CardDescription>La fórmula Navy usa altura + perímetros para estimar % de grasa.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -194,7 +222,7 @@ const BodyMeasurements = () => {
                 <Input id="neck" type="number" step="0.1" value={neck} onChange={(e) => setNeck(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="hip">Cadera/Gluteo (cm)</Label>
+                <Label htmlFor="hip">Cadera/Glúteo (cm)</Label>
                 <Input id="hip" type="number" step="0.1" value={hip} onChange={(e) => setHip(e.target.value)} />
               </div>
               <div className="space-y-1">
@@ -218,7 +246,7 @@ const BodyMeasurements = () => {
             </div>
 
             <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-              Guardar medicion
+              Guardar medición
             </Button>
           </CardContent>
         </Card>
@@ -226,7 +254,7 @@ const BodyMeasurements = () => {
         <Card>
           <CardHeader>
             <CardTitle>Tendencia % grasa</CardTitle>
-            <CardDescription>Historial de estimacion Navy</CardDescription>
+            <CardDescription>Historial de estimación Navy</CardDescription>
           </CardHeader>
           <CardContent>
             {chartData.length === 0 ? (
