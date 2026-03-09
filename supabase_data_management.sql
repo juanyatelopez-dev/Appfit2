@@ -93,9 +93,12 @@ $$;
 
 grant execute on function public.reset_user_history(uuid) to authenticated;
 
+drop function if exists public.reset_user_account(uuid, boolean);
+drop function if exists public.reset_user_account(boolean, uuid);
+
 create or replace function public.reset_user_account(
-  p_user_id uuid,
-  p_keep_preferences boolean default true
+  p_keep_preferences boolean default true,
+  p_user_id uuid default auth.uid()
 )
 returns void
 language plpgsql
@@ -265,22 +268,6 @@ begin
     v_updates := left(v_updates, length(v_updates) - 1);
     execute format('update public.profiles set %s where id = $1', v_updates) using p_user_id;
   end if;
-end;
-$$;
-
-grant execute on function public.reset_user_account(uuid, boolean) to authenticated;
-
-create or replace function public.reset_user_account(
-  p_keep_preferences boolean,
-  p_user_id uuid
-)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  perform public.reset_user_account(p_user_id, p_keep_preferences);
 end;
 $$;
 

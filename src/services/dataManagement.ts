@@ -166,8 +166,15 @@ export const resetUserAccount = async (params: {
   }
 
   const { error } = await supabase.rpc("reset_user_account", {
-    p_user_id: userId,
     p_keep_preferences: keepPreferences,
+    p_user_id: userId,
   });
-  if (error) throw error;
+  if (error) {
+    if (error.message?.includes("schema cache") || error.message?.includes("Could not find the function")) {
+      throw new Error(
+        "La funcion reset_user_account no esta disponible en tu base de Supabase. Ejecuta supabase_data_management.sql y recarga el schema cache.",
+      );
+    }
+    throw error;
+  }
 };
