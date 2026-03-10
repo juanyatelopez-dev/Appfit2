@@ -4,6 +4,7 @@ import { addDays, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } fro
 
 import { useAuth } from "@/context/AuthContext";
 import { deriveMeasurementSummary, filterMeasurementsByRangePreset } from "@/features/bodyMeasurements/measurementInsights";
+import { deriveDashboardPhysicalSummary } from "@/features/dashboard/physicalProgress";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import {
   getBodyWeightSnapshot,
@@ -195,6 +196,15 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
         measurementSummary.latest !== null
           ? resolveWeightReferenceFromEntries(weightSnapshot.entries, measurementSummary.latest.date_key).entry
           : null;
+      const physicalSummary = deriveDashboardPhysicalSummary({
+        latestMeasurement: measurementSummary.latest,
+        recentWeightChangeKg: weightTrend.weeklyChange ?? null,
+        latestWeightKg: latestWeight,
+        latestWeightEntry: weightSnapshot.latest,
+        goalDirection: goal.goal_direction ?? null,
+        goalProgressPct: goalProgress,
+        waistChange: measurementSummary.waistComparison,
+      });
 
       return {
         displayName: isGuest ? "Guest" : profile?.full_name?.trim() || user?.email || "User",
@@ -221,6 +231,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
         measurementRange,
         previousMeasurement: measurementSummary.previous,
         waistComparison: measurementSummary.waistComparison,
+        physicalSummary,
         noteToday,
         noteLatest,
       };

@@ -28,8 +28,8 @@ const TacticalNotesCard = ({ loading = false, todayNote, latestNote, onSave }: P
     return (
       <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
-          <CardTitle>Notas tácticas</CardTitle>
-          <CardDescription>Libreta personal del día.</CardDescription>
+          <CardTitle>Notas tacticas</CardTitle>
+          <CardDescription>Libreta personal del dia.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-10 w-full" />
@@ -42,8 +42,8 @@ const TacticalNotesCard = ({ loading = false, todayNote, latestNote, onSave }: P
   return (
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
       <CardHeader>
-        <CardTitle>Notas tácticas</CardTitle>
-        <CardDescription>Registra observaciones relevantes del día y mantenlas visibles en tu calendario.</CardDescription>
+        <CardTitle>Notas tacticas</CardTitle>
+        <CardDescription>Registra observaciones relevantes del dia y mantenlas visibles en tu calendario.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-2">
@@ -72,7 +72,7 @@ const TacticalNotesCard = ({ loading = false, todayNote, latestNote, onSave }: P
         <div className="rounded-lg border border-border/60 p-3">
           <p className="text-xs text-muted-foreground">Ultima nota registrada</p>
           {!latestNote ? (
-            <p className="text-sm mt-2">Sin notas registradas.</p>
+            <p className="mt-2 text-sm">Sin notas registradas.</p>
           ) : (
             <div className="mt-2 space-y-1">
               <p className="font-medium">{latestNote.title || "Nota sin titulo"}</p>
