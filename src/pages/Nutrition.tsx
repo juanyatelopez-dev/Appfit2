@@ -648,6 +648,9 @@ const Nutrition = () => {
                   {daySummary?.weightSource === "profile_fallback" ? "Peso perfil" : "Peso registrado"}
                 </div>
               </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Actividad y objetivo vienen del perfil fitness. El peso usado para calcular puede venir del historial o del perfil.
+              </p>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/8 bg-slate-950/80 p-4">
                   <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">TDEE base</div>
