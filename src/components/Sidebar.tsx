@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, Home, Settings, Target, UtensilsCrossed, Ruler } from "lucide-react";
+import { BarChart3, CalendarDays, Dumbbell, Home, Settings, Target, UtensilsCrossed, Ruler } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +15,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { title: t("nav.today"), icon: Home, path: "/today" },
+    { title: t("nav.training"), icon: Dumbbell, path: "/training" },
     { title: t("nav.nutrition"), icon: UtensilsCrossed, path: "/nutrition" },
     { title: t("nav.body"), icon: Ruler, path: "/body" },
     { title: t("nav.progress"), icon: BarChart3, path: "/progress" },

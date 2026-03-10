@@ -3,6 +3,7 @@ export type AppLanguage = "en" | "es";
 export type TranslationKey =
   | "nav.today"
   | "nav.nutrition"
+  | "nav.training"
   | "nav.body"
   | "nav.progress"
   | "nav.calendar"
@@ -138,6 +139,7 @@ type Dict = Record<TranslationKey, string>;
 export const translations: Record<AppLanguage, Dict> = {
   en: {
     "nav.today": "Today",
+    "nav.training": "Training",
     "nav.body": "Body",
     "nav.progress": "Progress",
     "nav.fitnessProfile": "Fitness Profile",
@@ -271,6 +273,7 @@ export const translations: Record<AppLanguage, Dict> = {
   },
   es: {
     "nav.today": "Hoy",
+    "nav.training": "Entrenamiento",
     "nav.body": "Cuerpo",
     "nav.progress": "Progreso",
     "nav.fitnessProfile": "Perfil Fitness",

@@ -16,6 +16,7 @@ import Calendar from "@/pages/Calendar";
 import DailyBiofeedback from "@/pages/DailyBiofeedback";
 import BodyMeasurements from "@/pages/BodyMeasurements";
 import Nutrition from "@/pages/Nutrition";
+import Training from "@/pages/Training";
 import Onboarding from "@/pages/Onboarding";
 import NotFound from "@/pages/NotFound";
 
@@ -48,6 +49,7 @@ const AppRoutes = () => {
             <Route path="/body" element={<BodyMeasurements />} />
             <Route path="/measurements" element={<Navigate to="/body" replace />} />
             <Route path="/nutrition" element={<Nutrition />} />
+            <Route path="/training" element={<Training />} />
             <Route path="/weight" element={<BodyWeight />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/settings" element={<Settings />} />

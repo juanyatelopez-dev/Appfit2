@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BarChart3, Bell, CalendarDays, Home, LogOut, Menu, Plus, Ruler, Settings, Target, UtensilsCrossed } from "lucide-react";
+import { BarChart3, Bell, CalendarDays, Dumbbell, Home, LogOut, Menu, Plus, Ruler, Settings, Target, UtensilsCrossed } from "lucide-react";
 import { usePreferences } from "@/context/PreferencesContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import type { TranslationKey } from "@/i18n/translations";
 const resolvePageTitle = (pathname: string, t: (key: TranslationKey) => string) => {
   if (pathname.startsWith("/today")) return t("nav.today");
   if (pathname.startsWith("/progress")) return t("nav.progress");
+  if (pathname.startsWith("/training")) return t("nav.training");
   if (pathname.startsWith("/body")) return t("nav.body");
   if (pathname.startsWith("/fitness-profile")) return t("nav.fitnessProfile");
   if (pathname.startsWith("/dashboard")) return t("nav.dashboard");
@@ -45,6 +46,7 @@ const DashboardHeader = () => {
   const activeDayIndex = currentDay === 0 ? 6 : currentDay - 1;
   const mobileNavItems = [
     { label: t("nav.today"), path: "/today", icon: Home },
+    { label: t("nav.training"), path: "/training", icon: Dumbbell },
     { label: t("nav.nutrition"), path: "/nutrition", icon: UtensilsCrossed },
     { label: t("nav.body"), path: "/body", icon: Ruler },
     { label: t("nav.progress"), path: "/progress", icon: BarChart3 },
