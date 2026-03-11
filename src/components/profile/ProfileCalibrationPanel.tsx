@@ -65,34 +65,34 @@ const ProfileCalibrationPanel = ({
   const age = calculateAge(birthDate);
 
   return (
-    <section className="app-surface-hero overflow-hidden rounded-[28px] text-slate-100">
-      <div className="border-b border-white/5 px-5 py-5 sm:px-6">
-        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-100/90">
+    <section className="app-surface-hero overflow-hidden rounded-[28px]">
+      <div className="border-b border-border/40 px-5 py-5 sm:px-6">
+        <div className="app-surface-heading flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em]">
           <UserRound className="h-4 w-4 text-primary" />
           Calibracion de perfil
         </div>
-        <p className="mt-2 max-w-2xl text-sm text-slate-400">
+        <p className="app-surface-muted mt-2 max-w-2xl text-sm">
           Ajusta tus datos base, tu nivel de actividad y el objetivo metabólico que usaremos para tus cálculos.
         </p>
       </div>
 
       <div className="space-y-8 px-5 py-5 sm:px-6 sm:py-6">
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+          <div className="app-surface-caption flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em]">
             <CalendarDays className="h-3.5 w-3.5" />
             Datos estaticos
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="app-surface-tile rounded-2xl p-3">
-              <Label className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Edad</Label>
-              <div className="mt-2 flex h-12 items-center rounded-xl border border-white/5 bg-slate-950/80 px-4 text-lg font-semibold">
+              <Label className="app-surface-caption text-[11px] font-medium uppercase tracking-[0.18em]">Edad</Label>
+              <div className="app-surface-soft mt-2 flex h-12 items-center rounded-xl px-4 text-lg font-semibold">
                 {age ?? "--"}
               </div>
             </div>
 
             <div className="app-surface-tile rounded-2xl p-3">
-              <Label className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Sexo</Label>
+              <Label className="app-surface-caption text-[11px] font-medium uppercase tracking-[0.18em]">Sexo</Label>
               <div className="mt-2 grid h-12 grid-cols-2 gap-2">
                 {sexOptions.map((option) => {
                   const isSelected = biologicalSex === option.value;
@@ -105,8 +105,8 @@ const ProfileCalibrationPanel = ({
                       className={cn(
                         "rounded-xl border text-sm font-semibold transition-colors",
                         isSelected
-                          ? "border-primary/70 bg-primary/15 text-white"
-                          : "border-white/10 bg-slate-950/80 text-slate-300 hover:border-white/20 hover:text-white",
+                          ? "border-primary/70 bg-primary/15 text-primary-foreground"
+                          : "app-surface-soft app-surface-muted hover:border-border hover:text-foreground",
                       )}
                     >
                       {option.label}
@@ -117,7 +117,7 @@ const ProfileCalibrationPanel = ({
             </div>
 
             <div className="app-surface-tile rounded-2xl p-3">
-              <Label htmlFor="calibration-height" className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+              <Label htmlFor="calibration-height" className="app-surface-caption flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em]">
                 <Ruler className="h-3.5 w-3.5" />
                 Altura (cm)
               </Label>
@@ -130,12 +130,12 @@ const ProfileCalibrationPanel = ({
                 placeholder="171.3"
                 value={height}
                 onChange={(event) => onHeightChange(event.target.value)}
-                className="mt-2 h-12 border-white/10 bg-slate-950/80 text-base font-semibold text-white placeholder:text-slate-600"
+                className="app-input-surface mt-2 h-12 text-base font-semibold"
               />
             </div>
 
             <div className="app-surface-tile rounded-2xl p-3">
-              <Label htmlFor="calibration-weight" className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+              <Label htmlFor="calibration-weight" className="app-surface-caption flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em]">
                 <Scale className="h-3.5 w-3.5" />
                 Peso (kg)
               </Label>
@@ -148,13 +148,13 @@ const ProfileCalibrationPanel = ({
                 placeholder="73.7"
                 value={weight}
                 onChange={(event) => onWeightChange(event.target.value)}
-                className="mt-2 h-12 border-white/10 bg-slate-950/80 text-base font-semibold text-white placeholder:text-slate-600"
+                className="app-input-surface mt-2 h-12 text-base font-semibold"
               />
             </div>
           </div>
 
           <div className="app-surface-tile rounded-2xl p-3">
-            <Label htmlFor="calibration-birth-date" className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+            <Label htmlFor="calibration-birth-date" className="app-surface-caption text-[11px] font-medium uppercase tracking-[0.18em]">
               Fecha de nacimiento
             </Label>
             <Input
@@ -162,13 +162,13 @@ const ProfileCalibrationPanel = ({
               type="date"
               value={birthDate}
               onChange={(event) => onBirthDateChange(event.target.value)}
-              className="mt-2 h-12 border-white/10 bg-slate-950/80 text-base font-medium text-white"
+              className="app-input-surface mt-2 h-12 text-base font-medium"
             />
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+          <div className="app-surface-caption flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em]">
             <Activity className="h-3.5 w-3.5" />
             Nivel de actividad
           </div>
@@ -185,18 +185,18 @@ const ProfileCalibrationPanel = ({
                     optionCardClassName,
                     isSelected
                       ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.25)]"
-                      : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]",
+                      : "app-surface-soft hover:border-border hover:bg-background/60",
                   )}
                 >
                   <div className="space-y-1">
-                    <div className="text-sm font-semibold uppercase tracking-[0.08em] text-white">{option.label}</div>
-                    <p className="text-xs text-slate-400">{option.description}</p>
+                    <div className="app-surface-heading text-sm font-semibold uppercase tracking-[0.08em]">{option.label}</div>
+                    <p className="app-surface-muted text-xs">{option.description}</p>
                   </div>
                   <RadioGroupItem
                     value={option.value}
                     id={`activity-${option.value}`}
                     className={cn(
-                       "mt-1 h-5 w-5 border-slate-500 text-primary ring-offset-slate-950",
+                       "mt-1 h-5 w-5 border-border text-primary ring-offset-background",
                        isSelected && "border-primary",
                     )}
                   />
@@ -207,7 +207,7 @@ const ProfileCalibrationPanel = ({
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+          <div className="app-surface-caption flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em]">
             <Target className="h-3.5 w-3.5" />
             Objetivo metabólico
           </div>
@@ -224,20 +224,20 @@ const ProfileCalibrationPanel = ({
                     optionCardClassName,
                     isSelected
                       ? "border-primary/70 bg-primary/10 shadow-[0_0_0_1px_hsl(var(--primary)/0.25)]"
-                      : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]",
+                      : "app-surface-soft hover:border-border hover:bg-background/60",
                   )}
                 >
                   <div className="space-y-1">
-                    <div className={cn("text-sm font-semibold uppercase tracking-[0.08em]", isSelected ? "text-primary" : "text-white")}>
+                    <div className={cn("text-sm font-semibold uppercase tracking-[0.08em]", isSelected ? "text-primary" : "app-surface-heading")}>
                       {option.label}
                     </div>
-                    <p className="text-xs text-slate-400">{option.description}</p>
+                    <p className="app-surface-muted text-xs">{option.description}</p>
                   </div>
                   <RadioGroupItem
                     value={option.value}
                     id={`goal-${option.value}`}
                     className={cn(
-                       "mt-1 h-5 w-5 border-slate-500 text-primary ring-offset-slate-950",
+                       "mt-1 h-5 w-5 border-border text-primary ring-offset-background",
                        isSelected && "border-primary",
                     )}
                   />

@@ -28,6 +28,8 @@ interface Profile {
     onboarding_completed: boolean | null;
     app_language: "en" | "es" | null;
     theme_preference: "light" | "dark" | "system" | null;
+    theme_accent_color: string | null;
+    theme_background_style: string | null;
 }
 
 interface AuthContextType {
@@ -103,6 +105,8 @@ const createGuestProfile = (): Profile => ({
     onboarding_completed: true,
     app_language: "en",
     theme_preference: "system",
+    theme_accent_color: "cyan",
+    theme_background_style: "focus",
 });
 
 const createEmptyProfile = (): Profile => ({
@@ -130,6 +134,8 @@ const createEmptyProfile = (): Profile => ({
     onboarding_completed: null,
     app_language: "en",
     theme_preference: "system",
+    theme_accent_color: "cyan",
+    theme_background_style: "focus",
 });
 
 const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
@@ -164,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchProfile = async (userId: string): Promise<Profile> => {
         let { data, error } = await supabase
             .from('profiles')
-            .select('full_name,birth_date,height,weight,biological_sex,activity_level,nutrition_goal_type,day_archetype,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,sleep_goal_minutes,calorie_goal,protein_goal_g,carb_goal_g,fat_goal_g,onboarding_completed,app_language,theme_preference')
+            .select('full_name,birth_date,height,weight,biological_sex,activity_level,nutrition_goal_type,day_archetype,goal_type,avatar_url,target_weight_kg,target_date,start_weight_kg,goal_direction,water_goal_ml,water_quick_options_ml,sleep_goal_minutes,calorie_goal,protein_goal_g,carb_goal_g,fat_goal_g,onboarding_completed,app_language,theme_preference,theme_accent_color,theme_background_style')
             .eq('id', userId)
             .limit(1)
             .maybeSingle();
@@ -223,6 +229,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             onboarding_completed: data?.onboarding_completed ?? null,
             app_language: (data?.app_language as Profile["app_language"]) ?? "en",
             theme_preference: (data?.theme_preference as Profile["theme_preference"]) ?? "system",
+            theme_accent_color: data?.theme_accent_color ?? "cyan",
+            theme_background_style: data?.theme_background_style ?? "focus",
         };
         setAuthedProfile(nextProfile);
         return nextProfile;

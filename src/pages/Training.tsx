@@ -614,22 +614,22 @@ const Training = () => {
 
   return (
     <div className="space-y-6 py-4">
-      <Card className="overflow-hidden border-border/60 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_42%),linear-gradient(135deg,rgba(15,23,42,1),rgba(15,23,42,0.88))] text-slate-100">
+      <Card className="app-surface-hero overflow-hidden border-border/60">
         <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.35fr_0.9fr]">
           <div>
             <h1 className="text-3xl font-black tracking-tight">{copy.title}</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">{copy.subtitle}</p>
+            <p className="app-surface-muted mt-2 max-w-2xl text-sm">{copy.subtitle}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">{copy.today}</div>
-              <div className="mt-2 text-lg font-semibold text-white">
+            <div className="app-surface-tile rounded-2xl p-4">
+              <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.today}</div>
+              <div className="app-surface-heading mt-2 text-lg font-semibold">
                 {activeSession ? copy.activeSession : scheduledWorkout?.name ?? copy.noWorkout}
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">{copy.rest}</div>
-              <div className="mt-2 text-lg font-semibold text-white">{restRemaining}s</div>
+            <div className="app-surface-tile rounded-2xl p-4">
+              <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.rest}</div>
+              <div className="app-surface-heading mt-2 text-lg font-semibold">{restRemaining}s</div>
             </div>
           </div>
         </CardContent>

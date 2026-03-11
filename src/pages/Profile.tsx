@@ -245,11 +245,11 @@ const Profile = () => {
   return (
     <div className="container max-w-6xl space-y-6 py-8">
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="app-surface-hero overflow-hidden rounded-[30px] text-slate-100">
+        <Card className="app-surface-hero overflow-hidden rounded-[30px]">
           <CardContent className="grid gap-5 p-6 md:grid-cols-[auto_1fr]">
             <div className="flex items-start justify-center">
               <Avatar className="h-24 w-24">
-                <AvatarFallback className="bg-slate-950 text-2xl text-white">
+                <AvatarFallback className="app-surface-soft text-2xl">
                   {fullName ? getInitials(fullName) : <User className="h-12 w-12" />}
                 </AvatarFallback>
               </Avatar>
@@ -261,35 +261,35 @@ const Profile = () => {
                   Perfil Fitness
                 </div>
                 <h1 className="mt-3 text-3xl font-black tracking-tight">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabólico")}</h1>
-                <p className="mt-2 text-sm text-slate-300">
+                <p className="app-surface-muted mt-2 text-sm">
                   Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabólicas.
                 </p>
               </div>
 
               <div className="grid gap-3 md:grid-cols-4">
                 <div className="app-surface-tile rounded-2xl p-4">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Actual</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{formatNumber(latestWeight)}</p>
+                  <p className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Actual</p>
+                  <p className="app-surface-heading mt-2 text-xl font-semibold">{formatNumber(latestWeight)}</p>
                 </div>
                 <div className="app-surface-tile rounded-2xl p-4">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Inicial</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{formatNumber(initialWeight)}</p>
+                  <p className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Inicial</p>
+                  <p className="app-surface-heading mt-2 text-xl font-semibold">{formatNumber(initialWeight)}</p>
                 </div>
                 <div className="app-surface-tile rounded-2xl p-4">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Objetivo</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{formatNumber(targetWeightValue)}</p>
+                  <p className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Objetivo</p>
+                  <p className="app-surface-heading mt-2 text-xl font-semibold">{formatNumber(targetWeightValue)}</p>
                 </div>
                 <div className="app-surface-tile rounded-2xl p-4">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progreso</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{progress === null ? "--" : `${progress.toFixed(0)}%`}</p>
+                  <p className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Progreso</p>
+                  <p className="app-surface-heading mt-2 text-xl font-semibold">{progress === null ? "--" : `${progress.toFixed(0)}%`}</p>
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs uppercase tracking-[0.22em] text-slate-400">
+                <div className="app-surface-muted flex items-center justify-between text-xs uppercase tracking-[0.22em]">
                   <span>Meta de peso</span>
                   <span>Restante {remaining}</span>
                 </div>
-                <Progress value={progress ?? 0} className="h-3 bg-slate-800" />
+                <Progress value={progress ?? 0} className="app-progress-track h-3" />
               </div>
             </div>
           </CardContent>

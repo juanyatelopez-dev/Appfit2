@@ -3,6 +3,7 @@ import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
 import { useAuth } from "@/context/AuthContext";
 import { AppLanguage, translations, TranslationKey } from "@/i18n/translations";
+import { supabase } from "@/services/supabaseClient";
 import {
   AccentColorId,
   applyAccentThemeVars,
@@ -39,9 +40,13 @@ const PreferencesContext = createContext<PreferencesContextValue | undefined>(un
 const isLanguage = (value: string | null | undefined): value is AppLanguage => value === "en" || value === "es";
 const isTheme = (value: string | null | undefined): value is ThemePreference =>
   value === "light" || value === "dark" || value === "system";
+const isSchemaMissingError = (error: unknown, columnName: string) => {
+  const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
+  return message.includes(columnName) || message.includes("schema cache") || message.includes("column") || message.includes("could not find");
+};
 
 const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { profile, updateProfile, isGuest } = useAuth();
+  const { profile, updateProfile, isGuest, user } = useAuth();
   const { setTheme, resolvedTheme } = useTheme();
 
   const [language, setLanguage] = useState<AppLanguage>("en");
@@ -74,19 +79,25 @@ const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [profile?.theme_preference, setTheme]);
 
   useEffect(() => {
+    const profileAccent = profile?.theme_accent_color;
     const storedAccent = localStorage.getItem(ACCENT_STORAGE_KEY);
-    const nextAccent = isAccentColorId(storedAccent) ? storedAccent : getDefaultAccentColorId();
+    const nextAccent = isAccentColorId(profileAccent) ? profileAccent : isAccentColorId(storedAccent) ? storedAccent : getDefaultAccentColorId();
     setAccentColorId(nextAccent);
     localStorage.setItem(ACCENT_STORAGE_KEY, nextAccent);
-  }, []);
+  }, [profile?.theme_accent_color]);
 
   useEffect(() => {
+    const profileBackground = profile?.theme_background_style;
     const storedBackground = localStorage.getItem(BACKGROUND_STYLE_STORAGE_KEY);
-    const nextBackground = isAppBackgroundStyleId(storedBackground) ? storedBackground : getDefaultBackgroundStyleId();
+    const nextBackground = isAppBackgroundStyleId(profileBackground)
+      ? profileBackground
+      : isAppBackgroundStyleId(storedBackground)
+        ? storedBackground
+        : getDefaultBackgroundStyleId();
     setBackgroundStyleId(nextBackground);
     localStorage.setItem(BACKGROUND_STYLE_STORAGE_KEY, nextBackground);
     document.documentElement.dataset.appBg = nextBackground;
-  }, []);
+  }, [profile?.theme_background_style]);
 
   useEffect(() => {
     const mode = resolvedTheme === "dark" ? "dark" : "light";
@@ -118,12 +129,20 @@ const PreferencesInnerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const setAccentColorPreference = async (nextColorId: AccentColorId) => {
     setAccentColorId(nextColorId);
     localStorage.setItem(ACCENT_STORAGE_KEY, nextColorId);
+    if (!isGuest && user?.id) {
+      const { error } = await supabase.from("profiles").update({ theme_accent_color: nextColorId }).eq("id", user.id);
+      if (error && !isSchemaMissingError(error, "theme_accent_color")) throw error;
+    }
   };
 
   const setBackgroundStylePreference = async (nextStyleId: AppBackgroundStyleId) => {
     setBackgroundStyleId(nextStyleId);
     localStorage.setItem(BACKGROUND_STYLE_STORAGE_KEY, nextStyleId);
     document.documentElement.dataset.appBg = nextStyleId;
+    if (!isGuest && user?.id) {
+      const { error } = await supabase.from("profiles").update({ theme_background_style: nextStyleId }).eq("id", user.id);
+      if (error && !isSchemaMissingError(error, "theme_background_style")) throw error;
+    }
   };
 
   const value: PreferencesContextValue = {
