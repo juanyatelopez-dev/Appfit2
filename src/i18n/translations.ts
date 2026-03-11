@@ -138,7 +138,7 @@ type Dict = Record<TranslationKey, string>;
 
 export const translations: Record<AppLanguage, Dict> = {
   en: {
-    "nav.today": "Today",
+    "nav.today": "Operations",
     "nav.training": "Training",
     "nav.body": "Body",
     "nav.progress": "Progress",
@@ -272,7 +272,7 @@ export const translations: Record<AppLanguage, Dict> = {
     "common.minutes": "Minutes",
   },
   es: {
-    "nav.today": "Hoy",
+    "nav.today": "Centro operativo",
     "nav.training": "Entrenamiento",
     "nav.body": "Cuerpo",
     "nav.progress": "Progreso",
