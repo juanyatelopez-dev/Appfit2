@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { startOfMonth } from "date-fns";
 import { CalendarDays, CheckCircle2, Crosshair, TimerReset } from "lucide-react";
@@ -26,6 +26,8 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
   const snapshot = useDashboardSnapshot(currentMonth);
+  const [visibleModuleKey, setVisibleModuleKey] = useState<string | null>(null);
+  const [isModuleTransitioning, setIsModuleTransitioning] = useState(false);
 
   const saveNoteMutation = useMutation({
     mutationFn: (payload: { title?: string | null; content: string }) => snapshot.saveTodayNote(payload),
@@ -53,8 +55,36 @@ const Dashboard = () => {
   ] as const;
   const completionCount = dailyModules.filter((module) => module.completed).length;
   const missingModules = dailyModules.filter((module) => !module.completed);
+  const nextModule = missingModules[0] ?? null;
+  const remainingModuleCount = Math.max(missingModules.length - 1, 0);
   const nextActionLabel =
-    missingModules.length > 0 ? `${missingModules[0].label}: siguiente registro recomendado` : "Dia operativo completo. Revisa progreso o nutricion para interpretar tendencias.";
+    nextModule ? `${nextModule.label}: siguiente registro recomendado` : "Dia operativo completo. Revisa progreso o nutricion para interpretar tendencias.";
+
+  useEffect(() => {
+    if (!nextModule) {
+      setVisibleModuleKey(null);
+      setIsModuleTransitioning(false);
+      return;
+    }
+
+    if (!visibleModuleKey) {
+      setVisibleModuleKey(nextModule.key);
+      setIsModuleTransitioning(false);
+      return;
+    }
+
+    if (visibleModuleKey === nextModule.key) return;
+
+    setIsModuleTransitioning(true);
+    const timeoutId = window.setTimeout(() => {
+      setVisibleModuleKey(nextModule.key);
+      setIsModuleTransitioning(false);
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [nextModule, visibleModuleKey]);
+
+  const visibleModule = missingModules.find((module) => module.key === visibleModuleKey) ?? nextModule;
 
   return (
     <div className="space-y-6 py-4">
@@ -88,14 +118,24 @@ const Dashboard = () => {
                   ) : missingModules.length === 0 ? (
                     <p className="text-sm text-slate-300">Dia operativo completo. No hay registros pendientes.</p>
                   ) : (
-                    missingModules.map((module) => (
-                      <div key={module.key} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-                        <span className="text-sm text-slate-200">{module.label}</span>
-                        <Button asChild size="sm" className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
-                          {module.href.startsWith("#") ? <a href={module.href}>Registrar</a> : <Link to={module.href}>Registrar</Link>}
-                        </Button>
-                      </div>
-                    ))
+                    <>
+                      {visibleModule ? (
+                        <div
+                          key={visibleModule.key}
+                          className={`flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 transition-all duration-200 ${
+                            isModuleTransitioning ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
+                          }`}
+                        >
+                          <span className="text-sm text-slate-200">{visibleModule.label}</span>
+                          <Button asChild size="sm" className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+                            {visibleModule.href.startsWith("#") ? <a href={visibleModule.href}>Registrar</a> : <Link to={visibleModule.href}>Registrar</Link>}
+                          </Button>
+                        </div>
+                      ) : null}
+                      <p className="text-xs text-slate-400">
+                        {remainingModuleCount > 0 ? `${remainingModuleCount} logs restantes...` : "Ultimo log pendiente."}
+                      </p>
+                    </>
                   )}
                 </div>
               </div>

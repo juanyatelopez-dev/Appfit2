@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createClientId } from "@/lib/id";
 
 const todayDateKey = () => new Date().toISOString().slice(0, 10);
 
@@ -66,7 +67,7 @@ const TodayWeightModule = () => {
       if (isGuest) {
         const nextEntries = getGuestBodyMetrics().filter((entry) => entry.measured_at !== todayKey);
         const nextEntry: BodyMetricEntry = {
-          id: todayEntry?.id || crypto.randomUUID(),
+          id: todayEntry?.id || createClientId(),
           user_id: "guest",
           measured_at: todayKey,
           weight_kg: nextWeight,
@@ -123,33 +124,39 @@ const TodayWeightModule = () => {
         <CardDescription>Actualiza tu peso diario sin salir del check-in.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="space-y-3">
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ultimo registro</p>
-            <p className="mt-2 text-2xl font-semibold">{latestEntry ? `${Number(latestEntry.weight_kg).toFixed(1)} kg` : "--"}</p>
-            <p className="text-xs text-muted-foreground">{latestEntry?.measured_at ?? "Sin historial"}</p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <p className="text-2xl font-semibold">{latestEntry ? `${Number(latestEntry.weight_kg).toFixed(1)} kg` : "--"}</p>
+              <p className="text-xs text-right text-muted-foreground">{latestEntry?.measured_at ?? "Sin historial"}</p>
+            </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Media móvil 7d</p>
-            <p className="mt-2 text-2xl font-semibold">
-              {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
-                ? "--"
-                : `${trendAnalysis.movingAvg7.toFixed(2)} kg`}
-            </p>
-            <p className="text-xs text-muted-foreground">Contexto de tendencia</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Media movil 7d</p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <p className="text-2xl font-semibold">
+                {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
+                  ? "--"
+                  : `${trendAnalysis.movingAvg7.toFixed(2)} kg`}
+              </p>
+              <p className="text-xs text-right text-muted-foreground">Contexto de tendencia</p>
+            </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Tendencia</p>
-            <p className="mt-2 flex items-center gap-2 text-2xl font-semibold">
-              <Activity className="h-4 w-4 text-primary" />
-              {trendLabel}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Cambio 7d:{" "}
-              {trendAnalysis?.weeklyChange === null || trendAnalysis?.weeklyChange === undefined
-                ? "--"
-                : `${trendAnalysis.weeklyChange > 0 ? "+" : ""}${trendAnalysis.weeklyChange.toFixed(2)} kg`}
-            </p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <p className="flex items-center gap-2 text-2xl font-semibold">
+                <Activity className="h-4 w-4 text-primary" />
+                {trendLabel}
+              </p>
+              <p className="text-xs text-right text-muted-foreground">
+                Cambio 7d:{" "}
+                {trendAnalysis?.weeklyChange === null || trendAnalysis?.weeklyChange === undefined
+                  ? "--"
+                  : `${trendAnalysis.weeklyChange > 0 ? "+" : ""}${trendAnalysis.weeklyChange.toFixed(2)} kg`}
+              </p>
+            </div>
           </div>
         </div>
 
