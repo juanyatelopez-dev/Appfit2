@@ -13,6 +13,7 @@ import {
   DailyNutritionTargetRow,
   FavoriteFood,
   FoodDatabaseItem,
+  LocalizedNutritionText,
   NutritionDayArchetype,
   NutritionEntry,
   NutritionGoals,
@@ -56,6 +57,7 @@ type NutritionGoalOptions = {
   date?: Date;
   profile?: NutritionProfileLike | null;
   includeArchivedProfiles?: boolean;
+  language?: "en" | "es";
 };
 
 type NutritionGoalsLegacy = {
@@ -70,6 +72,7 @@ type NutritionEntryInsertParams = {
   date: Date;
   meal_type: NutritionMealType;
   food_name: string;
+  food_name_i18n?: LocalizedNutritionText | null;
   serving_size: number;
   serving_unit: string;
   calories: number;
@@ -145,6 +148,33 @@ const sanitizeNumber = (value: unknown, fallback = 0) => {
   return Number.isFinite(numeric) ? numeric : fallback;
 };
 
+const normalizeLocalizedText = (value: unknown): LocalizedNutritionText | null => {
+  if (!value || typeof value !== "object") return null;
+  const row = value as Record<string, unknown>;
+  const next: LocalizedNutritionText = {};
+  if (typeof row.en === "string" && row.en.trim()) next.en = row.en.trim();
+  if (typeof row.es === "string" && row.es.trim()) next.es = row.es.trim();
+  return Object.keys(next).length > 0 ? next : null;
+};
+
+export const getLocalizedNutritionText = (
+  value: LocalizedNutritionText | null | undefined,
+  language: "en" | "es" | undefined,
+  fallback: string | null | undefined,
+) => {
+  const preferred = language ? value?.[language]?.trim() : "";
+  if (preferred) return preferred;
+  const alternate = language === "es" ? value?.en?.trim() : value?.es?.trim();
+  if (alternate) return alternate;
+  return fallback?.trim() || "";
+};
+
+const getFoodSearchText = (row: FoodDatabaseItem) =>
+  [row.food_name, row.food_name_i18n?.en, row.food_name_i18n?.es, row.category, row.category_i18n?.en, row.category_i18n?.es]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .join(" ")
+    .toLowerCase();
+
 const assertNonNegative = (value: number, field: string) => {
   if (!Number.isFinite(value) || value < 0) throw new Error(`${field} must be a non-negative number.`);
 };
@@ -192,6 +222,7 @@ const normalizeEntry = (row: any): NutritionEntry => ({
   daily_log_id: row.daily_log_id ? String(row.daily_log_id) : null,
   meal_type: row.meal_type as NutritionMealType,
   food_name: String(row.food_name ?? ""),
+  food_name_i18n: normalizeLocalizedText(row.food_name_i18n),
   serving_size: sanitizeNumber(row.serving_size),
   serving_unit: String(row.serving_unit ?? "g"),
   calories: sanitizeNumber(row.calories),
@@ -212,6 +243,7 @@ const normalizeFavorite = (row: any): FavoriteFood => ({
   id: String(row.id),
   user_id: String(row.user_id),
   name: String(row.name ?? ""),
+  name_i18n: normalizeLocalizedText(row.name_i18n),
   serving_size: sanitizeNumber(row.serving_size),
   serving_unit: String(row.serving_unit ?? "g"),
   calories: sanitizeNumber(row.calories),
@@ -229,7 +261,9 @@ const normalizeFavorite = (row: any): FavoriteFood => ({
 const normalizeFoodDatabaseItem = (row: any): FoodDatabaseItem => ({
   id: String(row.id),
   food_name: String(row.food_name ?? ""),
+  food_name_i18n: normalizeLocalizedText(row.food_name_i18n),
   category: String(row.category ?? "Other"),
+  category_i18n: normalizeLocalizedText(row.category_i18n),
   serving_size: sanitizeNumber(row.serving_size, 100),
   serving_unit: String(row.serving_unit ?? "g"),
   calories: sanitizeNumber(row.calories),
@@ -897,6 +931,7 @@ export const addNutritionEntry = async (params: NutritionEntryInsertParams): Pro
     daily_log_id: dayPlan.dailyLog?.id ?? null,
     meal_type,
     food_name: name,
+    food_name_i18n: params.food_name_i18n ?? null,
     serving_size: Number(serving_size),
     serving_unit: serving_unit.trim() || "g",
     calories: Number(calories),
@@ -1149,8 +1184,9 @@ export const getFavoriteFoods = async (userId: string | null, options?: { isGues
 export const saveFavoriteFood = async (
   userId: string | null,
   payload: {
-    name: string;
-    serving_size: number;
+      name: string;
+      name_i18n?: LocalizedNutritionText | null;
+      serving_size: number;
     serving_unit: string;
     calories: number;
     protein_g: number;
@@ -1170,6 +1206,7 @@ export const saveFavoriteFood = async (
 
   const base = {
     name,
+    name_i18n: payload.name_i18n ?? null,
     serving_size: Number(payload.serving_size),
     serving_unit: payload.serving_unit.trim() || "g",
     calories: Number(payload.calories),
@@ -1241,18 +1278,26 @@ export const searchFoodDatabase = async (params?: {
   query?: string;
   category?: string | null;
   limit?: number;
+  language?: "en" | "es";
 }): Promise<FoodDatabaseItem[]> => {
   const query = params?.query?.trim() || "";
   const category = params?.category?.trim() || "";
   const limit = Math.max(1, Math.min(100, Number(params?.limit ?? 25)));
+  const language = params?.language;
 
   let request = supabase.from("food_database").select("*").order("food_name", { ascending: true }).limit(limit);
   if (category && category !== "all") request = request.eq("category", category);
-  if (query) request = request.ilike("food_name", `%${query}%`);
 
   const { data, error } = await request;
   if (error) throw error;
-  return (data || []).map(normalizeFoodDatabaseItem);
+  const normalized = (data || []).map(normalizeFoodDatabaseItem);
+  const filtered = query ? normalized.filter((row) => getFoodSearchText(row).includes(query.toLowerCase())) : normalized;
+  return filtered
+    .map((row) => ({
+      ...row,
+      food_name: getLocalizedNutritionText(row.food_name_i18n, language, row.food_name),
+    }))
+    .slice(0, limit);
 };
 
 export const listFoodDatabaseCategories = async (): Promise<string[]> => {

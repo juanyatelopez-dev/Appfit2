@@ -10,6 +10,7 @@ import type {
   ExerciseRecord,
   ExerciseSetRecord,
   LastExercisePerformance,
+  LocalizedText,
   SaveExerciseInput,
   SaveWorkoutInput,
   SessionExerciseNoteRecord,
@@ -28,6 +29,7 @@ import type {
 type TrainingOptions = {
   isGuest?: boolean;
   timeZone?: string;
+  language?: "en" | "es";
 };
 
 type GuestTrainingState = {
@@ -74,15 +76,104 @@ const isSchemaError = (error: unknown) => {
   return message.includes("schema cache") || message.includes("does not exist") || message.includes("relation") || message.includes("column");
 };
 
+const isRpcMissingError = (error: unknown) => {
+  const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
+  return message.includes("function") && (message.includes("does not exist") || message.includes("schema cache"));
+};
+
+const normalizeLocalizedText = (value: unknown): LocalizedText | null => {
+  if (!value || typeof value !== "object") return null;
+  const entry = value as Record<string, unknown>;
+  const normalized: LocalizedText = {};
+  if (typeof entry.en === "string" && entry.en.trim()) normalized.en = entry.en.trim();
+  if (typeof entry.es === "string" && entry.es.trim()) normalized.es = entry.es.trim();
+  return Object.keys(normalized).length > 0 ? normalized : null;
+};
+
+export const getLocalizedText = (
+  value: LocalizedText | null | undefined,
+  language: "en" | "es" | undefined,
+  fallback: string | null | undefined,
+) => {
+  const preferred = language ? value?.[language]?.trim() : "";
+  if (preferred) return preferred;
+  const alternate = language === "es" ? value?.en?.trim() : value?.es?.trim();
+  if (alternate) return alternate;
+  return fallback?.trim() || "";
+};
+
+const MAX_TEXT_LENGTH = 160;
+const MAX_NOTES_LENGTH = 1000;
+const MAX_INSTRUCTIONS_LENGTH = 4000;
+
+const validateWorkoutExerciseInput = (input: SaveWorkoutInput["exercises"][number], index: number) => {
+  if (!input.exercise_id) throw new Error(`El ejercicio ${index + 1} no es valido.`);
+  if (!Number.isInteger(input.target_sets) || input.target_sets < 1 || input.target_sets > 20) {
+    throw new Error(`Las series objetivo del ejercicio ${index + 1} deben estar entre 1 y 20.`);
+  }
+  if (!input.target_reps.trim() || input.target_reps.trim().length > 20) {
+    throw new Error(`Las repeticiones objetivo del ejercicio ${index + 1} no son validas.`);
+  }
+  if (!Number.isInteger(input.rest_seconds) || input.rest_seconds < 0 || input.rest_seconds > 1800) {
+    throw new Error(`El descanso del ejercicio ${index + 1} debe estar entre 0 y 1800 segundos.`);
+  }
+  if ((input.notes ?? "").trim().length > MAX_NOTES_LENGTH) {
+    throw new Error(`La nota del ejercicio ${index + 1} excede el maximo permitido.`);
+  }
+};
+
+export const validateWorkoutInput = (input: SaveWorkoutInput) => {
+  const name = input.name.trim();
+  if (!name) throw new Error("La rutina necesita un nombre.");
+  if (name.length > MAX_TEXT_LENGTH) throw new Error("El nombre de la rutina es demasiado largo.");
+  if ((input.description ?? "").trim().length > MAX_NOTES_LENGTH) throw new Error("La descripcion de la rutina es demasiado larga.");
+  if (input.exercises.length === 0) throw new Error("Agrega al menos un ejercicio.");
+  const seen = new Set<string>();
+  input.exercises.forEach((exercise, index) => {
+    validateWorkoutExerciseInput(exercise, index);
+    const duplicateKey = `${exercise.exercise_id}:${exercise.order_index}`;
+    if (seen.has(duplicateKey)) throw new Error("La rutina contiene ejercicios duplicados en la misma posicion.");
+    seen.add(duplicateKey);
+  });
+};
+
+export const validateExerciseInput = (input: SaveExerciseInput) => {
+  const name = input.name.trim();
+  if (!name) throw new Error("El nombre del ejercicio es obligatorio.");
+  if (name.length > MAX_TEXT_LENGTH) throw new Error("El nombre del ejercicio es demasiado largo.");
+  if ((input.secondary_muscles ?? []).some((item) => item.trim().length > 40)) {
+    throw new Error("Uno de los musculos secundarios es demasiado largo.");
+  }
+  if ((input.instructions ?? "").trim().length > MAX_INSTRUCTIONS_LENGTH) {
+    throw new Error("Las instrucciones del ejercicio son demasiado largas.");
+  }
+  if ((input.video_url ?? "").trim()) {
+    try {
+      new URL(input.video_url);
+    } catch {
+      throw new Error("La URL del video no es valida.");
+    }
+  }
+};
+
+export const getTrainingErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  const message = (error as { message?: string } | null)?.message;
+  if (message?.trim()) return message.trim();
+  return "No se pudo completar la accion de entrenamiento.";
+};
+
 const normalizeExercise = (row: any): ExerciseRecord => ({
   id: String(row.id),
   name: String(row.name ?? ""),
+  name_i18n: normalizeLocalizedText(row.name_i18n),
   muscle_group: row.muscle_group,
   secondary_muscles: Array.isArray(row.secondary_muscles) ? row.secondary_muscles.map(String) : [],
   equipment: row.equipment,
   movement_type: row.movement_type,
   difficulty: row.difficulty,
   instructions: row.instructions ?? null,
+  instructions_i18n: normalizeLocalizedText(row.instructions_i18n),
   video_url: row.video_url ?? null,
   is_custom: Boolean(row.is_custom),
   created_by: row.created_by ?? null,
@@ -179,6 +270,18 @@ const estimateOneRm = (weight: number, reps: number) => {
 };
 const computeSetVolume = (set: Pick<ExerciseSetRecord, "weight" | "reps">) => round2(clampNonNegative(set.weight) * Math.max(Number(set.reps) || 0, 0));
 
+const getExerciseSearchText = (row: ExerciseRecord) => [
+  row.name,
+  row.name_i18n?.en,
+  row.name_i18n?.es,
+  row.instructions,
+  row.instructions_i18n?.en,
+  row.instructions_i18n?.es,
+]
+  .filter((value): value is string => Boolean(value?.trim()))
+  .join(" ")
+  .toLowerCase();
+
 const applyExerciseFilters = (rows: ExerciseRecord[], filters?: ExerciseFilterInput) => {
   const search = filters?.search?.trim().toLowerCase() ?? "";
   return rows.filter((row) => {
@@ -186,7 +289,7 @@ const applyExerciseFilters = (rows: ExerciseRecord[], filters?: ExerciseFilterIn
     if (filters?.equipment && filters.equipment !== "all" && row.equipment !== filters.equipment) return false;
     if (filters?.movementType && filters.movementType !== "all" && row.movement_type !== filters.movementType) return false;
     if (!search) return true;
-    return row.name.toLowerCase().includes(search);
+    return getExerciseSearchText(row).includes(search);
   });
 };
 
@@ -237,11 +340,10 @@ export const listExercises = async (
     if (filters?.muscleGroup && filters.muscleGroup !== "all") query = query.eq("muscle_group", filters.muscleGroup);
     if (filters?.equipment && filters.equipment !== "all") query = query.eq("equipment", filters.equipment);
     if (filters?.movementType && filters.movementType !== "all") query = query.eq("movement_type", filters.movementType);
-    if (filters?.search?.trim()) query = query.ilike("name", `%${filters.search.trim()}%`);
     query = userId ? query.or(`is_custom.eq.false,created_by.eq.${userId}`) : query.eq("is_custom", false);
     const { data, error } = await query;
     if (error) throw error;
-    return (data || []).map(normalizeExercise);
+    return applyExerciseFilters((data || []).map(normalizeExercise), filters).sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     if (isSchemaError(error)) {
       return applyExerciseFilters(DEFAULT_EXERCISE_SEEDS, filters).sort((a, b) => a.name.localeCompare(b.name));
@@ -255,6 +357,7 @@ export const saveCustomExercise = async (
   input: SaveExerciseInput,
   options?: TrainingOptions,
 ) => {
+  validateExerciseInput(input);
   const payload: ExerciseRecord = {
     id: input.id ?? crypto.randomUUID(),
     name: input.name.trim(),
@@ -269,8 +372,6 @@ export const saveCustomExercise = async (
     created_by: userId ?? "guest",
     created_at: new Date().toISOString(),
   };
-
-  if (!payload.name) throw new Error("El nombre del ejercicio es obligatorio.");
 
   if (options?.isGuest) {
     const state = readGuestState();
@@ -320,7 +421,9 @@ export const listWorkoutTemplates = async (options?: TrainingOptions): Promise<W
     return (templatesData || []).map((template: any) => ({
       id: String(template.id),
       name: String(template.name),
+      name_i18n: normalizeLocalizedText(template.name_i18n),
       description: template.description ?? null,
+      description_i18n: normalizeLocalizedText(template.description_i18n),
       focus_tags: Array.isArray(template.focus_tags) ? template.focus_tags.map(String) : [],
       is_system: Boolean(template.is_system),
       created_at: String(template.created_at ?? new Date().toISOString()),
@@ -379,8 +482,7 @@ export const getWorkoutDetail = async (userId: string | null, workoutId: string,
 };
 
 export const saveWorkout = async (userId: string | null, input: SaveWorkoutInput, options?: TrainingOptions) => {
-  if (!input.name.trim()) throw new Error("La rutina necesita un nombre.");
-  if (input.exercises.length === 0) throw new Error("Agrega al menos un ejercicio.");
+  validateWorkoutInput(input);
 
   if (options?.isGuest) {
     const state = readGuestState();
@@ -418,6 +520,28 @@ export const saveWorkout = async (userId: string | null, input: SaveWorkoutInput
   if (!userId) throw new Error("No se encontro el usuario.");
 
   const workoutId = input.id ?? crypto.randomUUID();
+  try {
+    const { data, error } = await supabase.rpc("save_workout_with_exercises", {
+      p_user_id: userId,
+      p_workout_id: workoutId,
+      p_name: input.name.trim(),
+      p_description: input.description ?? null,
+      p_exercises: input.exercises.map((row, index) => ({
+        exercise_id: row.exercise_id,
+        order_index: index,
+        target_sets: row.target_sets,
+        target_reps: row.target_reps.trim(),
+        rest_seconds: row.rest_seconds,
+        notes: row.notes ?? null,
+      })),
+    });
+    if (error) throw error;
+    const savedWorkoutId = typeof data === "string" ? data : workoutId;
+    return getWorkoutDetail(userId, savedWorkoutId, options);
+  } catch (error) {
+    if (!isRpcMissingError(error)) throw error;
+  }
+
   const { error: workoutError } = await supabase.from("workouts").upsert({
     id: workoutId,
     user_id: userId,
@@ -430,12 +554,12 @@ export const saveWorkout = async (userId: string | null, input: SaveWorkoutInput
   const { error: deleteError } = await supabase.from("workout_exercises").delete().eq("workout_id", workoutId);
   if (deleteError) throw deleteError;
   const { error: insertError } = await supabase.from("workout_exercises").insert(
-    input.exercises.map((row) => ({
+    input.exercises.map((row, index) => ({
       workout_id: workoutId,
       exercise_id: row.exercise_id,
-      order_index: row.order_index,
+      order_index: index,
       target_sets: row.target_sets,
-      target_reps: row.target_reps,
+      target_reps: row.target_reps.trim(),
       rest_seconds: row.rest_seconds,
       notes: row.notes ?? null,
     })),
@@ -746,6 +870,24 @@ export const startWorkoutSession = async (userId: string | null, workoutId: stri
     return getWorkoutSessionDetail(userId, next.id, options);
   }
   if (!userId) throw new Error("No se encontro el usuario.");
+  try {
+    const { data, error } = await supabase.rpc("start_workout_session_safe", {
+      p_user_id: userId,
+      p_workout_id: workoutId,
+    });
+    if (error) throw error;
+    const sessionId =
+      typeof data === "string"
+        ? data
+        : data && typeof data === "object" && "id" in data && typeof data.id === "string"
+        ? data.id
+        : data && typeof data === "object" && "session_id" in data && typeof data.session_id === "string"
+        ? data.session_id
+        : null;
+    if (sessionId) return getWorkoutSessionDetail(userId, sessionId, options);
+  } catch (error) {
+    if (!isRpcMissingError(error)) throw error;
+  }
   const { data, error } = await supabase
     .from("workout_sessions")
     .insert({
@@ -762,6 +904,12 @@ export const startWorkoutSession = async (userId: string | null, workoutId: stri
 };
 
 export const upsertExerciseSet = async (userId: string | null, input: UpsertExerciseSetInput, options?: TrainingOptions) => {
+  if (!Number.isInteger(input.set_number) || input.set_number < 1 || input.set_number > 50) {
+    throw new Error("El numero de serie no es valido.");
+  }
+  if ((input.notes ?? "").trim().length > MAX_NOTES_LENGTH) {
+    throw new Error("La nota de la serie es demasiado larga.");
+  }
   const payload: ExerciseSetRecord = {
     id: crypto.randomUUID(),
     session_id: input.session_id,
@@ -842,6 +990,9 @@ export const upsertSessionExerciseNote = async (
   notes: string | null,
   options?: TrainingOptions,
 ) => {
+  if ((notes ?? "").trim().length > MAX_NOTES_LENGTH) {
+    throw new Error("La nota del ejercicio es demasiado larga.");
+  }
   const now = new Date().toISOString();
   if (options?.isGuest) {
     const state = readGuestState();

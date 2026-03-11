@@ -40,16 +40,19 @@ export type MovementType =
 export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 export type WorkoutSessionStatus = "active" | "completed" | "cancelled";
 export type ExercisePrType = "max_weight" | "estimated_1rm" | "max_volume";
+export type LocalizedText = Partial<Record<"en" | "es", string>>;
 
 export type ExerciseRecord = {
   id: string;
   name: string;
+  name_i18n?: LocalizedText | null;
   muscle_group: TrainingMuscleGroup;
   secondary_muscles: string[];
   equipment: TrainingEquipment;
   movement_type: MovementType;
   difficulty: DifficultyLevel;
   instructions: string | null;
+  instructions_i18n?: LocalizedText | null;
   video_url: string | null;
   is_custom: boolean;
   created_by: string | null;
@@ -87,7 +90,9 @@ export type WorkoutExerciseRecord = {
 export type WorkoutTemplateRecord = {
   id: string;
   name: string;
+  name_i18n?: LocalizedText | null;
   description: string | null;
+  description_i18n?: LocalizedText | null;
   focus_tags: string[];
   is_system: boolean;
   created_at: string;

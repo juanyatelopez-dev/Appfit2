@@ -5,6 +5,17 @@ import { toast } from "sonner";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useAuth } from "@/context/AuthContext";
+import { usePreferences } from "@/context/PreferencesContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +33,8 @@ import {
   deleteWorkout,
   duplicateTemplateToWorkout,
   finishWorkoutSession,
+  getLocalizedText,
+  getTrainingErrorMessage,
   getExerciseHistory,
   getExerciseProgress,
   getExercisePrs,
@@ -71,12 +84,211 @@ const formatRest = (seconds: number) => {
 };
 
 const prLabelMap = { max_weight: "Max weight", estimated_1rm: "1RM estimado", max_volume: "Max volumen" } as const;
+const draftStorageKey = (sessionId: string) => `appfit_training_drafts:${sessionId}`;
+const notesStorageKey = (sessionId: string) => `appfit_training_notes:${sessionId}`;
+const parseStoredJson = <T,>(value: string | null, fallback: T): T => {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+};
+
+const TRAINING_COPY = {
+  en: {
+    title: "Training Logbook",
+    subtitle: "Routines, library, weekly plan, active session, history and progress.",
+    today: "Today",
+    rest: "Rest",
+    activeSession: "Active session",
+    noWorkout: "No workout",
+    tabs: { today: "Today's workout", routines: "Routines", library: "Library", history: "History", progress: "Progress" },
+    startWorkout: "Start workout",
+    startedAt: "Started",
+    cancel: "Cancel",
+    finish: "Finish",
+    sessionNotes: "Session notes",
+    completedSets: "completed sets",
+    week: "Week",
+    weekDescription: "Assign a routine, rest day or leave the day empty.",
+    todayBadge: "Today",
+    unassigned: "Unassigned",
+    quickStart: "Quick start",
+    quickStartDescription: "Start any routine even if it is not scheduled for today.",
+    firstCreateRoutine: "Create a routine first.",
+    personalRoutines: "Personal routines",
+    personalRoutinesDescription: "Create, edit and delete training blocks.",
+    newRoutine: "New",
+    noRoutines: "You do not have routines yet.",
+    noDescription: "No description",
+    start: "Start",
+    edit: "Edit",
+    delete: "Delete",
+    templates: "Templates",
+    templatesDescription: "Duplicate bases like Push, Pull or Legs.",
+    duplicateTemplate: "Duplicate template",
+    exerciseLibrary: "Exercise library",
+    exerciseLibraryDescription: "Global base plus custom exercises.",
+    customExercise: "Custom exercise",
+    searchExercise: "Search exercise...",
+    allGroups: "All muscle groups",
+    allEquipment: "All equipment",
+    allPatterns: "All patterns",
+    customBadge: "Custom",
+    baseBadge: "Base",
+    historyTitle: "History",
+    historyDescription: "Finished sessions with volume and status.",
+    noHistory: "No finished sessions yet.",
+    progressTitle: "Exercise progress",
+    progressDescription: "Strength curve, volume and PRs.",
+    selectExercise: "Select exercise",
+    noProgress: "No historical data yet.",
+    exerciseHistoryTitle: "Exercise history",
+    exerciseHistoryDescription: "Sets, peak load and volume by date.",
+    noWorkoutScheduled: "No workout scheduled today.",
+    routineSaved: "Routine saved.",
+    routineDeleted: "Routine deleted.",
+    templateDuplicated: "Template duplicated.",
+    exerciseSaved: "Custom exercise saved.",
+    sessionStarted: "Session started.",
+    sessionClosed: "Session closed.",
+    prsDetected: "PRs detected.",
+    scheduleSaved: "Week plan saved.",
+    setSaved: "Set saved.",
+    noteSaved: "Exercise note saved.",
+    loading: "Loading training...",
+    failedLoad: "Training could not be loaded.",
+    deleteRoutineTitle: "Delete routine",
+    deleteRoutineDescription: "This will remove the routine and its exercise block. Scheduled days will be left unassigned.",
+    deleteRoutineConfirm: "Delete routine",
+    activeExerciseCard: "Exercise block",
+    target: "Target",
+    restLabel: "Rest",
+    previousPerformance: "Last performance",
+    noPreviousPerformance: "No previous completed session yet.",
+    exerciseNote: "Exercise note",
+    saveNote: "Save note",
+    setLabel: "Set",
+    weight: "Weight",
+    reps: "Reps",
+    rir: "RIR",
+    notes: "Notes",
+    saveDraft: "Save",
+    markDone: "Complete",
+    markUndone: "Mark pending",
+    removeSet: "Remove",
+    addSet: "Add extra set",
+    targetSets: "Target sets",
+    targetReps: "Target reps",
+    addExercise: "Add exercise",
+    saveRoutine: "Save routine",
+    createRoutine: "Create routine",
+    editRoutine: "Edit routine",
+    saveExercise: "Save exercise",
+    createCustomExercise: "Create custom exercise",
+  },
+  es: {
+    title: "Training Logbook",
+    subtitle: "Rutinas, biblioteca, agenda semanal, sesion activa, historial y progreso.",
+    today: "Hoy",
+    rest: "Descanso",
+    activeSession: "Sesion activa",
+    noWorkout: "Sin entrenamiento",
+    tabs: { today: "Entrenamiento de hoy", routines: "Rutinas", library: "Biblioteca", history: "Historial", progress: "Progreso" },
+    startWorkout: "Iniciar entrenamiento",
+    startedAt: "Iniciada",
+    cancel: "Cancelar",
+    finish: "Finalizar",
+    sessionNotes: "Notas generales de la sesion",
+    completedSets: "series completadas",
+    week: "Semana",
+    weekDescription: "Asigna rutina, descanso o deja el dia vacio.",
+    todayBadge: "Hoy",
+    unassigned: "Sin asignar",
+    quickStart: "Inicio rapido",
+    quickStartDescription: "Inicia cualquier rutina aunque no este programada hoy.",
+    firstCreateRoutine: "Primero crea una rutina.",
+    personalRoutines: "Rutinas personales",
+    personalRoutinesDescription: "Crea, edita y elimina bloques de entrenamiento.",
+    newRoutine: "Nueva",
+    noRoutines: "Aun no tienes rutinas.",
+    noDescription: "Sin descripcion",
+    start: "Iniciar",
+    edit: "Editar",
+    delete: "Eliminar",
+    templates: "Plantillas",
+    templatesDescription: "Duplica bases como Push, Pull o Legs.",
+    duplicateTemplate: "Duplicar plantilla",
+    exerciseLibrary: "Biblioteca de ejercicios",
+    exerciseLibraryDescription: "Base global mas ejercicios personalizados.",
+    customExercise: "Ejercicio custom",
+    searchExercise: "Buscar ejercicio...",
+    allGroups: "Todos los grupos",
+    allEquipment: "Todo el equipo",
+    allPatterns: "Todo el patron",
+    customBadge: "Custom",
+    baseBadge: "Base",
+    historyTitle: "Historial",
+    historyDescription: "Sesiones finalizadas con volumen y estado.",
+    noHistory: "Aun no hay sesiones finalizadas.",
+    progressTitle: "Progreso por ejercicio",
+    progressDescription: "Curva de fuerza, volumen y PRs.",
+    selectExercise: "Selecciona ejercicio",
+    noProgress: "Sin datos historicos todavia.",
+    exerciseHistoryTitle: "Historial por ejercicio",
+    exerciseHistoryDescription: "Detalle de sets, carga maxima y volumen por fecha.",
+    noWorkoutScheduled: "No hay entrenamiento programado hoy.",
+    routineSaved: "Rutina guardada.",
+    routineDeleted: "Rutina eliminada.",
+    templateDuplicated: "Plantilla duplicada.",
+    exerciseSaved: "Ejercicio personalizado guardado.",
+    sessionStarted: "Sesion iniciada.",
+    sessionClosed: "Sesion cerrada.",
+    prsDetected: "PRs detectados.",
+    scheduleSaved: "Agenda semanal guardada.",
+    setSaved: "Serie guardada.",
+    noteSaved: "Nota del ejercicio guardada.",
+    loading: "Cargando entrenamiento...",
+    failedLoad: "No se pudo cargar entrenamiento.",
+    deleteRoutineTitle: "Eliminar rutina",
+    deleteRoutineDescription: "Se eliminara la rutina y su bloque de ejercicios. Los dias programados quedaran sin asignar.",
+    deleteRoutineConfirm: "Eliminar rutina",
+    activeExerciseCard: "Bloque de ejercicio",
+    target: "Objetivo",
+    restLabel: "Descanso",
+    previousPerformance: "Ultimo rendimiento",
+    noPreviousPerformance: "Todavia no hay una sesion completada previa.",
+    exerciseNote: "Nota del ejercicio",
+    saveNote: "Guardar nota",
+    setLabel: "Serie",
+    weight: "Peso",
+    reps: "Reps",
+    rir: "RIR",
+    notes: "Notas",
+    saveDraft: "Guardar",
+    markDone: "Completar",
+    markUndone: "Marcar pendiente",
+    removeSet: "Quitar",
+    addSet: "Agregar serie extra",
+    targetSets: "Series objetivo",
+    targetReps: "Reps objetivo",
+    addExercise: "Agregar ejercicio",
+    saveRoutine: "Guardar rutina",
+    createRoutine: "Crear rutina",
+    editRoutine: "Editar rutina",
+    saveExercise: "Guardar ejercicio",
+    createCustomExercise: "Crear ejercicio personalizado",
+  },
+} as const;
 
 const Training = () => {
   const queryClient = useQueryClient();
   const { user, isGuest } = useAuth();
+  const { language } = usePreferences();
   const userId = user?.id ?? null;
-  const options = useMemo(() => ({ isGuest }), [isGuest]);
+  const options = useMemo(() => ({ isGuest, language }), [isGuest, language]);
+  const copy = TRAINING_COPY[language];
 
   const [tab, setTab] = useState("today");
   const [filters, setFilters] = useState<ExerciseFilterInput>({ search: "", muscleGroup: "all", equipment: "all", movementType: "all" });
@@ -93,6 +305,7 @@ const Training = () => {
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
   const [finishNotes, setFinishNotes] = useState("");
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
+  const [deleteWorkoutId, setDeleteWorkoutId] = useState<string | null>(null);
 
   const invalidateTraining = async () => queryClient.invalidateQueries({ queryKey: ["training"] });
 
@@ -114,6 +327,10 @@ const Training = () => {
   const activeSession = today?.activeSession ?? null;
   const scheduledWorkout = today?.scheduledWorkout ?? null;
   const exerciseLibrary = exercisesQuery.data ?? [];
+  const trainingQueries = [workoutsQuery, templatesQuery, scheduleQuery, todayQuery, exercisesQuery, historyQuery];
+  const isTrainingLoading = trainingQueries.some((query) => query.isLoading);
+  const trainingError = trainingQueries.find((query) => query.error)?.error ?? null;
+  const formatExerciseName = (exercise: ExerciseRecord) => getLocalizedText(exercise.name_i18n, language, exercise.name);
 
   useEffect(() => {
     if (!selectedExerciseId && exerciseLibrary[0]?.id) setSelectedExerciseId(exerciseLibrary[0].id);
@@ -146,6 +363,7 @@ const Training = () => {
   useEffect(() => {
     if (!activeSession) return;
     setDrafts((current) => {
+      const persisted = parseStoredJson<Record<string, SetDraft>>(sessionStorage.getItem(draftStorageKey(activeSession.id)), {});
       const next = { ...current };
       activeSession.exercises.forEach((exercise) => {
         const totalRows = Math.max(exercise.target_sets, exercise.sets.length);
@@ -155,17 +373,48 @@ const Training = () => {
           const existing = exercise.sets.find((set) => set.set_number === setNumber);
           const fallback = exercise.lastPerformance?.sets.find((set) => set.set_number === setNumber);
           next[key] = {
-            weight: String(existing?.weight ?? fallback?.weight ?? 0),
-            reps: String(existing?.reps ?? fallback?.reps ?? 0),
-            rir: existing?.rir !== null && existing?.rir !== undefined ? String(existing.rir) : fallback?.rir !== null && fallback?.rir !== undefined ? String(fallback.rir) : "",
-            notes: existing?.notes ?? "",
-            completed: existing?.completed ?? false,
+            weight: persisted[key]?.weight ?? String(existing?.weight ?? fallback?.weight ?? 0),
+            reps: persisted[key]?.reps ?? String(existing?.reps ?? fallback?.reps ?? 0),
+            rir:
+              persisted[key]?.rir ??
+              (existing?.rir !== null && existing?.rir !== undefined
+                ? String(existing.rir)
+                : fallback?.rir !== null && fallback?.rir !== undefined
+                ? String(fallback.rir)
+                : ""),
+            notes: persisted[key]?.notes ?? existing?.notes ?? "",
+            completed: persisted[key]?.completed ?? existing?.completed ?? false,
           };
         }
       });
       return next;
     });
   }, [activeSession]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+    const persisted = parseStoredJson<Record<string, string>>(sessionStorage.getItem(notesStorageKey(activeSession.id)), {});
+    setNoteDrafts((current) => {
+      const next = { ...current };
+      activeSession.exercises.forEach((exercise) => {
+        const key = `${activeSession.id}:${exercise.exercise_id}`;
+        next[key] = persisted[key] ?? exercise.sessionNote?.notes ?? "";
+      });
+      return next;
+    });
+    setFinishNotes(sessionStorage.getItem(`${notesStorageKey(activeSession.id)}:session`) ?? "");
+  }, [activeSession]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+    sessionStorage.setItem(draftStorageKey(activeSession.id), JSON.stringify(drafts));
+  }, [activeSession, drafts]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+    sessionStorage.setItem(notesStorageKey(activeSession.id), JSON.stringify(noteDrafts));
+    sessionStorage.setItem(`${notesStorageKey(activeSession.id)}:session`, finishNotes);
+  }, [activeSession, finishNotes, noteDrafts]);
 
   useEffect(() => {
     if (!restEndsAt) return;
@@ -178,16 +427,106 @@ const Training = () => {
     return () => window.clearInterval(interval);
   }, [restEndsAt]);
 
-  const saveWorkoutMutation = useMutation({ mutationFn: (payload: SaveWorkoutInput) => saveWorkout(userId, payload, options), onSuccess: async () => { setWorkoutDialogOpen(false); setEditingWorkoutId(null); toast.success("Rutina guardada."); await invalidateTraining(); } });
-  const deleteWorkoutMutation = useMutation({ mutationFn: (workoutId: string) => deleteWorkout(userId, workoutId, options), onSuccess: invalidateTraining });
-  const duplicateTemplateMutation = useMutation({ mutationFn: (templateId: string) => duplicateTemplateToWorkout(userId, templateId, options), onSuccess: async () => { toast.success("Plantilla duplicada."); await invalidateTraining(); } });
-  const saveScheduleMutation = useMutation({ mutationFn: ({ dayOfWeek, workoutId, isRestDay }: { dayOfWeek: number; workoutId: string | null; isRestDay: boolean }) => saveWorkoutScheduleDay(userId, dayOfWeek, workoutId, isRestDay, options), onSuccess: invalidateTraining });
-  const saveCustomExerciseMutation = useMutation({ mutationFn: (payload: SaveExerciseInput) => saveCustomExercise(userId, payload, options), onSuccess: async (exercise) => { setSelectedExerciseId(exercise.id); setCustomExerciseOpen(false); setCustomExerciseForm(defaultExerciseForm); toast.success("Ejercicio personalizado guardado."); await invalidateTraining(); } });
-  const startSessionMutation = useMutation({ mutationFn: (workoutId: string) => startWorkoutSession(userId, workoutId, options), onSuccess: async () => { setTab("today"); toast.success("Sesion iniciada."); await invalidateTraining(); } });
-  const saveSetMutation = useMutation({ mutationFn: (payload: Parameters<typeof upsertExerciseSet>[1]) => upsertExerciseSet(userId, payload, options), onSuccess: invalidateTraining });
-  const deleteSetMutation = useMutation({ mutationFn: ({ sessionId, exerciseId, setNumber }: { sessionId: string; exerciseId: string; setNumber: number }) => deleteExerciseSet(userId, sessionId, exerciseId, setNumber, options), onSuccess: invalidateTraining });
-  const saveSessionNoteMutation = useMutation({ mutationFn: ({ sessionId, exerciseId, notes }: { sessionId: string; exerciseId: string; notes: string | null }) => upsertSessionExerciseNote(userId, sessionId, exerciseId, notes, options), onSuccess: invalidateTraining });
-  const finishSessionMutation = useMutation({ mutationFn: ({ sessionId, status }: { sessionId: string; status: "completed" | "cancelled" }) => finishWorkoutSession(userId, sessionId, { notes: finishNotes || null, status }, options), onSuccess: async ({ prs }) => { setFinishNotes(""); setRestEndsAt(null); toast.success(prs.length > 0 ? `Sesion cerrada. ${prs.length} PRs detectados.` : "Sesion cerrada."); await invalidateTraining(); } });
+  const handleMutationError = (error: unknown) => toast.error(getTrainingErrorMessage(error));
+  const saveWorkoutMutation = useMutation({
+    mutationFn: (payload: SaveWorkoutInput) => saveWorkout(userId, payload, options),
+    onSuccess: async () => {
+      setWorkoutDialogOpen(false);
+      setEditingWorkoutId(null);
+      toast.success(copy.routineSaved);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const deleteWorkoutMutation = useMutation({
+    mutationFn: (workoutId: string) => deleteWorkout(userId, workoutId, options),
+    onSuccess: async () => {
+      setDeleteWorkoutId(null);
+      toast.success(copy.routineDeleted);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const duplicateTemplateMutation = useMutation({
+    mutationFn: (templateId: string) => duplicateTemplateToWorkout(userId, templateId, options),
+    onSuccess: async () => {
+      toast.success(copy.templateDuplicated);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const saveScheduleMutation = useMutation({
+    mutationFn: ({ dayOfWeek, workoutId, isRestDay }: { dayOfWeek: number; workoutId: string | null; isRestDay: boolean }) =>
+      saveWorkoutScheduleDay(userId, dayOfWeek, workoutId, isRestDay, options),
+    onSuccess: async () => {
+      toast.success(copy.scheduleSaved);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const saveCustomExerciseMutation = useMutation({
+    mutationFn: (payload: SaveExerciseInput) => saveCustomExercise(userId, payload, options),
+    onSuccess: async (exercise) => {
+      setSelectedExerciseId(exercise.id);
+      setCustomExerciseOpen(false);
+      setCustomExerciseForm(defaultExerciseForm);
+      toast.success(copy.exerciseSaved);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const startSessionMutation = useMutation({
+    mutationFn: (workoutId: string) => startWorkoutSession(userId, workoutId, options),
+    onSuccess: async () => {
+      setTab("today");
+      toast.success(copy.sessionStarted);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const saveSetMutation = useMutation({
+    mutationFn: (payload: Parameters<typeof upsertExerciseSet>[1]) => upsertExerciseSet(userId, payload, options),
+    onSuccess: invalidateTraining,
+    onError: handleMutationError,
+  });
+  const deleteSetMutation = useMutation({
+    mutationFn: ({ sessionId, exerciseId, setNumber }: { sessionId: string; exerciseId: string; setNumber: number }) =>
+      deleteExerciseSet(userId, sessionId, exerciseId, setNumber, options),
+    onSuccess: async (_, variables) => {
+      setDrafts((current) => {
+        const next = { ...current };
+        delete next[`${variables.sessionId}:${variables.exerciseId}:${variables.setNumber}`];
+        return next;
+      });
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const saveSessionNoteMutation = useMutation({
+    mutationFn: ({ sessionId, exerciseId, notes }: { sessionId: string; exerciseId: string; notes: string | null }) =>
+      upsertSessionExerciseNote(userId, sessionId, exerciseId, notes, options),
+    onSuccess: async () => {
+      toast.success(copy.noteSaved);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
+  const finishSessionMutation = useMutation({
+    mutationFn: ({ sessionId, status }: { sessionId: string; status: "completed" | "cancelled" }) =>
+      finishWorkoutSession(userId, sessionId, { notes: finishNotes || null, status }, options),
+    onSuccess: async ({ prs, session }) => {
+      setFinishNotes("");
+      setRestEndsAt(null);
+      setDrafts({});
+      setNoteDrafts({});
+      sessionStorage.removeItem(draftStorageKey(session.id));
+      sessionStorage.removeItem(notesStorageKey(session.id));
+      sessionStorage.removeItem(`${notesStorageKey(session.id)}:session`);
+      toast.success(prs.length > 0 ? `${copy.sessionClosed} ${prs.length} ${copy.prsDetected}.` : copy.sessionClosed);
+      await invalidateTraining();
+    },
+    onError: handleMutationError,
+  });
 
   const activeProgress = useMemo(() => {
     if (!activeSession) return { completed: 0, target: 0, percent: 0 };
@@ -212,7 +551,18 @@ const Training = () => {
     });
     setDrafts((current) => ({ ...current, [key]: { ...draft, completed: complete } }));
     if (complete && restSeconds > 0) setRestEndsAt(Date.now() + restSeconds * 1000);
+    toast.success(copy.setSaved);
   };
+
+  const getSetDraft = (sessionId: string, exerciseId: string, setNumber: number) =>
+    drafts[`${sessionId}:${exerciseId}:${setNumber}`] ?? { weight: "0", reps: "0", rir: "", notes: "", completed: false };
+
+  const getExerciseDraftCount = (sessionId: string, exerciseId: string) =>
+    Object.keys(drafts)
+      .filter((key) => key.startsWith(`${sessionId}:${exerciseId}:`))
+      .map((key) => Number(key.split(":").at(-1) ?? "0"))
+      .filter((value) => Number.isFinite(value))
+      .reduce((max, value) => Math.max(max, value), 0);
 
   const restRemaining = restEndsAt ? Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000)) : 0;
 
@@ -223,36 +573,41 @@ const Training = () => {
       <Card className="overflow-hidden border-border/60 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_42%),linear-gradient(135deg,rgba(15,23,42,1),rgba(15,23,42,0.88))] text-slate-100">
         <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.35fr_0.9fr]">
           <div>
-            <h1 className="text-3xl font-black tracking-tight">Training Logbook</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">Rutinas, biblioteca, agenda semanal, sesion activa, historial y progreso.</p>
+            <h1 className="text-3xl font-black tracking-tight">{copy.title}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-300">{copy.subtitle}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Hoy</div>
-              <div className="mt-2 text-lg font-semibold text-white">{activeSession ? "Sesion activa" : scheduledWorkout?.name ?? "Sin entrenamiento"}</div>
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">{copy.today}</div>
+              <div className="mt-2 text-lg font-semibold text-white">
+                {activeSession ? copy.activeSession : scheduledWorkout?.name ?? copy.noWorkout}
+              </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Descanso</div>
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">{copy.rest}</div>
               <div className="mt-2 text-lg font-semibold text-white">{restRemaining}s</div>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {isTrainingLoading ? <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{copy.loading}</div> : null}
+      {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {getTrainingErrorMessage(trainingError)}</div> : null}
+
       <Tabs value={tab} onValueChange={setTab} className="space-y-5">
         <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 lg:grid-cols-5">
-          <TabsTrigger value="today">Entrenamiento de hoy</TabsTrigger>
-          <TabsTrigger value="routines">Rutinas</TabsTrigger>
-          <TabsTrigger value="library">Biblioteca</TabsTrigger>
-          <TabsTrigger value="history">Historial</TabsTrigger>
-          <TabsTrigger value="progress">Progreso</TabsTrigger>
+          <TabsTrigger value="today">{copy.tabs.today}</TabsTrigger>
+          <TabsTrigger value="routines">{copy.tabs.routines}</TabsTrigger>
+          <TabsTrigger value="library">{copy.tabs.library}</TabsTrigger>
+          <TabsTrigger value="history">{copy.tabs.history}</TabsTrigger>
+          <TabsTrigger value="progress">{copy.tabs.progress}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="today" className="space-y-5">
           <div className="grid gap-5 xl:grid-cols-[1.4fr_0.9fr]">
             <Card>
               <CardHeader>
-                <CardTitle>Entrenamiento de hoy</CardTitle>
+                <CardTitle>{copy.tabs.today}</CardTitle>
                 <CardDescription>La sesion activa tiene prioridad sobre todo lo demas.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -265,56 +620,182 @@ const Training = () => {
                       </div>
                       <Button onClick={() => startSessionMutation.mutate(scheduledWorkout.id)} disabled={startSessionMutation.isPending}>
                         <PlayCircle className="mr-2 h-4 w-4" />
-                        Start workout
+                        {copy.startWorkout}
                       </Button>
                     </div>
                   </div>
                 ) : null}
 
                 {activeSession ? (
-                  <>
+                  <div className="space-y-4">
                     <div className="rounded-2xl border p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <div className="text-xl font-bold">{activeSession.workout.name}</div>
-                          <div className="text-sm text-muted-foreground">Iniciada {formatDateTime(activeSession.started_at)}</div>
+                          <div className="text-sm text-muted-foreground">{copy.startedAt} {formatDateTime(activeSession.started_at)}</div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" onClick={() => finishSessionMutation.mutate({ sessionId: activeSession.id, status: "cancelled" })}>
+                          <Button variant="outline" disabled={finishSessionMutation.isPending} onClick={() => finishSessionMutation.mutate({ sessionId: activeSession.id, status: "cancelled" })}>
                             <XCircle className="mr-2 h-4 w-4" />
-                            Cancelar
+                            {copy.cancel}
                           </Button>
-                          <Button onClick={() => finishSessionMutation.mutate({ sessionId: activeSession.id, status: "completed" })}>
+                          <Button disabled={finishSessionMutation.isPending} onClick={() => finishSessionMutation.mutate({ sessionId: activeSession.id, status: "completed" })}>
                             <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Finalizar
+                            {copy.finish}
                           </Button>
                         </div>
                       </div>
                       <Progress value={activeProgress.percent} className="mt-4 h-3" />
-                      <div className="mt-2 text-sm text-muted-foreground">{activeProgress.completed}/{activeProgress.target} series completadas</div>
-                      <Textarea className="mt-4" placeholder="Notas generales de la sesion" value={finishNotes} onChange={(event) => setFinishNotes(event.target.value)} />
+                      <div className="mt-2 text-sm text-muted-foreground">{activeProgress.completed}/{activeProgress.target} {copy.completedSets}</div>
+                      <Textarea className="mt-4" placeholder={copy.sessionNotes} value={finishNotes} onChange={(event) => setFinishNotes(event.target.value)} />
                     </div>
-                  </>
+
+                    {activeSession.exercises.map((exercise) => {
+                      const draftRows = getExerciseDraftCount(activeSession.id, exercise.exercise_id);
+                      const totalRows = Math.max(exercise.target_sets, exercise.sets.length, draftRows);
+                      const noteKey = `${activeSession.id}:${exercise.exercise_id}`;
+                      const localizedExerciseName = formatExerciseName(exercise.exercise);
+
+                      return (
+                        <div key={exercise.id} className="rounded-2xl border p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <div className="text-lg font-semibold">{localizedExerciseName}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {copy.target}: {exercise.target_sets} {copy.targetSets.toLowerCase()} | {copy.targetReps}: {exercise.target_reps} | {copy.restLabel}: {formatRest(exercise.rest_seconds)}
+                              </div>
+                            </div>
+                            <Badge variant="outline">{MUSCLE_GROUP_LABELS[exercise.exercise.muscle_group]}</Badge>
+                          </div>
+
+                          <div className="mt-4 rounded-xl bg-muted/35 p-3 text-sm">
+                            <div className="font-medium">{copy.previousPerformance}</div>
+                            {exercise.lastPerformance ? (
+                              <div className="mt-1 text-muted-foreground">
+                                {formatDateTime(exercise.lastPerformance.performed_at)} | {Math.round(exercise.lastPerformance.max_weight)} kg | {Math.round(exercise.lastPerformance.total_volume)} kg
+                              </div>
+                            ) : (
+                              <div className="mt-1 text-muted-foreground">{copy.noPreviousPerformance}</div>
+                            )}
+                          </div>
+
+                          <div className="mt-4 flex gap-2">
+                            <Textarea
+                              value={noteDrafts[noteKey] ?? ""}
+                              placeholder={copy.exerciseNote}
+                              onChange={(event) => setNoteDrafts((current) => ({ ...current, [noteKey]: event.target.value }))}
+                            />
+                            <Button
+                              className="shrink-0"
+                              variant="outline"
+                              disabled={saveSessionNoteMutation.isPending}
+                              onClick={() => saveSessionNoteMutation.mutate({ sessionId: activeSession.id, exerciseId: exercise.exercise_id, notes: noteDrafts[noteKey] || null })}
+                            >
+                              {copy.saveNote}
+                            </Button>
+                          </div>
+
+                          <div className="mt-4 space-y-3">
+                            {Array.from({ length: totalRows }, (_, index) => {
+                              const setNumber = index + 1;
+                              const key = `${activeSession.id}:${exercise.exercise_id}:${setNumber}`;
+                              const draft = getSetDraft(activeSession.id, exercise.exercise_id, setNumber);
+                              const existingSet = exercise.sets.find((set) => set.set_number === setNumber);
+                              return (
+                                <div key={key} className="rounded-xl border p-3">
+                                  <div className="mb-3 flex items-center justify-between">
+                                    <div className="font-medium">{copy.setLabel} {setNumber}</div>
+                                    <Badge variant={draft.completed || existingSet?.completed ? "default" : "secondary"}>
+                                      {draft.completed || existingSet?.completed ? copy.markDone : copy.markUndone}
+                                    </Badge>
+                                  </div>
+                                  <div className="grid gap-3 md:grid-cols-4">
+                                    <Input
+                                      aria-label={`${copy.weight} ${setNumber}`}
+                                      value={draft.weight}
+                                      onChange={(event) => setDrafts((current) => ({ ...current, [key]: { ...draft, weight: event.target.value } }))}
+                                      placeholder={copy.weight}
+                                    />
+                                    <Input
+                                      aria-label={`${copy.reps} ${setNumber}`}
+                                      value={draft.reps}
+                                      onChange={(event) => setDrafts((current) => ({ ...current, [key]: { ...draft, reps: event.target.value } }))}
+                                      placeholder={copy.reps}
+                                    />
+                                    <Input
+                                      aria-label={`${copy.rir} ${setNumber}`}
+                                      value={draft.rir}
+                                      onChange={(event) => setDrafts((current) => ({ ...current, [key]: { ...draft, rir: event.target.value } }))}
+                                      placeholder={copy.rir}
+                                    />
+                                    <Input
+                                      aria-label={`${copy.notes} ${setNumber}`}
+                                      value={draft.notes}
+                                      onChange={(event) => setDrafts((current) => ({ ...current, [key]: { ...draft, notes: event.target.value } }))}
+                                      placeholder={copy.notes}
+                                    />
+                                  </div>
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    <Button variant="outline" disabled={saveSetMutation.isPending} onClick={() => saveSet(activeSession.id, exercise.exercise_id, setNumber, 0, false)}>
+                                      {copy.saveDraft}
+                                    </Button>
+                                    <Button disabled={saveSetMutation.isPending} onClick={() => saveSet(activeSession.id, exercise.exercise_id, setNumber, exercise.rest_seconds, true)}>
+                                      {copy.markDone}
+                                    </Button>
+                                    {(existingSet || setNumber > exercise.target_sets) ? (
+                                      <Button
+                                        variant="ghost"
+                                        className="text-destructive hover:text-destructive"
+                                        disabled={deleteSetMutation.isPending}
+                                        onClick={() => deleteSetMutation.mutate({ sessionId: activeSession.id, exerciseId: exercise.exercise_id, setNumber })}
+                                      >
+                                        {copy.removeSet}
+                                      </Button>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <Button
+                            className="mt-4"
+                            variant="outline"
+                            onClick={() =>
+                              setDrafts((current) => ({
+                                ...current,
+                                [`${activeSession.id}:${exercise.exercise_id}:${totalRows + 1}`]: { weight: "0", reps: "0", rir: "", notes: "", completed: false },
+                              }))
+                            }
+                          >
+                            <TimerReset className="mr-2 h-4 w-4" />
+                            {copy.addSet}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 ) : null}
 
-                {!activeSession && !scheduledWorkout ? renderPlaceholder("No hay entrenamiento programado hoy.") : null}
+                {!activeSession && !scheduledWorkout ? renderPlaceholder(copy.noWorkoutScheduled) : null}
               </CardContent>
             </Card>
             <div className="space-y-5">
               <Card>
                 <CardHeader>
-                  <CardTitle>Semana</CardTitle>
-                  <CardDescription>Asigna rutina, descanso o deja el dia vacio.</CardDescription>
+                  <CardTitle>{copy.week}</CardTitle>
+                  <CardDescription>{copy.weekDescription}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {schedule.map((day) => (
                     <div key={day.day_of_week} className="grid gap-2 rounded-2xl border p-3">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{DAY_LABELS[day.day_of_week]}</span>
-                        {day.day_of_week === new Date().getDay() ? <Badge variant="secondary">Hoy</Badge> : null}
+                        {day.day_of_week === new Date().getDay() ? <Badge variant="secondary">{copy.todayBadge}</Badge> : null}
                       </div>
                       <Select
                         value={day.is_rest_day ? "rest" : day.workout_id ?? "none"}
+                        disabled={saveScheduleMutation.isPending}
                         onValueChange={(value) =>
                           saveScheduleMutation.mutate({
                             dayOfWeek: day.day_of_week,
@@ -325,8 +806,8 @@ const Training = () => {
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Sin asignar</SelectItem>
-                          <SelectItem value="rest">Descanso</SelectItem>
+                          <SelectItem value="none">{copy.unassigned}</SelectItem>
+                          <SelectItem value="rest">{copy.rest}</SelectItem>
                           {workouts.map((workout) => <SelectItem key={workout.id} value={workout.id}>{workout.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
@@ -337,15 +818,15 @@ const Training = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Inicio rapido</CardTitle>
-                  <CardDescription>Inicia cualquier rutina aunque no este programada hoy.</CardDescription>
+                  <CardTitle>{copy.quickStart}</CardTitle>
+                  <CardDescription>{copy.quickStartDescription}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {workouts.length === 0 ? renderPlaceholder("Primero crea una rutina.") : null}
+                  {workouts.length === 0 ? renderPlaceholder(copy.firstCreateRoutine) : null}
                   {workouts.map((workout) => (
                     <div key={workout.id} className="flex items-center justify-between rounded-xl border px-3 py-2">
                       <span>{workout.name}</span>
-                      <Button variant="outline" onClick={() => startSessionMutation.mutate(workout.id)} disabled={Boolean(activeSession)}>Start</Button>
+                      <Button variant="outline" onClick={() => startSessionMutation.mutate(workout.id)} disabled={Boolean(activeSession) || startSessionMutation.isPending}>{copy.start}</Button>
                     </div>
                   ))}
                 </CardContent>
@@ -359,27 +840,27 @@ const Training = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Rutinas personales</CardTitle>
-                  <CardDescription>Crea, edita y elimina bloques de entrenamiento.</CardDescription>
+                  <CardTitle>{copy.personalRoutines}</CardTitle>
+                  <CardDescription>{copy.personalRoutinesDescription}</CardDescription>
                 </div>
                 <Button onClick={() => { setEditingWorkoutId(null); setWorkoutDialogOpen(true); }}>
                   <CirclePlus className="mr-2 h-4 w-4" />
-                  Nueva
+                  {copy.newRoutine}
                 </Button>
               </CardHeader>
               <CardContent className="space-y-3">
-                {workouts.length === 0 ? renderPlaceholder("Aun no tienes rutinas.") : null}
+                {workouts.length === 0 ? renderPlaceholder(copy.noRoutines) : null}
                 {workouts.map((workout) => (
                   <div key={workout.id} className="rounded-2xl border p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="text-lg font-semibold">{workout.name}</div>
-                        <div className="text-sm text-muted-foreground">{workout.description || "Sin descripcion"}</div>
+                        <div className="text-sm text-muted-foreground">{workout.description || copy.noDescription}</div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => startSessionMutation.mutate(workout.id)} disabled={Boolean(activeSession)}><PlayCircle className="mr-2 h-4 w-4" />Iniciar</Button>
-                        <Button variant="outline" onClick={() => { setEditingWorkoutId(workout.id); setWorkoutDialogOpen(true); }}>Editar</Button>
-                        <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => deleteWorkoutMutation.mutate(workout.id)}><Trash2 className="mr-2 h-4 w-4" />Eliminar</Button>
+                        <Button variant="outline" onClick={() => startSessionMutation.mutate(workout.id)} disabled={Boolean(activeSession) || startSessionMutation.isPending}><PlayCircle className="mr-2 h-4 w-4" />{copy.start}</Button>
+                        <Button variant="outline" onClick={() => { setEditingWorkoutId(workout.id); setWorkoutDialogOpen(true); }} disabled={saveWorkoutMutation.isPending}>{copy.edit}</Button>
+                        <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setDeleteWorkoutId(workout.id)} disabled={deleteWorkoutMutation.isPending}><Trash2 className="mr-2 h-4 w-4" />{copy.delete}</Button>
                       </div>
                     </div>
                   </div>
@@ -387,22 +868,22 @@ const Training = () => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Plantillas</CardTitle>
-                <CardDescription>Duplica bases como Push, Pull o Legs.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {templates.map((template) => (
-                  <div key={template.id} className="rounded-2xl border p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-semibold">{template.name}</div>
-                        <div className="text-sm text-muted-foreground">{template.description}</div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{copy.templates}</CardTitle>
+                  <CardDescription>{copy.templatesDescription}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {templates.map((template) => (
+                    <div key={template.id} className="rounded-2xl border p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="font-semibold">{getLocalizedText(template.name_i18n, language, template.name)}</div>
+                          <div className="text-sm text-muted-foreground">{getLocalizedText(template.description_i18n, language, template.description)}</div>
+                        </div>
+                        <Badge>{template.focus_tags.join(" / ")}</Badge>
                       </div>
-                      <Badge>{template.focus_tags.join(" / ")}</Badge>
-                    </div>
-                    <Button className="mt-4 w-full" variant="outline" onClick={() => duplicateTemplateMutation.mutate(template.id)}><Copy className="mr-2 h-4 w-4" />Duplicar plantilla</Button>
+                    <Button className="mt-4 w-full" variant="outline" disabled={duplicateTemplateMutation.isPending} onClick={() => duplicateTemplateMutation.mutate(template.id)}><Copy className="mr-2 h-4 w-4" />{copy.duplicateTemplate}</Button>
                   </div>
                 ))}
               </CardContent>
@@ -414,32 +895,32 @@ const Training = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Biblioteca de ejercicios</CardTitle>
-                <CardDescription>Base global mas ejercicios personalizados.</CardDescription>
+                <CardTitle>{copy.exerciseLibrary}</CardTitle>
+                <CardDescription>{copy.exerciseLibraryDescription}</CardDescription>
               </div>
-              <Button onClick={() => setCustomExerciseOpen(true)}><CirclePlus className="mr-2 h-4 w-4" />Ejercicio custom</Button>
+              <Button onClick={() => setCustomExerciseOpen(true)}><CirclePlus className="mr-2 h-4 w-4" />{copy.customExercise}</Button>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid gap-3 lg:grid-cols-4">
-                <Input placeholder="Buscar ejercicio..." value={filters.search ?? ""} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))} />
+                <Input placeholder={copy.searchExercise} value={filters.search ?? ""} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))} />
                 <Select value={filters.muscleGroup ?? "all"} onValueChange={(value) => setFilters((current) => ({ ...current, muscleGroup: value as ExerciseFilterInput["muscleGroup"] }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los grupos</SelectItem>
+                    <SelectItem value="all">{copy.allGroups}</SelectItem>
                     {Object.entries(MUSCLE_GROUP_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={filters.equipment ?? "all"} onValueChange={(value) => setFilters((current) => ({ ...current, equipment: value as ExerciseFilterInput["equipment"] }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todo el equipo</SelectItem>
+                    <SelectItem value="all">{copy.allEquipment}</SelectItem>
                     {Object.entries(EQUIPMENT_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={filters.movementType ?? "all"} onValueChange={(value) => setFilters((current) => ({ ...current, movementType: value as ExerciseFilterInput["movementType"] }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todo el patron</SelectItem>
+                    <SelectItem value="all">{copy.allPatterns}</SelectItem>
                     {Object.entries(MOVEMENT_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -449,10 +930,10 @@ const Training = () => {
                   <button key={exercise.id} type="button" className="rounded-2xl border p-4 text-left hover:border-cyan-400/40 hover:bg-cyan-400/5" onClick={() => setSelectedExerciseId(exercise.id)}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="font-semibold">{exercise.name}</div>
+                        <div className="font-semibold">{formatExerciseName(exercise)}</div>
                         <div className="text-xs text-muted-foreground">{MUSCLE_GROUP_LABELS[exercise.muscle_group]} | {EQUIPMENT_LABELS[exercise.equipment]}</div>
                       </div>
-                      {exercise.is_custom ? <Badge variant="secondary">Custom</Badge> : <Badge variant="outline">Base</Badge>}
+                      {exercise.is_custom ? <Badge variant="secondary">{copy.customBadge}</Badge> : <Badge variant="outline">{copy.baseBadge}</Badge>}
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Badge variant="outline">{MOVEMENT_LABELS[exercise.movement_type]}</Badge>
@@ -466,13 +947,13 @@ const Training = () => {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-5">
-          <Card>
-            <CardHeader>
-              <CardTitle>Historial</CardTitle>
-              <CardDescription>Sesiones finalizadas con volumen y estado.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {(historyQuery.data ?? []).length === 0 ? renderPlaceholder("Aun no hay sesiones finalizadas.") : null}
+            <Card>
+              <CardHeader>
+                <CardTitle>{copy.historyTitle}</CardTitle>
+                <CardDescription>{copy.historyDescription}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(historyQuery.data ?? []).length === 0 ? renderPlaceholder(copy.noHistory) : null}
               {(historyQuery.data ?? []).map((session) => (
                 <div key={session.id} className="rounded-2xl border p-4">
                   <div className="flex items-center justify-between gap-3">
@@ -495,13 +976,13 @@ const Training = () => {
           <div className="grid gap-5 xl:grid-cols-[1.15fr_0.95fr]">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-cyan-500" />Progreso por ejercicio</CardTitle>
-                <CardDescription>Curva de fuerza, volumen y PRs.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-cyan-500" />{copy.progressTitle}</CardTitle>
+                <CardDescription>{copy.progressDescription}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Select value={selectedExerciseId ?? ""} onValueChange={setSelectedExerciseId}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona ejercicio" /></SelectTrigger>
-                  <SelectContent>{exerciseLibrary.map((exercise) => <SelectItem key={exercise.id} value={exercise.id}>{exercise.name}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={copy.selectExercise} /></SelectTrigger>
+                  <SelectContent>{exerciseLibrary.map((exercise) => <SelectItem key={exercise.id} value={exercise.id}>{formatExerciseName(exercise)}</SelectItem>)}</SelectContent>
                 </Select>
                 <div className="grid gap-3 md:grid-cols-3">
                   {(exercisePrsQuery.data ?? []).map((pr) => (
@@ -513,7 +994,7 @@ const Training = () => {
                 </div>
                 <div className="h-72 rounded-2xl border p-4">
                   {(exerciseProgressQuery.data ?? []).length === 0 ? (
-                    <div className="text-sm text-muted-foreground">Sin datos historicos todavia.</div>
+                    <div className="text-sm text-muted-foreground">{copy.noProgress}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={exerciseProgressQuery.data}>
@@ -533,8 +1014,8 @@ const Training = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Historial por ejercicio</CardTitle>
-                <CardDescription>Detalle de sets, carga maxima y volumen por fecha.</CardDescription>
+                <CardTitle>{copy.exerciseHistoryTitle}</CardTitle>
+                <CardDescription>{copy.exerciseHistoryDescription}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[640px] pr-3">
@@ -569,7 +1050,7 @@ const Training = () => {
       <Dialog open={workoutDialogOpen} onOpenChange={setWorkoutDialogOpen}>
         <DialogContent className="max-w-5xl">
           <DialogHeader>
-            <DialogTitle>{editingWorkoutId ? "Editar rutina" : "Crear rutina"}</DialogTitle>
+            <DialogTitle>{editingWorkoutId ? copy.editRoutine : copy.createRoutine}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-5 xl:grid-cols-[0.95fr_1.2fr]">
             <div className="space-y-4">
@@ -582,10 +1063,10 @@ const Training = () => {
                 <Textarea value={workoutDescription} onChange={(event) => setWorkoutDescription(event.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Agregar ejercicio</Label>
+                <Label>{copy.addExercise}</Label>
                 <Select value={exercisePickerId} onValueChange={setExercisePickerId}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona ejercicio" /></SelectTrigger>
-                  <SelectContent>{exerciseLibrary.map((exercise) => <SelectItem key={exercise.id} value={exercise.id}>{exercise.name}</SelectItem>)}</SelectContent>
+                  <SelectTrigger><SelectValue placeholder={copy.selectExercise} /></SelectTrigger>
+                  <SelectContent>{exerciseLibrary.map((exercise) => <SelectItem key={exercise.id} value={exercise.id}>{formatExerciseName(exercise)}</SelectItem>)}</SelectContent>
                 </Select>
                 <Button variant="outline" onClick={() => {
                   const exercise = exerciseLibrary.find((row) => row.id === exercisePickerId);
@@ -594,7 +1075,7 @@ const Training = () => {
                   setExercisePickerId("");
                 }} disabled={!exercisePickerId}>
                   <CirclePlus className="mr-2 h-4 w-4" />
-                  Agregar
+                  {copy.addExercise}
                 </Button>
               </div>
             </div>
@@ -604,14 +1085,14 @@ const Training = () => {
                 <div key={exercise.clientId} className="rounded-2xl border p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="font-semibold">{index + 1}. {exercise.exercise?.name || exercise.exercise_id}</div>
+                      <div className="font-semibold">{index + 1}. {exercise.exercise ? formatExerciseName(exercise.exercise) : exercise.exercise_id}</div>
                       <div className="text-xs text-muted-foreground">{exercise.exercise ? MUSCLE_GROUP_LABELS[exercise.exercise.muscle_group] : "Ejercicio"}</div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => setWorkoutExercises((current) => current.filter((row) => row.clientId !== exercise.clientId))}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    <Input value={String(exercise.target_sets)} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, target_sets: Math.max(1, toNumber(event.target.value)) } : row))} />
-                    <Input value={exercise.target_reps} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, target_reps: event.target.value } : row))} />
+                    <Input aria-label={copy.targetSets} value={String(exercise.target_sets)} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, target_sets: Math.max(1, toNumber(event.target.value)) } : row))} />
+                    <Input aria-label={copy.targetReps} value={exercise.target_reps} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, target_reps: event.target.value } : row))} />
                     <Input value={String(exercise.rest_seconds)} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, rest_seconds: Math.max(0, toNumber(event.target.value)) } : row))} />
                   </div>
                   <Textarea className="mt-3" value={exercise.notes ?? ""} onChange={(event) => setWorkoutExercises((current) => current.map((row) => row.clientId === exercise.clientId ? { ...row, notes: event.target.value } : row))} placeholder="Nota fija del ejercicio" />
@@ -620,7 +1101,7 @@ const Training = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWorkoutDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setWorkoutDialogOpen(false)}>{copy.cancel}</Button>
             <Button onClick={() => saveWorkoutMutation.mutate({
               id: editingWorkoutId ?? undefined,
               name: workoutName,
@@ -633,7 +1114,7 @@ const Training = () => {
                 rest_seconds: row.rest_seconds,
                 notes: row.notes || null,
               })),
-            })} disabled={saveWorkoutMutation.isPending}>Guardar rutina</Button>
+            })} disabled={saveWorkoutMutation.isPending}>{copy.saveRoutine}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -641,7 +1122,7 @@ const Training = () => {
       <Dialog open={customExerciseOpen} onOpenChange={setCustomExerciseOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Crear ejercicio personalizado</DialogTitle>
+            <DialogTitle>{copy.createCustomExercise}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
@@ -690,11 +1171,26 @@ const Training = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCustomExerciseOpen(false)}>Cancelar</Button>
-            <Button onClick={() => saveCustomExerciseMutation.mutate(customExerciseForm)} disabled={saveCustomExerciseMutation.isPending}>Guardar ejercicio</Button>
+            <Button variant="outline" onClick={() => setCustomExerciseOpen(false)}>{copy.cancel}</Button>
+            <Button onClick={() => saveCustomExerciseMutation.mutate(customExerciseForm)} disabled={saveCustomExerciseMutation.isPending}>{copy.saveExercise}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={Boolean(deleteWorkoutId)} onOpenChange={(open) => !open && setDeleteWorkoutId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{copy.deleteRoutineTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{copy.deleteRoutineDescription}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteWorkoutId && deleteWorkoutMutation.mutate(deleteWorkoutId)}>
+              {copy.deleteRoutineConfirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

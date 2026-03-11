@@ -6,6 +6,7 @@ export type NutritionGoalType = "lose" | "lose_slow" | "maintain" | "gain_slow" 
 export type NutritionDayArchetype = "base" | "heavy" | "recovery";
 
 export type NutritionMicronutrients = Record<string, number>;
+export type LocalizedNutritionText = Partial<Record<"en" | "es", string>>;
 
 export type NutritionEntry = {
   id: string;
@@ -14,6 +15,7 @@ export type NutritionEntry = {
   daily_log_id: string | null;
   meal_type: NutritionMealType;
   food_name: string;
+  food_name_i18n?: LocalizedNutritionText | null;
   serving_size: number;
   serving_unit: string;
   calories: number;
@@ -34,6 +36,7 @@ export type FavoriteFood = {
   id: string;
   user_id: string;
   name: string;
+  name_i18n?: LocalizedNutritionText | null;
   serving_size: number;
   serving_unit: string;
   calories: number;
@@ -51,7 +54,9 @@ export type FavoriteFood = {
 export type FoodDatabaseItem = {
   id: string;
   food_name: string;
+  food_name_i18n?: LocalizedNutritionText | null;
   category: string;
+  category_i18n?: LocalizedNutritionText | null;
   serving_size: number;
   serving_unit: string;
   calories: number;

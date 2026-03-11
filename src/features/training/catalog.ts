@@ -400,3 +400,48 @@ export const DEFAULT_TEMPLATE_SEEDS: WorkoutTemplateDetail[] = [
 ];
 
 export const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+
+const EXERCISE_TRANSLATIONS: Record<string, Partial<ExerciseRecord>> = {
+  "11111111-1111-1111-1111-111111111111": { name_i18n: { en: "Bench Press", es: "Press banca" } },
+  "11111111-1111-1111-1111-111111111112": { name_i18n: { en: "Incline Dumbbell Press", es: "Press inclinado con mancuernas" } },
+  "11111111-1111-1111-1111-111111111113": { name_i18n: { en: "Chest Fly Machine", es: "Aperturas en maquina" } },
+  "11111111-1111-1111-1111-111111111114": { name_i18n: { en: "Pull-Up", es: "Dominadas" } },
+  "11111111-1111-1111-1111-111111111115": { name_i18n: { en: "Barbell Row", es: "Remo con barra" } },
+  "11111111-1111-1111-1111-111111111116": { name_i18n: { en: "Lat Pulldown", es: "Jalon al pecho" } },
+  "11111111-1111-1111-1111-111111111117": { name_i18n: { en: "Back Squat", es: "Sentadilla trasera" } },
+  "11111111-1111-1111-1111-111111111118": { name_i18n: { en: "Romanian Deadlift", es: "Peso muerto rumano" } },
+  "11111111-1111-1111-1111-111111111119": { name_i18n: { en: "Leg Press", es: "Prensa de piernas" } },
+  "11111111-1111-1111-1111-111111111120": { name_i18n: { en: "Walking Lunge", es: "Zancada caminando" } },
+  "11111111-1111-1111-1111-111111111121": { name_i18n: { en: "Standing Calf Raise", es: "Elevacion de talones de pie" } },
+  "11111111-1111-1111-1111-111111111122": { name_i18n: { en: "Overhead Press", es: "Press militar" } },
+  "11111111-1111-1111-1111-111111111123": { name_i18n: { en: "Lateral Raise", es: "Elevaciones laterales" } },
+  "11111111-1111-1111-1111-111111111124": { name_i18n: { en: "Barbell Curl", es: "Curl con barra" } },
+  "11111111-1111-1111-1111-111111111125": { name_i18n: { en: "Hammer Curl", es: "Curl martillo" } },
+  "11111111-1111-1111-1111-111111111126": { name_i18n: { en: "Cable Pushdown", es: "Extension de triceps en polea" } },
+  "11111111-1111-1111-1111-111111111127": { name_i18n: { en: "Skull Crusher", es: "Rompecraneos" } },
+  "11111111-1111-1111-1111-111111111128": { name_i18n: { en: "Hip Thrust", es: "Hip thrust" } },
+  "11111111-1111-1111-1111-111111111129": { name_i18n: { en: "Plank", es: "Plancha" } },
+  "11111111-1111-1111-1111-111111111130": { name_i18n: { en: "Cable Crunch", es: "Crunch en polea" } },
+};
+
+const TEMPLATE_TRANSLATIONS: Record<string, Pick<WorkoutTemplateDetail, "name_i18n" | "description_i18n">> = {
+  "22222222-2222-2222-2222-222222222221": {
+    name_i18n: { en: "Push", es: "Empuje" },
+    description_i18n: { en: "Chest, shoulders and triceps with moderate volume.", es: "Pecho, hombros y triceps con volumen moderado." },
+  },
+  "22222222-2222-2222-2222-222222222222": {
+    name_i18n: { en: "Pull", es: "Traccion" },
+    description_i18n: { en: "Back and biceps with vertical and horizontal pulling focus.", es: "Espalda y biceps con foco en traccion vertical y horizontal." },
+  },
+  "22222222-2222-2222-2222-222222222223": {
+    name_i18n: { en: "Legs", es: "Piernas" },
+    description_i18n: { en: "Full lower body day with squat, hinge and unilateral work.", es: "Pierna completa con squat, hinge y trabajo unilateral." },
+  },
+  "22222222-2222-2222-2222-222222222224": {
+    name_i18n: { en: "Full Body", es: "Cuerpo completo" },
+    description_i18n: { en: "Compact session for short-time days.", es: "Sesion compacta para dias de poco tiempo." },
+  },
+};
+
+DEFAULT_EXERCISE_SEEDS.forEach((exercise) => Object.assign(exercise, EXERCISE_TRANSLATIONS[exercise.id] ?? {}));
+DEFAULT_TEMPLATE_SEEDS.forEach((template) => Object.assign(template, TEMPLATE_TRANSLATIONS[template.id] ?? {}));

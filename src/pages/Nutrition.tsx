@@ -18,6 +18,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
+import { usePreferences } from "@/context/PreferencesContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -86,6 +87,7 @@ const Nutrition = () => {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const { user, isGuest, profile } = useAuth();
+  const { language } = usePreferences();
   const userId = user?.id ?? null;
   const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
@@ -180,8 +182,8 @@ const Nutrition = () => {
   });
 
   const foodSearchQuery = useQuery({
-    queryKey: ["food_database_search", searchFood, foodCategory],
-    queryFn: () => searchFoodDatabase({ query: searchFood, category: foodCategory, limit: 35 }).catch(() => []),
+    queryKey: ["food_database_search", searchFood, foodCategory, language],
+    queryFn: () => searchFoodDatabase({ query: searchFood, category: foodCategory, limit: 35, language }).catch(() => []),
     enabled: Boolean(userId) || isGuest,
   });
 
