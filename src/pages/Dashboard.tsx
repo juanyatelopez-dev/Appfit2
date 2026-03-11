@@ -43,102 +43,49 @@ import {
 } from "@/services/dashboardHomePreferences";
 import { cn } from "@/lib/utils";
 
-type PackedDashboardCard = {
+type DashboardStackCard = {
   key: string;
-  preferredSpan: number;
-  minSpan: number;
+  weight: number;
+  preferredColumn: "left" | "right";
+  mobileOrder: number;
   node: ReactNode;
 };
 
-const DASHBOARD_GRID_COLUMNS = 12;
+const balanceDashboardColumns = (cards: DashboardStackCard[]) => {
+  const orderedCards = [...cards].sort((a, b) => a.mobileOrder - b.mobileOrder);
+  const left: DashboardStackCard[] = [];
+  const right: DashboardStackCard[] = [];
+  let leftWeight = 0;
+  let rightWeight = 0;
 
-const getDashboardSpanClass = (span: number) => {
-  switch (span) {
-    case 1:
-      return "xl:col-span-1";
-    case 2:
-      return "xl:col-span-2";
-    case 3:
-      return "xl:col-span-3";
-    case 4:
-      return "xl:col-span-4";
-    case 5:
-      return "xl:col-span-5";
-    case 6:
-      return "xl:col-span-6";
-    case 7:
-      return "xl:col-span-7";
-    case 8:
-      return "xl:col-span-8";
-    case 9:
-      return "xl:col-span-9";
-    case 10:
-      return "xl:col-span-10";
-    case 11:
-      return "xl:col-span-11";
-    default:
-      return "xl:col-span-12";
-  }
-};
+  orderedCards.forEach((card) => {
+    const preferredWeight = card.preferredColumn === "left" ? leftWeight : rightWeight;
+    const alternateWeight = card.preferredColumn === "left" ? rightWeight : leftWeight;
+    const shouldUsePreferredColumn = preferredWeight <= alternateWeight + 2;
 
-const normalizeDashboardRow = (row: PackedDashboardCard[]) => {
-  if (row.length === 1) return [{ ...row[0], span: DASHBOARD_GRID_COLUMNS }];
-
-  const baseSpans = row.map((item) => Math.min(item.minSpan, DASHBOARD_GRID_COLUMNS));
-  let usedColumns = baseSpans.reduce((sum, span) => sum + span, 0);
-  let remainingColumns = Math.max(DASHBOARD_GRID_COLUMNS - usedColumns, 0);
-  const weights = row.map((item, index) => Math.max(item.preferredSpan - baseSpans[index], 0));
-  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-  const assigned = [...baseSpans];
-
-  if (remainingColumns > 0 && totalWeight > 0) {
-    const fractional = row.map((_, index) => {
-      const rawShare = (weights[index] / totalWeight) * remainingColumns;
-      const whole = Math.floor(rawShare);
-      assigned[index] += whole;
-      return { index, remainder: rawShare - whole };
-    });
-
-    remainingColumns = DASHBOARD_GRID_COLUMNS - assigned.reduce((sum, span) => sum + span, 0);
-    fractional
-      .sort((a, b) => b.remainder - a.remainder)
-      .slice(0, remainingColumns)
-      .forEach(({ index }) => {
-        assigned[index] += 1;
-      });
-  } else {
-    let cursor = 0;
-    while (remainingColumns > 0) {
-      assigned[cursor % assigned.length] += 1;
-      remainingColumns -= 1;
-      cursor += 1;
-    }
-  }
-
-  return row.map((item, index) => ({ ...item, span: assigned[index] }));
-};
-
-const packDashboardRows = (cards: PackedDashboardCard[]) => {
-  const rows: Array<Array<PackedDashboardCard & { span: number }>> = [];
-  let currentRow: PackedDashboardCard[] = [];
-  let currentWidth = 0;
-
-  cards.forEach((card) => {
-    if (currentRow.length > 0 && currentWidth + card.preferredSpan > DASHBOARD_GRID_COLUMNS) {
-      rows.push(normalizeDashboardRow(currentRow));
-      currentRow = [];
-      currentWidth = 0;
+    if (card.preferredColumn === "left" && (shouldUsePreferredColumn || leftWeight <= rightWeight)) {
+      left.push(card);
+      leftWeight += card.weight;
+      return;
     }
 
-    currentRow.push(card);
-    currentWidth += card.preferredSpan;
+    if (card.preferredColumn === "right" && (shouldUsePreferredColumn || rightWeight <= leftWeight)) {
+      right.push(card);
+      rightWeight += card.weight;
+      return;
+    }
+
+    if (leftWeight <= rightWeight) {
+      left.push(card);
+      leftWeight += card.weight;
+      return;
+    }
+
+    right.push(card);
+    rightWeight += card.weight;
   });
 
-  if (currentRow.length > 0) {
-    rows.push(normalizeDashboardRow(currentRow));
-  }
-
-  return rows;
+  return { orderedCards, left, right };
 };
 
 const Dashboard = () => {
@@ -279,58 +226,51 @@ const Dashboard = () => {
     saveWidgetPreferencesMutation.mutate(next);
   };
 
+  const nutritionSummary = core?.nutritionToday
+    ? {
+        profileName: core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
+        archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
+        targetCalories: core.nutritionToday.goals.calorie_goal,
+        consumedCalories: core.nutritionToday.totals.calories,
+        proteinGoal: core.nutritionToday.goals.protein_goal_g,
+        carbsGoal: core.nutritionToday.goals.carb_goal_g,
+        fatGoal: core.nutritionToday.goals.fat_goal_g,
+      }
+    : null;
   const visibleRightCards = useMemo(
     () => [isWidgetVisible("hero_recovery"), isWidgetVisible("hero_focus")].some(Boolean),
     [selectedWidgetKeys],
   );
   const visibleStatusRow = isWidgetVisible("status_row");
-  const mainCards = useMemo(() => {
-    const cards: PackedDashboardCard[] = [];
+  const stackCards = useMemo(() => {
+    const cards: DashboardStackCard[] = [];
 
     if (isWidgetVisible("physical_progress")) {
       cards.push({
         key: "physical_progress",
-        preferredSpan: 8,
-        minSpan: 6,
+        weight: 5,
+        preferredColumn: "left",
+        mobileOrder: 10,
         node: <PhysicalProgressHub loading={snapshot.coreLoading} summary={core?.physicalSummary ?? null} />,
       });
     }
 
-    const quickActionsVisible = isWidgetVisible("quick_actions");
-    const physicalProgressVisible = isWidgetVisible("physical_progress");
-    const nutritionVisible = isWidgetVisible("nutrition");
-
-    if (quickActionsVisible && physicalProgressVisible) {
+    if (isWidgetVisible("quick_actions")) {
       cards.push({
         key: "quick_actions",
-        preferredSpan: 4,
-        minSpan: 4,
-        node: (
-          <DashboardQuickActions
-            nextActionLabel={nextActionLabel}
-            nutritionSummary={
-              core?.nutritionToday
-                ? {
-                    profileName: core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
-                    archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
-                    targetCalories: core.nutritionToday.goals.calorie_goal,
-                    consumedCalories: core.nutritionToday.totals.calories,
-                    proteinGoal: core.nutritionToday.goals.protein_goal_g,
-                    carbsGoal: core.nutritionToday.goals.carb_goal_g,
-                    fatGoal: core.nutritionToday.goals.fat_goal_g,
-                  }
-                : null
-            }
-          />
-        ),
+        weight: 4,
+        preferredColumn: "right",
+        mobileOrder: 20,
+        node: <DashboardQuickActions nextActionLabel={nextActionLabel} nutritionSummary={nutritionSummary} />,
       });
     }
 
-    if (nutritionVisible) {
+    if (isWidgetVisible("nutrition")) {
       cards.push({
         key: "nutrition",
-        preferredSpan: 8,
-        minSpan: 6,
+        weight: 8,
+        preferredColumn: "left",
+        mobileOrder: 30,
         node: (
           <section id="nutrition" className="min-w-0">
             <TodayMealsModule />
@@ -339,37 +279,12 @@ const Dashboard = () => {
       });
     }
 
-    if (quickActionsVisible && !physicalProgressVisible) {
-      cards.push({
-        key: "quick_actions",
-        preferredSpan: 4,
-        minSpan: 4,
-        node: (
-          <DashboardQuickActions
-            nextActionLabel={nextActionLabel}
-            nutritionSummary={
-              core?.nutritionToday
-                ? {
-                    profileName: core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
-                    archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
-                    targetCalories: core.nutritionToday.goals.calorie_goal,
-                    consumedCalories: core.nutritionToday.totals.calories,
-                    proteinGoal: core.nutritionToday.goals.protein_goal_g,
-                    carbsGoal: core.nutritionToday.goals.carb_goal_g,
-                    fatGoal: core.nutritionToday.goals.fat_goal_g,
-                  }
-                : null
-            }
-          />
-        ),
-      });
-    }
-
     if (isWidgetVisible("water")) {
       cards.push({
         key: "water",
-        preferredSpan: 6,
-        minSpan: 4,
+        weight: 5,
+        preferredColumn: "right",
+        mobileOrder: 40,
         node: (
           <section id="water" className="min-w-0">
             <WaterCard showHistoryButton={false} />
@@ -378,24 +293,12 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("biofeedback")) {
-      cards.push({
-        key: "biofeedback",
-        preferredSpan: 6,
-        minSpan: 4,
-        node: (
-          <section id="biofeedback" className="min-w-0">
-            <TodayBiofeedbackModule />
-          </section>
-        ),
-      });
-    }
-
     if (isWidgetVisible("weight")) {
       cards.push({
         key: "weight",
-        preferredSpan: 4,
-        minSpan: 4,
+        weight: 4,
+        preferredColumn: "right",
+        mobileOrder: 50,
         node: (
           <section id="weight" className="min-w-0">
             <TodayWeightModule />
@@ -407,8 +310,9 @@ const Dashboard = () => {
     if (isWidgetVisible("sleep")) {
       cards.push({
         key: "sleep",
-        preferredSpan: 4,
-        minSpan: 4,
+        weight: 4,
+        preferredColumn: "right",
+        mobileOrder: 60,
         node: (
           <section id="sleep" className="min-w-0">
             <SleepCard />
@@ -417,17 +321,26 @@ const Dashboard = () => {
       });
     }
 
-    return cards;
-  }, [core?.nutritionToday, core?.physicalSummary, isWidgetVisible, nextActionLabel, snapshot.coreLoading]);
-
-  const insightCards = useMemo(() => {
-    const cards: PackedDashboardCard[] = [];
+    if (isWidgetVisible("biofeedback")) {
+      cards.push({
+        key: "biofeedback",
+        weight: 5,
+        preferredColumn: "right",
+        mobileOrder: 70,
+        node: (
+          <section id="biofeedback" className="min-w-0">
+            <TodayBiofeedbackModule />
+          </section>
+        ),
+      });
+    }
 
     if (isWidgetVisible("body_measurements")) {
       cards.push({
         key: "body_measurements",
-        preferredSpan: 6,
-        minSpan: 4,
+        weight: 6,
+        preferredColumn: "left",
+        mobileOrder: 80,
         node: (
           <BodyMeasurementsCard
             loading={snapshot.coreLoading}
@@ -444,8 +357,9 @@ const Dashboard = () => {
     if (isWidgetVisible("notes")) {
       cards.push({
         key: "notes",
-        preferredSpan: 6,
-        minSpan: 4,
+        weight: 5,
+        preferredColumn: "right",
+        mobileOrder: 90,
         node: (
           <TacticalNotesCard
             loading={snapshot.coreLoading}
@@ -460,8 +374,9 @@ const Dashboard = () => {
     if (isWidgetVisible("recovery_card")) {
       cards.push({
         key: "recovery_card",
-        preferredSpan: 6,
-        minSpan: 4,
+        weight: 5,
+        preferredColumn: "right",
+        mobileOrder: 100,
         node: (
           <RecoveryCard
             loading={snapshot.coreLoading}
@@ -484,8 +399,9 @@ const Dashboard = () => {
     if (isWidgetVisible("calendar")) {
       cards.push({
         key: "calendar",
-        preferredSpan: 6,
-        minSpan: 4,
+        weight: 5,
+        preferredColumn: "left",
+        mobileOrder: 110,
         node: (
           <CalendarMiniWidget
             month={currentMonth}
@@ -504,6 +420,8 @@ const Dashboard = () => {
     core?.latestMeasurementWeight,
     core?.noteLatest,
     core?.noteToday,
+    core?.nutritionToday,
+    core?.physicalSummary,
     core?.previousMeasurement,
     core?.recovery.drivers,
     core?.recovery.score,
@@ -512,15 +430,14 @@ const Dashboard = () => {
     core?.waistComparison,
     currentMonth,
     isWidgetVisible,
+    nextActionLabel,
+    nutritionSummary,
     saveNoteMutation,
     snapshot.coreLoading,
     snapshot.monthActivity,
     snapshot.monthActivityLoading,
-    setCurrentMonth,
   ]);
-
-  const packedMainRows = useMemo(() => packDashboardRows(mainCards), [mainCards]);
-  const packedInsightRows = useMemo(() => packDashboardRows(insightCards), [insightCards]);
+  const desktopColumns = useMemo(() => balanceDashboardColumns(stackCards), [stackCards]);
 
   return (
     <div className="space-y-6 py-4">
@@ -738,32 +655,45 @@ const Dashboard = () => {
         />
       ) : null}
 
-      {packedMainRows.length > 0 ? (
-        <div className="space-y-4">
-          {packedMainRows.map((row, rowIndex) => (
-            <div key={`main-row-${rowIndex}`} className="grid gap-4 xl:grid-cols-12 xl:items-start">
-              {row.map((card) => (
-                <div key={card.key} className={cn("min-w-0", getDashboardSpanClass(card.span))}>
-                  {card.node}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      ) : null}
+      {stackCards.length > 0 ? (
+        <>
+          <div className="space-y-4 xl:hidden">
+            {desktopColumns.orderedCards.map((card) => (
+              <div key={`mobile-${card.key}`} className="min-w-0">
+                {card.node}
+              </div>
+            ))}
+          </div>
 
-      {packedInsightRows.length > 0 ? (
-        <div className="space-y-4">
-          {packedInsightRows.map((row, rowIndex) => (
-            <div key={`insight-row-${rowIndex}`} className="grid gap-4 xl:grid-cols-12 xl:items-start">
-              {row.map((card) => (
-                <div key={card.key} className={cn("min-w-0", getDashboardSpanClass(card.span))}>
-                  {card.node}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+          <div
+            className={cn(
+              "hidden xl:items-start xl:gap-4",
+              desktopColumns.left.length > 0 && desktopColumns.right.length > 0
+                ? "xl:grid xl:grid-cols-[minmax(0,1.42fr)_minmax(320px,0.94fr)]"
+                : "xl:block",
+            )}
+          >
+            {desktopColumns.left.length > 0 ? (
+              <div className="space-y-4">
+                {desktopColumns.left.map((card) => (
+                  <div key={`left-${card.key}`} className="min-w-0">
+                    {card.node}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {desktopColumns.right.length > 0 ? (
+              <div className="space-y-4">
+                {desktopColumns.right.map((card) => (
+                  <div key={`right-${card.key}`} className="min-w-0">
+                    {card.node}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </>
       ) : null}
     </div>
   );
