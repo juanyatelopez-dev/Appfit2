@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   BarChart3,
   Bell,
@@ -10,7 +9,7 @@ import {
   Settings,
   Target,
 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { usePreferences } from "@/context/PreferencesContext";
@@ -25,39 +24,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { TranslationKey } from "@/i18n/translations";
-
-const resolvePageTitle = (pathname: string, t: (key: TranslationKey) => string) => {
-  if (pathname.startsWith("/today")) return t("nav.today");
-  if (pathname.startsWith("/progress")) return t("nav.progress");
-  if (pathname.startsWith("/training")) return t("nav.training");
-  if (pathname.startsWith("/body")) return t("nav.body");
-  if (pathname.startsWith("/fitness-profile")) return t("nav.fitnessProfile");
-  if (pathname.startsWith("/dashboard")) return t("nav.dashboard");
-  if (pathname.startsWith("/goals")) return t("nav.goals");
-  if (pathname.startsWith("/weight")) return t("nav.weight");
-  if (pathname.startsWith("/water")) return t("nav.water");
-  if (pathname.startsWith("/sleep")) return t("nav.sleep");
-  if (pathname.startsWith("/nutrition")) return t("nav.nutrition");
-  if (pathname.startsWith("/biofeedback")) return t("nav.biofeedback");
-  if (pathname.startsWith("/measurements")) return t("nav.measurements");
-  if (pathname.startsWith("/statistics")) return t("nav.statistics");
-  if (pathname.startsWith("/weekly-review")) return t("nav.weeklyReview");
-  if (pathname.startsWith("/calendar")) return t("nav.calendar");
-  if (pathname.startsWith("/profile")) return t("nav.profile");
-  if (pathname.startsWith("/settings")) return t("nav.settings");
-  return t("nav.today");
-};
 
 const DashboardHeader = () => {
   const { language, t } = usePreferences();
   const { signOut, isGuest, exitGuest } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
   const today = new Date();
-  const options: Intl.DateTimeFormatOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-  const dateStr = today.toLocaleDateString(language === "es" ? "es-ES" : "en-US", options);
-  const pageTitle = useMemo(() => resolvePageTitle(location.pathname, t), [location.pathname, t]);
 
   const days = language === "es" ? ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentDay = today.getDay();
@@ -133,22 +105,9 @@ const DashboardHeader = () => {
           </SheetContent>
         </Sheet>
         <div className="min-w-0">
-          <div className="md:hidden">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              The <span className="text-primary">PRIME</span> Protocol
-            </p>
-            <h2 className="truncate text-base font-semibold text-card-foreground">{pageTitle || t("header.dashboard")}</h2>
-          </div>
-          <div className="hidden min-w-0 items-center gap-3 md:flex">
-            <p className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-              The <span className="text-primary">PRIME</span> Protocol
-            </p>
-            <span className="h-4 w-px bg-border/80" />
-            <div className="min-w-0">
-              <h2 className="truncate text-lg font-semibold text-card-foreground">{pageTitle || t("header.dashboard")}</h2>
-              <p className="text-xs text-muted-foreground">{dateStr}</p>
-            </div>
-          </div>
+          <p className="truncate text-sm font-black uppercase tracking-[0.24em] text-card-foreground md:text-xl md:tracking-[0.28em]">
+            THE <span className="text-primary">PRIME</span> PROTOCOL
+          </p>
         </div>
         <div className="ml-4 hidden items-center gap-1 md:flex">
           {days.map((day, i) => (
