@@ -14,7 +14,7 @@ const MainLayout = () => {
         <Sidebar />
       </div>
 
-      <div className="flex-1 md:ml-64 flex min-w-0 flex-col">
+      <div className="flex-1 md:ml-64 flex min-w-0 flex-col pt-16 md:pt-0">
         <DashboardHeader />
         {isGuest && <GuestWarningBanner />}
 

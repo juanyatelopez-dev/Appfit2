@@ -9,7 +9,7 @@ const GuestWarningBanner: React.FC = () => {
     const { exitGuest } = useAuth();
 
     return (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800 p-3 sticky top-0 z-50 animate-in slide-in-from-top duration-300">
+        <div className="bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800 p-3 sticky top-16 z-20 animate-in slide-in-from-top duration-300 md:top-0">
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200 text-sm font-medium">
                     <AlertCircle className="h-4 w-4" />

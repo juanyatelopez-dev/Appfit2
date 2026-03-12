@@ -27,6 +27,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Range = "7d" | "30d" | "90d" | "all";
 type HydrationState = "dry" | "retention" | "variable";
@@ -47,8 +48,14 @@ const trendLabel = (trend: "up" | "down" | "stable" | null) => {
   return "--";
 };
 
+const formatChartDate = (value: string | number, mobile: boolean) => {
+  const date = new Date(value);
+  return mobile ? date.toLocaleDateString(undefined, { month: "numeric", day: "numeric" }) : date.toLocaleDateString();
+};
+
 const Stats = () => {
   const { user, isGuest, profile } = useAuth();
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
@@ -291,6 +298,10 @@ const Stats = () => {
   }));
 
   const hasInitialFallback = initialWeight === null;
+  const weightChartHeight = isMobile ? 240 : 320;
+  const secondaryChartHeight = isMobile ? 220 : 280;
+  const chartMargin = isMobile ? { top: 8, right: 6, left: -28, bottom: 0 } : { top: 8, right: 16, left: 0, bottom: 0 };
+  const yAxisWidth = isMobile ? 34 : 44;
 
   useEffect(() => {
     if (!weeklyObservation) {
@@ -558,14 +569,20 @@ const Stats = () => {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Tendencia de peso</CardTitle>
             <CardDescription>Peso corporal y promedio móvil en el tiempo</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-2 sm:flex sm:flex-wrap">
             {(["7d", "30d", "90d", "all"] as Range[]).map((r) => (
-              <Button key={r} size="sm" variant={range === r ? "default" : "outline"} onClick={() => setRange(r)}>
+              <Button
+                key={r}
+                size="sm"
+                className="min-w-0 px-2 text-xs sm:text-sm"
+                variant={range === r ? "default" : "outline"}
+                onClick={() => setRange(r)}
+              >
                 {r.toUpperCase()}
               </Button>
             ))}
@@ -575,17 +592,39 @@ const Stats = () => {
           {chartData.length === 0 ? (
             <p className="text-sm text-muted-foreground">No hay datos de peso para este rango.</p>
           ) : (
-            <div className="h-[320px] w-full">
+            <div className="w-full" style={{ height: `${weightChartHeight}px` }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
+                <LineChart data={chartData} margin={chartMargin}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                  <YAxis domain={["auto", "auto"]} />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={8}
+                    minTickGap={isMobile ? 24 : 32}
+                    interval="preserveStartEnd"
+                    tick={{ fontSize: isMobile ? 11 : 12 }}
+                    tickFormatter={(v) => formatChartDate(v, isMobile)}
+                  />
+                  <YAxis
+                    domain={["auto", "auto"]}
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={4}
+                    tick={{ fontSize: isMobile ? 11 : 12 }}
+                    width={yAxisWidth}
+                  />
                   <Tooltip
                     labelFormatter={(v) => new Date(String(v)).toLocaleDateString()}
                     formatter={(value: number, name: string) => [`${value} kg`, name === "weight" ? "Peso" : "Promedio móvil 7d"]}
                   />
-                  <Line type="monotone" dataKey="weight" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+                  <Line
+                    type="monotone"
+                    dataKey="weight"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={chartData.length <= 12 ? { r: isMobile ? 2.5 : 3 } : false}
+                  />
                   <Line type="monotone" dataKey="movingAvg7" stroke="hsl(var(--muted-foreground))" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
@@ -604,9 +643,10 @@ const Stats = () => {
             {!nutrition7d?.days?.length ? (
               <p className="text-sm text-muted-foreground">Aún no hay datos de alimentación.</p>
             ) : (
-              <div className="h-[280px] w-full">
+              <div className="w-full" style={{ height: `${secondaryChartHeight}px` }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
+                    margin={chartMargin}
                     data={nutrition7d.days.map((row) => ({
                       date: row.date_key,
                       calories: row.calories,
@@ -616,8 +656,17 @@ const Stats = () => {
                     }))}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                    <YAxis />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      minTickGap={isMobile ? 24 : 32}
+                      interval="preserveStartEnd"
+                      tick={{ fontSize: isMobile ? 11 : 12 }}
+                      tickFormatter={(v) => formatChartDate(v, isMobile)}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tickMargin={4} tick={{ fontSize: isMobile ? 11 : 12 }} width={yAxisWidth} />
                     <Tooltip labelFormatter={(v) => new Date(String(v)).toLocaleDateString()} />
                     <Line type="monotone" dataKey="calories" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                     <Line type="monotone" dataKey="protein_g" stroke="#22c55e" strokeWidth={2} dot={false} />
@@ -639,9 +688,10 @@ const Stats = () => {
             {!nutrition30d?.days?.length ? (
               <p className="text-sm text-muted-foreground">Aún no hay datos de alimentación.</p>
             ) : (
-              <div className="h-[280px] w-full">
+              <div className="w-full" style={{ height: `${secondaryChartHeight}px` }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
+                    margin={chartMargin}
                     data={nutrition30d.days.map((row) => ({
                       date: row.date_key,
                       calories: row.calories,
@@ -651,8 +701,17 @@ const Stats = () => {
                     }))}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                    <YAxis />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      minTickGap={isMobile ? 24 : 32}
+                      interval="preserveStartEnd"
+                      tick={{ fontSize: isMobile ? 11 : 12 }}
+                      tickFormatter={(v) => formatChartDate(v, isMobile)}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tickMargin={4} tick={{ fontSize: isMobile ? 11 : 12 }} width={yAxisWidth} />
                     <Tooltip labelFormatter={(v) => new Date(String(v)).toLocaleDateString()} />
                     <Line type="monotone" dataKey="calories" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                     <Line type="monotone" dataKey="protein_g" stroke="#22c55e" strokeWidth={2} dot={false} />
@@ -674,12 +733,28 @@ const Stats = () => {
             {biofeedbackChartData.length === 0 ? (
               <p className="text-sm text-muted-foreground">Aún no hay datos de biofeedback.</p>
             ) : (
-              <div className="h-[280px] w-full">
+              <div className="w-full" style={{ height: `${secondaryChartHeight}px` }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={biofeedbackChartData}>
+                  <LineChart data={biofeedbackChartData} margin={chartMargin}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                    <YAxis domain={[1, 10]} />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      minTickGap={isMobile ? 24 : 32}
+                      interval="preserveStartEnd"
+                      tick={{ fontSize: isMobile ? 11 : 12 }}
+                      tickFormatter={(v) => formatChartDate(v, isMobile)}
+                    />
+                    <YAxis
+                      domain={[1, 10]}
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={4}
+                      tick={{ fontSize: isMobile ? 11 : 12 }}
+                      width={yAxisWidth}
+                    />
                     <Tooltip labelFormatter={(v) => new Date(String(v)).toLocaleDateString()} />
                     <Line type="monotone" dataKey="energy" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                     <Line type="monotone" dataKey="stress" stroke="#ef4444" strokeWidth={2} dot={false} />
@@ -700,17 +775,32 @@ const Stats = () => {
             {bodyFatChartData.length === 0 ? (
               <p className="text-sm text-muted-foreground">Aún no hay medidas corporales con grasa corporal.</p>
             ) : (
-              <div className="h-[280px] w-full">
+              <div className="w-full" style={{ height: `${secondaryChartHeight}px` }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={bodyFatChartData}>
+                  <LineChart data={bodyFatChartData} margin={chartMargin}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                    <YAxis />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      minTickGap={isMobile ? 24 : 32}
+                      interval="preserveStartEnd"
+                      tick={{ fontSize: isMobile ? 11 : 12 }}
+                      tickFormatter={(v) => formatChartDate(v, isMobile)}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tickMargin={4} tick={{ fontSize: isMobile ? 11 : 12 }} width={yAxisWidth} />
                     <Tooltip
                       labelFormatter={(v) => new Date(String(v)).toLocaleDateString()}
                        formatter={(value: number) => [`${value}%`, "Grasa corporal"]}
                     />
-                    <Line type="monotone" dataKey="body_fat_pct" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+                    <Line
+                      type="monotone"
+                      dataKey="body_fat_pct"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={bodyFatChartData.length <= 12 ? { r: isMobile ? 2.5 : 3 } : false}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

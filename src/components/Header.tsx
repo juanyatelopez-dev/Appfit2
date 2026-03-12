@@ -59,8 +59,7 @@ const DashboardHeader = () => {
 
   return (
     <header
-      className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/95 px-3 py-3 shadow-sm backdrop-blur md:static md:z-auto md:h-16 md:bg-card md:px-8 md:py-0 md:shadow-none"
-      style={{ paddingTop: "env(safe-area-inset-top)" }}
+      className="fixed inset-x-0 top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/95 px-3 py-3 shadow-sm backdrop-blur md:static md:z-auto md:h-16 md:bg-card md:px-8 md:py-0 md:shadow-none"
     >
       <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-6">
         <Sheet>
