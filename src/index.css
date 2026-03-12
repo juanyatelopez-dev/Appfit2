@@ -171,6 +171,13 @@
     max-width: 100%;
     overflow-x: hidden;
   }
+
+  @media (max-width: 767px) {
+    .container {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
 }
 
 @layer utilities {

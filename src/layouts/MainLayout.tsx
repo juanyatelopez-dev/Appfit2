@@ -49,7 +49,7 @@ const MainLayout = () => {
         <DashboardHeader />
         {isGuest && <GuestWarningBanner />}
 
-        <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-28 md:p-8 md:pb-8">
+        <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[10px] pt-5 pb-28 md:p-8 md:pb-8">
           <Outlet />
         </main>
         <MobileBottomNav />

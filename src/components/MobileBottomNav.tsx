@@ -14,7 +14,7 @@ const MobileBottomNav = () => {
   return (
     <nav
       aria-label="Navegacion principal movil"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/92 shadow-[0_-10px_26px_-24px_hsl(var(--foreground)/0.35)] backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card shadow-[0_-10px_26px_-24px_hsl(var(--foreground)/0.35)] md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid h-[4.25rem] grid-cols-3 gap-2 px-5">
