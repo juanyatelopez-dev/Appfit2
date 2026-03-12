@@ -750,7 +750,7 @@ const Calendar = () => {
       <div className="space-y-4 md:hidden">
         {viewTabs}
         <Card><CardContent className="flex items-center justify-between gap-3 pt-5"><Button variant="outline" size="icon" onClick={() => changeMonth(-1)}><ChevronLeft className="h-4 w-4" /></Button><div className="min-w-0 text-center"><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{calendarView === "day" ? (language === "es" ? "Dia seleccionado" : "Selected day") : t("calendar.title")}</p><p className="truncate text-lg font-semibold capitalize">{calendarView === "day" ? selectedDateLabel : monthLabel}</p></div><Button variant="outline" size="icon" onClick={() => changeMonth(1)}><ChevronRight className="h-4 w-4" /></Button></CardContent><CardContent className="pt-0"><Button className="w-full" variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button></CardContent></Card>
-        {calendarView === "agenda" && agendaPanel}
+        {calendarView === "agenda" && <div className="space-y-4">{agendaPanel}{selectedDaySummaryPanel}</div>}
         {calendarView === "day" && dayPanel}
         {calendarView === "month" && <div className="space-y-4">{monthCalendarCard}{selectedDaySummaryPanel}</div>}
       </div>

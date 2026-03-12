@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   AlertDialog,
@@ -96,6 +97,7 @@ const BodyMeasurements = () => {
   const [compareFromKey, setCompareFromKey] = useState<string>("");
   const [compareToKey, setCompareToKey] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; dateKey: string } | null>(null);
+  const [activeMobileInfoCard, setActiveMobileInfoCard] = useState<string | null>(null);
 
   const timeZone = (profile as { timezone?: string; weight?: number | null; height?: number | null; goal_direction?: string | null } | null)
     ?.timezone || DEFAULT_WATER_TIMEZONE;
@@ -365,27 +367,51 @@ const BodyMeasurements = () => {
               <Card key={item.title}>
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <CardTitle className="text-sm">{item.title}</CardTitle>
-                      <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
-                    </div>
-                    <UiTooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary"
-                          aria-label={`Ver formula de ${item.title}`}
-                        >
-                          <CircleHelp className="h-3.5 w-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[240px]">
-                        <p className="text-xs font-medium">{item.title}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{item.formula}</p>
-                      </TooltipContent>
-                    </UiTooltip>
-                  </div>
-                </CardHeader>
+                     <div className="min-w-0">
+                       <CardTitle className="text-sm">{item.title}</CardTitle>
+                       <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
+                     </div>
+                     <Popover
+                       open={activeMobileInfoCard === item.title}
+                       onOpenChange={(open) => setActiveMobileInfoCard(open ? item.title : null)}
+                     >
+                       <PopoverTrigger asChild>
+                         <button
+                           type="button"
+                           className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary md:hidden"
+                           aria-label={`Ver formula de ${item.title}`}
+                           aria-expanded={activeMobileInfoCard === item.title}
+                         >
+                           <CircleHelp className="h-3.5 w-3.5" />
+                         </button>
+                       </PopoverTrigger>
+                       <PopoverContent
+                         align="end"
+                         side="bottom"
+                         sideOffset={8}
+                         className="z-[130] w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border/70 bg-popover/95 p-3 shadow-xl md:hidden"
+                       >
+                         <p className="text-xs font-medium">{item.title}</p>
+                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.formula}</p>
+                       </PopoverContent>
+                     </Popover>
+                     <UiTooltip>
+                       <TooltipTrigger asChild>
+                         <button
+                           type="button"
+                           className="hidden h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary md:inline-flex"
+                           aria-label={`Ver formula de ${item.title}`}
+                         >
+                           <CircleHelp className="h-3.5 w-3.5" />
+                         </button>
+                       </TooltipTrigger>
+                       <TooltipContent side="top" className="max-w-[240px]">
+                         <p className="text-xs font-medium">{item.title}</p>
+                         <p className="mt-1 text-xs text-muted-foreground">{item.formula}</p>
+                       </TooltipContent>
+                     </UiTooltip>
+                   </div>
+                 </CardHeader>
                 <CardContent>
                   <p className="text-xl font-semibold md:text-2xl">{item.value}</p>
                 </CardContent>
