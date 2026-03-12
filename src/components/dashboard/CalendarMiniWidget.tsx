@@ -50,17 +50,17 @@ const CalendarMiniWidget = ({ month, onMonthChange, activity, loading = false }:
 
   return (
     <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 md:pb-3">
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle>Actividad en calendario</CardTitle>
             <CardDescription>Dias con actividad y resumen rapido.</CardDescription>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMonthChange(addMonths(month, -1))}>
+            <Button variant="outline" size="icon" className="h-9 w-9 md:h-8 md:w-8" onClick={() => onMonthChange(addMonths(month, -1))}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onMonthChange(addMonths(month, 1))}>
+            <Button variant="outline" size="icon" className="h-9 w-9 md:h-8 md:w-8" onClick={() => onMonthChange(addMonths(month, 1))}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -83,7 +83,7 @@ const CalendarMiniWidget = ({ month, onMonthChange, activity, loading = false }:
                   key={key}
                   type="button"
                   onClick={() => setSelectedDateKey(key)}
-                  className={`h-9 rounded-md text-xs transition border ${
+                    className={`h-8 rounded-md text-[11px] transition border md:h-9 md:text-xs ${
                     isSelected
                       ? "border-primary bg-primary/15"
                       : hasAny

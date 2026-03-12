@@ -246,11 +246,11 @@ const Settings = () => {
   const selectedAccentLabel = language === "es" ? selectedAccent?.label.es ?? "Sin color" : selectedAccent?.label.en ?? "No color";
 
   return (
-    <div className="container max-w-5xl space-y-8 py-8">
+    <div className="container max-w-5xl space-y-6 py-6 md:space-y-8 md:py-8">
       <div className="flex items-center gap-3">
         <SettingsIcon className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("settings.title")}</h1>
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("settings.title")}</h1>
           <p className="text-sm text-muted-foreground">
             Preferencias de la aplicacion, gestion de datos y opciones de cuenta. El plan fitness vive ahora en Perfil Fitness.
           </p>

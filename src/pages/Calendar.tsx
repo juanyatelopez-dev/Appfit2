@@ -453,10 +453,10 @@ const Calendar = () => {
   });
 
   return (
-    <div className="container max-w-7xl py-8 space-y-6">
+    <div className="container max-w-7xl space-y-5 py-6 md:space-y-6 md:py-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t("calendar.title")}</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">{t("calendar.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("calendar.description")}</p>
         </div>
 
@@ -481,7 +481,7 @@ const Calendar = () => {
             <CardTitle className="text-sm font-medium">{t("calendar.monthStats.activeDays")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{monthStats.activeDays}</p>
+            <p className="text-xl font-semibold md:text-2xl">{monthStats.activeDays}</p>
           </CardContent>
         </Card>
         <Card>
@@ -489,7 +489,7 @@ const Calendar = () => {
             <CardTitle className="text-sm font-medium">{t("calendar.monthStats.waterGoalDays")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{monthStats.metGoalDays}</p>
+            <p className="text-xl font-semibold md:text-2xl">{monthStats.metGoalDays}</p>
           </CardContent>
         </Card>
         <Card>
@@ -497,7 +497,7 @@ const Calendar = () => {
             <CardTitle className="text-sm font-medium">{t("calendar.monthStats.avgWater")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{monthStats.avgWaterMl} ml</p>
+            <p className="text-xl font-semibold md:text-2xl">{monthStats.avgWaterMl} ml</p>
           </CardContent>
         </Card>
         <Card>
@@ -505,7 +505,7 @@ const Calendar = () => {
             <CardTitle className="text-sm font-medium">{t("calendar.monthStats.avgWeight")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{monthStats.avgWeightKg !== null ? `${monthStats.avgWeightKg} kg` : "--"}</p>
+            <p className="text-xl font-semibold md:text-2xl">{monthStats.avgWeightKg !== null ? `${monthStats.avgWeightKg} kg` : "--"}</p>
           </CardContent>
         </Card>
       </div>
@@ -521,9 +521,9 @@ const Calendar = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="overflow-x-auto pb-2">
-              <div className="min-w-[38rem] space-y-2">
-                <div className="grid grid-cols-7 gap-2 text-center text-xs text-muted-foreground">
+            <div className="overflow-hidden pb-1 md:pb-2">
+              <div className="min-w-0 space-y-1.5 md:space-y-2">
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground md:gap-2 md:text-xs">
                   {weekdayLabels.map((label) => (
                     <div key={label}>{label}</div>
                   ))}
@@ -532,7 +532,7 @@ const Calendar = () => {
                 {isLoading ? (
                   <p className="text-sm text-muted-foreground">{t("calendar.loading")}</p>
                 ) : (
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className="grid grid-cols-7 gap-1 md:gap-2">
                     {visibleDays.map((dayDate) => {
                       const key = formatDateKey(dayDate);
                       const day = calendarData?.daily.get(key);
@@ -544,15 +544,15 @@ const Calendar = () => {
                           type="button"
                           key={key}
                           onClick={() => setSelectedDateKey(key)}
-                          className={`min-h-24 rounded-lg border p-2 text-left transition ${dayCellClasses(day, inCurrentMonth)} ${
+                          className={`min-h-[4.5rem] rounded-lg border p-1.5 text-left transition md:min-h-24 md:p-2 ${dayCellClasses(day, inCurrentMonth)} ${
                             isSelected ? "ring-2 ring-primary" : "hover:border-primary/60"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{dayDate.getDate()}</span>
+                            <span className="text-xs font-medium md:text-sm">{dayDate.getDate()}</span>
                             {day?.metWaterGoal && <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-1 text-xs">
+                          <div className="mt-1.5 flex flex-wrap gap-0.5 text-[10px] md:mt-2 md:gap-1 md:text-xs">
                             {day?.hasWater && <Droplets className="h-3 w-3 text-primary" aria-label={t("calendar.summary.water")} />}
                             {day?.hasWeight && <Scale className="h-3 w-3 text-muted-foreground" aria-label={t("calendar.summary.weight")} />}
                             {day?.hasSleep && <Moon className="h-3 w-3 text-indigo-500" aria-label={t("calendar.summary.sleep")} />}

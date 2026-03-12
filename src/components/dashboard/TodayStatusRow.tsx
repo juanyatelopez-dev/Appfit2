@@ -28,14 +28,14 @@ const Item = ({
   subtitle: string;
   icon: ComponentType<{ className?: string }>;
   progress?: number;
-}) => (
+  }) => (
   <Card className="rounded-2xl border-border/60 bg-card/80 shadow-sm">
-    <CardContent className="space-y-3 p-4">
+    <CardContent className="space-y-3 p-3 md:p-4">
       <div className="flex items-center justify-between">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
-      <p className="text-2xl font-semibold">{value}</p>
+      <p className="text-xl font-semibold md:text-2xl">{value}</p>
       <p className="text-xs text-muted-foreground">{subtitle}</p>
       {progress !== undefined ? <Progress value={progress} className="h-1.5" /> : null}
     </CardContent>
@@ -54,7 +54,7 @@ const TodayStatusRow = ({
 }: Props) => {
   if (loading) {
     return (
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, idx) => (
           <Card key={`today-skeleton-${idx}`} className="rounded-2xl border-border/60 bg-card/80">
             <CardContent className="space-y-3 p-4">
@@ -73,7 +73,7 @@ const TodayStatusRow = ({
   const sleepProgress = Math.min(100, Math.round((sleepMinutes / Math.max(sleepGoalMinutes, 1)) * 100));
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-4">
       <Item title="Agua hoy" value={`${waterMl} ml`} subtitle={`Objetivo: ${waterGoalMl} ml`} icon={Droplets} progress={waterProgress} />
       <Item
         title="Sueno hoy"

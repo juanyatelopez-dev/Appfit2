@@ -298,13 +298,13 @@ const BodyMeasurements = () => {
   };
 
   return (
-    <div className="container max-w-6xl space-y-6 py-8">
+    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
       {isGuest && <GuestWarningBanner />}
 
       <div className="flex items-center gap-3">
         <Ruler className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Cuerpo</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">Cuerpo</h1>
           <p className="text-sm text-muted-foreground">Perimetros, composicion corporal estimada y comparativas de progreso.</p>
         </div>
       </div>
@@ -327,7 +327,7 @@ const BodyMeasurements = () => {
             <CardTitle className="text-sm">Grasa corporal</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">
+            <p className="text-xl font-semibold md:text-2xl">
               {summary.latest?.body_fat_pct !== null && summary.latest?.body_fat_pct !== undefined
                 ? `${Number(summary.latest.body_fat_pct).toFixed(1)}%`
                 : "--"}
@@ -339,7 +339,7 @@ const BodyMeasurements = () => {
             <CardTitle className="text-sm">Masa grasa</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">
+            <p className="text-xl font-semibold md:text-2xl">
               {summary.latest?.fat_mass_kg !== null && summary.latest?.fat_mass_kg !== undefined
                 ? `${Number(summary.latest.fat_mass_kg).toFixed(1)} kg`
                 : "--"}
@@ -351,7 +351,7 @@ const BodyMeasurements = () => {
             <CardTitle className="text-sm">Masa magra</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">
+            <p className="text-xl font-semibold md:text-2xl">
               {summary.latest?.lean_mass_kg !== null && summary.latest?.lean_mass_kg !== undefined
                 ? `${Number(summary.latest.lean_mass_kg).toFixed(1)} kg`
                 : "--"}
@@ -363,7 +363,7 @@ const BodyMeasurements = () => {
             <CardTitle className="text-sm">Registros</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{measurementRows.length}</p>
+            <p className="text-xl font-semibold md:text-2xl">{measurementRows.length}</p>
           </CardContent>
         </Card>
       </div>

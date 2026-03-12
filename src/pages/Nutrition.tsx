@@ -527,7 +527,7 @@ const Nutrition = () => {
             <div className="space-y-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/80">Panel diario</p>
-                <h1 className="app-surface-heading text-4xl font-black uppercase tracking-tight">Nutricion & Combustible</h1>
+                <h1 className="app-surface-heading text-3xl font-black uppercase tracking-tight md:text-4xl">Nutricion & Combustible</h1>
                 <p className="app-surface-caption text-sm uppercase tracking-[0.24em]">Perfil del dia, objetivos dinamicos y registro de comidas</p>
               </div>
               <div className="grid gap-3 md:grid-cols-[minmax(0,280px)_1fr_auto]">
@@ -569,7 +569,7 @@ const Nutrition = () => {
                 <div className="min-w-0 flex-1 text-center sm:min-w-40"><div className="app-surface-caption text-[11px] uppercase tracking-[0.24em]">Bitacora</div><div className="app-surface-heading text-sm font-semibold">{format(selectedDate, "dd/MM/yyyy")}</div></div>
                 <Button variant="ghost" size="icon" className="app-surface-muted h-9 w-9 rounded-xl hover:bg-background/60 hover:text-foreground" onClick={() => setSelectedDate((prev) => addDays(prev, 1))}><ChevronRight className="h-4 w-4" /></Button>
               </div>
-              <div className="app-chip rounded-2xl px-4 py-3 text-right sm:min-w-[10rem]"><div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">Acumulado</div><div className="text-2xl font-black text-primary">{formatMetric(totals?.calories, " kcal")}</div></div>
+              <div className="app-chip rounded-2xl px-4 py-3 text-right sm:min-w-[10rem]"><div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">Acumulado</div><div className="text-xl font-black text-primary md:text-2xl">{formatMetric(totals?.calories, " kcal")}</div></div>
             </div>
           </div>
         </section>
@@ -577,7 +577,7 @@ const Nutrition = () => {
           <section className="space-y-5">
             <div className="app-surface-panel rounded-[28px]">
               <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
-                <div><p className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.28em]">Logbook</p><h2 className="app-surface-heading mt-1 text-2xl font-bold">Registro operativo de comidas</h2></div>
+                <div><p className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.28em]">Logbook</p><h2 className="app-surface-heading mt-1 text-xl font-bold md:text-2xl">Registro operativo de comidas</h2></div>
                 <Button onClick={() => openDialogForMeal("breakfast")} className="w-full rounded-2xl bg-primary px-4 text-primary-foreground hover:bg-primary/90 sm:w-auto"><CirclePlus className="mr-2 h-4 w-4" />Anadir nueva comida</Button>
               </div>
               <div className="space-y-4 px-4 py-4">
@@ -585,7 +585,7 @@ const Nutrition = () => {
                   <article key={meal.key} className="app-surface-tile overflow-hidden rounded-[24px]">
                     <div className="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
                       <div className={cn("h-16 w-1.5 rounded-full", meal.railClass)} />
-                      <div className="min-w-0 flex-1"><div className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.26em]">Registro {index + 1}</div><div className={cn("mt-1 text-xl font-bold uppercase", meal.accentClass)}>{meal.label}</div></div>
+                      <div className="min-w-0 flex-1"><div className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.26em]">Registro {index + 1}</div><div className={cn("mt-1 text-lg font-bold uppercase md:text-xl", meal.accentClass)}>{meal.label}</div></div>
                       <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:min-w-[290px] sm:grid-cols-4">
                         <div className="app-panel-block rounded-2xl px-3 py-2 text-center"><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Pro</div><div className="text-sm font-semibold text-emerald-300">{formatMetric(subtotal?.protein_g, "g")}</div></div>
                         <div className="app-panel-block rounded-2xl px-3 py-2 text-center"><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Cho</div><div className="text-sm font-semibold text-cyan-300">{formatMetric(subtotal?.carbs_g, "g")}</div></div>
@@ -679,12 +679,12 @@ const Nutrition = () => {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border app-surface-soft p-4">
                   <div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">TDEE base</div>
-                  <div className="app-surface-heading mt-2 text-3xl font-black">{formatMetric(target?.tdee)}</div>
+                  <div className="app-surface-heading mt-2 text-2xl font-black md:text-3xl">{formatMetric(target?.tdee)}</div>
                   <div className="app-surface-caption text-xs">antes del arquetipo</div>
                 </div>
                 <div className="rounded-2xl border app-surface-soft p-4">
                   <div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Ajuste</div>
-                  <div className="app-surface-heading mt-2 text-3xl font-black">{target ? `${target.archetypeDelta >= 0 ? "+" : ""}${target.archetypeDelta}` : "--"}</div>
+                  <div className="app-surface-heading mt-2 text-2xl font-black md:text-3xl">{target ? `${target.archetypeDelta >= 0 ? "+" : ""}${target.archetypeDelta}` : "--"}</div>
                   <div className="app-surface-caption text-xs">kcal del arquetipo</div>
                 </div>
               </div>
@@ -696,8 +696,8 @@ const Nutrition = () => {
             <div className="app-surface-panel rounded-[28px] p-4 sm:p-5">
               <div className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.26em]">Balance energetico</div>
               <div className="mt-4 flex items-end justify-between">
-                <div><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Consumido</div><div className="app-surface-heading text-4xl font-black">{formatMetric(totals?.calories)}</div></div>
-                <div className="text-right"><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Meta</div><div className="text-3xl font-black text-primary">{formatMetric(goals?.calorie_goal)}</div></div>
+                <div><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Consumido</div><div className="app-surface-heading text-3xl font-black md:text-4xl">{formatMetric(totals?.calories)}</div></div>
+                <div className="text-right"><div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Meta</div><div className="text-2xl font-black text-primary md:text-3xl">{formatMetric(goals?.calorie_goal)}</div></div>
               </div>
               <Progress value={caloriesPct} className="app-progress-track mt-4 h-3" />
               <div className="app-surface-caption mt-3 flex justify-between text-xs"><span>Restante</span><span>{formatMetric(remaining?.calories, " kcal")}</span></div>

@@ -99,7 +99,7 @@ const SleepCard = () => {
         <CardDescription>{t("sleep.card.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-2xl font-semibold">
+        <p className="text-xl font-semibold md:text-2xl">
           {(totalMinutes / 60).toFixed(1)}h / {(goalMinutes / 60).toFixed(1)}h
         </p>
         <p className="text-sm text-muted-foreground">
@@ -110,7 +110,7 @@ const SleepCard = () => {
           {t("sleep.card.progressLabel")}: {progress}%
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button size="sm" onClick={() => setOpen(true)}>
             {t("sleep.card.quickButton")}
           </Button>

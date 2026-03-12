@@ -440,9 +440,9 @@ const Dashboard = () => {
   const desktopColumns = useMemo(() => balanceDashboardColumns(stackCards), [stackCards]);
 
   return (
-    <div className="space-y-6 py-4">
-      <Card className="app-surface-hero overflow-hidden rounded-[32px]">
-        <CardContent className={cn("grid gap-6 p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
+    <div className="space-y-5 py-3 md:space-y-6 md:py-4">
+      <Card className="app-surface-hero overflow-hidden rounded-[24px] md:rounded-[32px]">
+        <CardContent className={cn("grid gap-4 p-4 md:gap-6 md:p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
           <div className="space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-3">
@@ -451,7 +451,7 @@ const Dashboard = () => {
                   Daily Check-In
                 </div>
                 <div>
-                  <h1 className="text-3xl font-black tracking-tight">Centro operativo</h1>
+                  <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
                   <p className="app-surface-muted mt-2 max-w-2xl text-sm">
                     Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
                   </p>
@@ -464,7 +464,7 @@ const Dashboard = () => {
                     Widgets visibles
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-96 space-y-4">
+                <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Centro operativo</p>
                     <p className="text-xs text-muted-foreground">Controla que cards aparecen en la pestaña Centro operativo.</p>
@@ -491,14 +491,14 @@ const Dashboard = () => {
               </Popover>
             </div>
             {isWidgetVisible("hero_routine") ? (
-            <div className="app-surface-tile rounded-2xl p-4">
+            <div className="app-surface-tile rounded-2xl p-3 md:p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.22em]">
                     <Dumbbell className="h-3.5 w-3.5" />
                     Rutina de hoy
                   </div>
-                  <div className="app-surface-heading mt-2 text-lg font-semibold">{trainingTodayQuery.isLoading ? "Cargando..." : workoutCardTitle}</div>
+                  <div className="app-surface-heading mt-2 text-base font-semibold md:text-lg">{trainingTodayQuery.isLoading ? "Cargando..." : workoutCardTitle}</div>
                   <p className="app-surface-muted mt-1 text-sm">{workoutCardSubtitle}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -512,14 +512,14 @@ const Dashboard = () => {
               </div>
             </div>
             ) : null}
-            <div className="grid gap-3 md:grid-cols-[1fr_1.25fr_1fr]">
+            <div className="grid gap-2 md:gap-3 md:grid-cols-[1fr_1.25fr_1fr]">
               {isWidgetVisible("hero_date") ? (
-              <div className="app-surface-tile rounded-2xl p-4">
+              <div className="app-surface-tile rounded-2xl p-3 md:p-4">
                 <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Fecha</div>
-                <div className="app-surface-heading mt-2 text-lg font-semibold">{core?.todayLabel ?? "Cargando..."}</div>
+                <div className="app-surface-heading mt-2 text-base font-semibold md:text-lg">{core?.todayLabel ?? "Cargando..."}</div>
               </div>
               ) : null}
-              <div className="app-surface-tile rounded-2xl p-4">
+              <div className="app-surface-tile rounded-2xl p-3 md:p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Modulos completos</div>
                   <Popover>
@@ -528,7 +528,7 @@ const Dashboard = () => {
                         <Settings2 className="h-4 w-4" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent align="end" className="w-96 space-y-4">
+                    <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Check-in del dia</p>
                         <p className="text-xs text-muted-foreground">Elige que modulos cuentan para marcar tu dia como completo.</p>
@@ -576,7 +576,7 @@ const Dashboard = () => {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div className="app-surface-heading mt-2 flex items-center gap-2 text-lg font-semibold">
+                <div className="app-surface-heading mt-2 flex items-center gap-2 text-base font-semibold md:text-lg">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
                   {completionCount}/{dailyModules.length}
                 </div>
@@ -608,9 +608,9 @@ const Dashboard = () => {
                 </div>
               </div>
               {isWidgetVisible("hero_consistency") ? (
-              <div className="app-surface-tile rounded-2xl p-4">
+              <div className="app-surface-tile rounded-2xl p-3 md:p-4">
                 <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Consistencia 7d</div>
-                <div className="app-surface-heading mt-2 flex items-center gap-2 text-lg font-semibold">
+                <div className="app-surface-heading mt-2 flex items-center gap-2 text-base font-semibold md:text-lg">
                   <TimerReset className="h-4 w-4 text-primary" />
                   {core?.activeDays7 ?? 0} dias activos
                 </div>
@@ -620,16 +620,16 @@ const Dashboard = () => {
           </div>
 
           {visibleRightCards ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-2 md:gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {isWidgetVisible("hero_recovery") ? (
-            <div className="app-surface-tile rounded-2xl p-4">
+            <div className="app-surface-tile rounded-2xl p-3 md:p-4">
               <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Recuperacion</div>
-              <div className="app-surface-heading mt-2 text-4xl font-black">{core?.recovery.score ?? 0}</div>
+              <div className="app-surface-heading mt-2 text-3xl font-black md:text-4xl">{core?.recovery.score ?? 0}</div>
               <p className="app-surface-muted mt-2 text-sm">{core?.recovery.status ?? "Analizando..."}</p>
             </div>
             ) : null}
             {isWidgetVisible("hero_focus") ? (
-            <div className="app-surface-tile rounded-2xl p-4">
+            <div className="app-surface-tile rounded-2xl p-3 md:p-4">
               <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.22em]">
                 <CalendarDays className="h-3.5 w-3.5" />
                 Enfoque

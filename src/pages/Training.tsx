@@ -617,7 +617,7 @@ const Training = () => {
       <Card className="app-surface-hero overflow-hidden border-border/60">
         <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.35fr_0.9fr]">
           <div>
-            <h1 className="text-3xl font-black tracking-tight">{copy.title}</h1>
+            <h1 className="text-2xl font-black tracking-tight md:text-3xl">{copy.title}</h1>
             <p className="app-surface-muted mt-2 max-w-2xl text-sm">{copy.subtitle}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -639,12 +639,12 @@ const Training = () => {
       {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {getTrainingErrorMessage(trainingError)}</div> : null}
 
       <Tabs value={tab} onValueChange={handleTabChange} className="space-y-5">
-        <TabsList className="flex h-auto w-full gap-2 overflow-x-auto rounded-2xl bg-muted/60 p-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
-          <TabsTrigger className="min-w-[9.5rem] lg:min-w-0" value="today">{copy.tabs.today}</TabsTrigger>
-          <TabsTrigger className="min-w-[9.5rem] lg:min-w-0" value="routines">{copy.tabs.routines}</TabsTrigger>
-          <TabsTrigger className="min-w-[9.5rem] lg:min-w-0" value="library">{copy.tabs.library}</TabsTrigger>
-          <TabsTrigger className="min-w-[9.5rem] lg:min-w-0" value="history">{copy.tabs.history}</TabsTrigger>
-          <TabsTrigger className="min-w-[9.5rem] lg:min-w-0" value="progress">{copy.tabs.progress}</TabsTrigger>
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 sm:grid-cols-3 lg:grid-cols-5">
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="today">{copy.tabs.today}</TabsTrigger>
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="routines">{copy.tabs.routines}</TabsTrigger>
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="library">{copy.tabs.library}</TabsTrigger>
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="history">{copy.tabs.history}</TabsTrigger>
+          <TabsTrigger className="col-span-2 min-w-0 px-2 text-xs sm:col-span-1 sm:text-sm lg:min-w-0" value="progress">{copy.tabs.progress}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="today" className="space-y-5">
@@ -659,7 +659,7 @@ const Training = () => {
                     <div className="rounded-2xl border p-4">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <div className="text-2xl font-bold">{scheduledWorkout.name}</div>
+                          <div className="text-xl font-bold md:text-2xl">{scheduledWorkout.name}</div>
                           <div className="text-sm text-muted-foreground">{scheduledWorkout.description || "Rutina programada para hoy."}</div>
                         </div>
                         <Button className="w-full sm:w-auto" onClick={() => startSessionMutation.mutate(scheduledWorkout.id)} disabled={startSessionMutation.isPending}>
@@ -675,7 +675,7 @@ const Training = () => {
                       <div className="rounded-2xl border p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <div className="text-xl font-bold">{activeSession.workout.name}</div>
+                            <div className="text-lg font-bold md:text-xl">{activeSession.workout.name}</div>
                             <div className="text-sm text-muted-foreground">{copy.startedAt} {formatDateTime(activeSession.started_at)}</div>
                           </div>
                           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
@@ -1038,7 +1038,7 @@ const Training = () => {
                   {(exercisePrsQuery.data ?? []).map((pr) => (
                     <div key={pr.id} className="rounded-2xl border p-4">
                       <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{prLabelMap[pr.pr_type]}</div>
-                      <div className="mt-2 text-2xl font-black">{pr.value_num}</div>
+                      <div className="mt-2 text-xl font-black md:text-2xl">{pr.value_num}</div>
                     </div>
                   ))}
                 </div>

@@ -44,9 +44,9 @@ const RecoveryCard = ({ loading = false, score, status, drivers, subscores }: Pr
         <CardTitle>Recovery Score</CardTitle>
         <CardDescription>Modelo diario basado en sueño, biofeedback, hidratación y consistencia.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="relative h-28 w-28 shrink-0">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative h-24 w-24 shrink-0 md:h-28 md:w-28">
             <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
               <circle cx="60" cy="60" r={radius} className="fill-none stroke-muted/40" strokeWidth="10" />
               <circle
@@ -60,7 +60,7 @@ const RecoveryCard = ({ loading = false, score, status, drivers, subscores }: Pr
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className={`text-2xl font-bold ${ringColor}`}>{score}</p>
+              <p className={`text-xl font-bold md:text-2xl ${ringColor}`}>{score}</p>
               <p className="text-[11px] uppercase text-muted-foreground">/100</p>
             </div>
           </div>

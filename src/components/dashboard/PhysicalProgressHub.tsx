@@ -61,22 +61,22 @@ const PhysicalProgressHub = ({ loading = false, summary }: Props) => {
         ];
 
   return (
-    <Card className="rounded-[28px] border-border/60 bg-card/80 shadow-sm">
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+    <Card className="rounded-[24px] border-border/60 bg-card/80 shadow-sm md:rounded-[28px]">
+      <CardHeader className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4">
         <div>
           <CardTitle>Progreso fisico</CardTitle>
           <CardDescription>Estado actual del cuerpo, orientado por tu meta activa.</CardDescription>
         </div>
-        <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-          {summary?.lastUpdatedLabel ?? "Sin datos"}
-        </div>
+          <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            {summary?.lastUpdatedLabel ?? "Sin datos"}
+          </div>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+        <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Foco actual</p>
-              <h3 className="mt-2 text-xl font-semibold">{summary?.goalHeading ?? "Sin meta activa"}</h3>
+              <h3 className="mt-2 text-lg font-semibold md:text-xl">{summary?.goalHeading ?? "Sin meta activa"}</h3>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{summary?.goalSupport ?? "Registra peso y medidas para activar el resumen fisico."}</p>
             </div>
             <div className="rounded-2xl border border-border/60 bg-card px-3 py-2">
@@ -98,16 +98,16 @@ const PhysicalProgressHub = ({ loading = false, summary }: Props) => {
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-4">
           {focusMetrics.map((metric) => {
             const Icon = metric.icon;
             return (
-              <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/50 p-4">
+              <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/50 p-3 md:p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{metric.label}</p>
                   <Icon className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <p className="mt-3 text-2xl font-semibold">{metric.value}</p>
+                <p className="mt-2 text-xl font-semibold md:mt-3 md:text-2xl">{metric.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{metric.helper ?? "Lectura principal del progreso actual"}</p>
               </div>
             );

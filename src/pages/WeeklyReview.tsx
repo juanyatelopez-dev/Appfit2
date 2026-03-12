@@ -94,11 +94,11 @@ const WeeklyReview = () => {
   const weekEndLabel = summary?.weekEnd ? new Date(summary.weekEnd).toLocaleDateString() : "-";
 
   return (
-    <div className="container max-w-5xl py-8 space-y-6">
+    <div className="container max-w-5xl space-y-5 py-6 md:space-y-6 md:py-8">
       <div className="flex items-center gap-3">
         <ClipboardList className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Revision semanal</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">Revision semanal</h1>
           <p className="text-sm text-muted-foreground">Resumen automático de los últimos 7 días + observaciones.</p>
         </div>
       </div>

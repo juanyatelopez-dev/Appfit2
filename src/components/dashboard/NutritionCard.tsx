@@ -38,7 +38,7 @@ const NutritionCard = () => {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Alimentacion hoy</p>
           <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
         </div>
-        <p className="text-2xl font-semibold">
+        <p className="text-xl font-semibold md:text-2xl">
           {totals?.calories ?? 0} / {goals?.calorie_goal ?? 2000} kcal
         </p>
         <Progress value={caloriePct} />

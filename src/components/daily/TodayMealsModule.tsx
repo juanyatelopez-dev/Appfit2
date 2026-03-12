@@ -246,7 +246,7 @@ const TodayMealsModule = () => {
   };
 
   return (
-    <Card className="rounded-[28px] border-border/60 bg-card/80 shadow-sm">
+    <Card className="rounded-[24px] border-border/60 bg-card/80 shadow-sm md:rounded-[28px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UtensilsCrossed className="h-5 w-5 text-primary" />
@@ -256,11 +256,11 @@ const TodayMealsModule = () => {
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+          <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Balance energetico</p>
-                <p className="mt-2 text-3xl font-semibold">
+                <p className="mt-2 text-2xl font-semibold md:text-3xl">
                   {totals?.calories ?? 0} / {goals?.calorie_goal ?? 2000} kcal
                 </p>
               </div>
@@ -274,7 +274,7 @@ const TodayMealsModule = () => {
             </p>
             <p className="mt-2 text-xs text-muted-foreground">Perfil activo: {dayProfileName} · {dayArchetype}</p>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+          <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ritmo del día</p>
             <div className="mt-3 grid gap-2 text-sm">
               <div className="rounded-xl border border-border/50 bg-background/50 p-3">

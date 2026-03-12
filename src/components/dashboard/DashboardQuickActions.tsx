@@ -59,7 +59,7 @@ const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => 
         <CardDescription>Desde aqui deberias poder registrar o revisar lo importante sin salir del dashboard.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+        <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
               <ClipboardCheck className="h-5 w-5" />
@@ -72,7 +72,7 @@ const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => 
         </div>
 
         {nutritionSummary ? (
-          <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+          <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Nutricion hoy</p>
             <p className="mt-2 text-sm font-semibold">
               {nutritionSummary.profileName || "Sin perfil"}{nutritionSummary.archetypeLabel ? ` · ${nutritionSummary.archetypeLabel}` : ""}
@@ -86,14 +86,14 @@ const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => 
           </div>
         ) : null}
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-2 md:gap-3 sm:grid-cols-2">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.label}
                 to={action.to}
-                className="group rounded-2xl border border-border/60 bg-background/50 p-4 transition hover:border-primary/40 hover:bg-primary/5"
+                className="group rounded-2xl border border-border/60 bg-background/50 p-3 transition hover:border-primary/40 hover:bg-primary/5 md:p-4"
               >
                 <div className="flex items-center justify-between">
                   <div className="rounded-xl border border-border/60 bg-card p-2">
@@ -101,7 +101,7 @@ const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => 
                   </div>
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
                 </div>
-                <p className="mt-4 text-sm font-semibold">{action.label}</p>
+                  <p className="mt-3 text-sm font-semibold">{action.label}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{action.description}</p>
               </Link>
             );

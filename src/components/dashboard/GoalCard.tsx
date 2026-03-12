@@ -43,7 +43,7 @@ const GoalCard = ({ target, progress, remainingKg, loading = false, error }: Pro
           <p className="text-sm text-destructive">No se pudo cargar meta.</p>
         ) : (
           <>
-            <p className="text-3xl font-semibold">{target !== null ? `${target.toFixed(1)} kg` : "Sin meta"}</p>
+            <p className="text-2xl font-semibold md:text-3xl">{target !== null ? `${target.toFixed(1)} kg` : "Sin meta"}</p>
             <Progress value={progress ?? 0} className="h-2" />
             <p className="text-sm text-muted-foreground">
               Progreso: {progress === null ? "--" : `${progress.toFixed(0)}%`}

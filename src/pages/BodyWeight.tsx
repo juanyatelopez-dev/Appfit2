@@ -251,13 +251,13 @@ const BodyWeight = () => {
   }, [trendAnalysis]);
 
   return (
-    <div className="container max-w-4xl py-8 space-y-6">
+    <div className="container max-w-4xl space-y-5 py-6 md:space-y-6 md:py-8">
       {isGuest && <GuestWarningBanner />}
 
       <div className="flex items-center gap-3">
         <Scale className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Peso</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">Peso</h1>
           <p className="text-sm text-muted-foreground">
             Sigue la evolucion de tu peso corporal.
             {latestWeight !== null ? ` Ultimo: ${latestWeight} kg` : ""}
@@ -285,7 +285,7 @@ const BodyWeight = () => {
             <CardTitle className="text-sm">Promedio movil 7d</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">
+            <p className="text-xl font-semibold md:text-2xl">
               {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
                 ? "--"
                 : `${trendAnalysis.movingAvg7.toFixed(2)} kg`}
@@ -297,7 +297,7 @@ const BodyWeight = () => {
             <CardTitle className="text-sm">Cambio semanal</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">
+            <p className="text-xl font-semibold md:text-2xl">
               {trendAnalysis?.weeklyChange === null || trendAnalysis?.weeklyChange === undefined
                 ? "--"
                 : `${trendAnalysis.weeklyChange > 0 ? "+" : ""}${trendAnalysis.weeklyChange.toFixed(2)} kg`}
@@ -309,7 +309,7 @@ const BodyWeight = () => {
             <CardTitle className="text-sm">Clasificacion de tendencia</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{trendLabel}</p>
+            <p className="text-xl font-semibold md:text-2xl">{trendLabel}</p>
           </CardContent>
         </Card>
       </div>

@@ -243,7 +243,7 @@ const Profile = () => {
       .slice(0, 2);
 
   return (
-    <div className="container max-w-6xl space-y-6 py-8">
+    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="app-surface-hero overflow-hidden rounded-[30px]">
           <CardContent className="grid gap-5 p-6 md:grid-cols-[auto_1fr]">
@@ -260,7 +260,7 @@ const Profile = () => {
                   <Flag className="h-3.5 w-3.5" />
                   Perfil Fitness
                 </div>
-                <h1 className="mt-3 text-3xl font-black tracking-tight">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabólico")}</h1>
+                <h1 className="mt-3 text-2xl font-black tracking-tight md:text-3xl">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabólico")}</h1>
                 <p className="app-surface-muted mt-2 text-sm">
                   Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabólicas.
                 </p>

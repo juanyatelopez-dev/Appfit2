@@ -115,7 +115,7 @@ const TodayWeightModule = () => {
   }, [trendAnalysis]);
 
   return (
-    <Card className="h-full rounded-[28px] border-border/60 bg-card/80 shadow-sm">
+    <Card className="h-full rounded-[24px] border-border/60 bg-card/80 shadow-sm md:rounded-[28px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Scale className="h-5 w-5 text-primary" />
@@ -125,17 +125,17 @@ const TodayWeightModule = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
-          <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ultimo registro</p>
-            <div className="mt-2 flex items-end justify-between gap-3">
-              <p className="text-2xl font-semibold">{latestEntry ? `${Number(latestEntry.weight_kg).toFixed(1)} kg` : "--"}</p>
+            <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Ultimo registro</p>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <p className="text-xl font-semibold md:text-2xl">{latestEntry ? `${Number(latestEntry.weight_kg).toFixed(1)} kg` : "--"}</p>
               <p className="text-xs text-right text-muted-foreground">{latestEntry?.measured_at ?? "Sin historial"}</p>
             </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Media movil 7d</p>
             <div className="mt-2 flex items-end justify-between gap-3">
-              <p className="text-2xl font-semibold">
+                <p className="text-xl font-semibold md:text-2xl">
                 {trendAnalysis?.movingAvg7 === null || trendAnalysis?.movingAvg7 === undefined
                   ? "--"
                   : `${trendAnalysis.movingAvg7.toFixed(2)} kg`}
@@ -146,7 +146,7 @@ const TodayWeightModule = () => {
           <div className="rounded-2xl border border-border/60 bg-background/50 p-3">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Tendencia</p>
             <div className="mt-2 flex items-end justify-between gap-3">
-              <p className="flex items-center gap-2 text-2xl font-semibold">
+                <p className="flex items-center gap-2 text-xl font-semibold md:text-2xl">
                 <Activity className="h-4 w-4 text-primary" />
                 {trendLabel}
               </p>
@@ -160,7 +160,7 @@ const TodayWeightModule = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+        <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
           <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
             <div className="space-y-2">
               <Label htmlFor="today-weight-input">Peso registrado hoy</Label>

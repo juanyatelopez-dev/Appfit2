@@ -45,7 +45,7 @@ const WeightCard = ({ latest, initial, initialDate, weeklyDelta, movingAvg7 = nu
           <p className="text-sm text-destructive">No se pudo cargar peso.</p>
         ) : (
           <>
-            <p className="text-3xl font-semibold">{latest !== null ? `${latest.toFixed(1)} kg` : "Sin registros"}</p>
+            <p className="text-2xl font-semibold md:text-3xl">{latest !== null ? `${latest.toFixed(1)} kg` : "Sin registros"}</p>
             <p className="text-sm text-muted-foreground border rounded-lg p-2">
               Cambio semanal: {weeklyDelta === null ? "--" : `${weeklyDelta > 0 ? "+" : ""}${weeklyDelta.toFixed(1)} kg`}
             </p>
@@ -59,7 +59,7 @@ const WeightCard = ({ latest, initial, initialDate, weeklyDelta, movingAvg7 = nu
             </p>
           </>
         )}
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild size="sm">
             <Link to="/today#weight">Registrar peso</Link>
           </Button>

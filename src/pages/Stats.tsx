@@ -332,13 +332,13 @@ const Stats = () => {
   });
 
   return (
-    <div className="container max-w-6xl py-8 space-y-6">
+    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
       {isGuest && <GuestWarningBanner />}
 
       <div className="flex items-center gap-3">
         <TrendingUp className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Progreso</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">Progreso</h1>
           <p className="text-sm text-muted-foreground">Análisis longitudinal, tendencias y revisión semanal en un solo contexto.</p>
         </div>
       </div>

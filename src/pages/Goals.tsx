@@ -104,13 +104,13 @@ const Goals = () => {
   };
 
   return (
-    <div className="container max-w-5xl py-8 space-y-6">
+    <div className="container max-w-5xl space-y-5 py-6 md:space-y-6 md:py-8">
       {isGuest && <GuestWarningBanner />}
 
       <div className="flex items-center gap-3">
         <Target className="w-7 h-7 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Objetivos</h1>
+          <h1 className="text-2xl font-bold md:text-3xl">Objetivos</h1>
           <p className="text-sm text-muted-foreground">Crea y gestiona tu meta de peso.</p>
         </div>
       </div>
