@@ -9,7 +9,7 @@ import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
 import { addWaterIntake } from "@/services/waterIntake";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -134,6 +134,9 @@ const WaterGoalRingCard = ({ waterMl, goalMl, loading = false }: WaterGoalRingCa
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Agregar agua rapido</DialogTitle>
+            <DialogDescription>
+              Introduce una cantidad puntual para sumarla al consumo de agua del dia actual.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-[1fr_auto] gap-2">
             <Input

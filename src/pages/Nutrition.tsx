@@ -21,7 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -722,6 +722,9 @@ const Nutrition = () => {
         <DialogContent className="app-dialog-surface max-w-xl">
           <DialogHeader>
             <DialogTitle>{editingProfile ? "Editar perfil nutricional" : "Crear perfil nutricional"}</DialogTitle>
+            <DialogDescription>
+              Configura un perfil del dia para recalcular metas caloricas y macros sin duplicar comidas.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -751,6 +754,9 @@ const Nutrition = () => {
         <DialogContent className="app-dialog-surface max-w-3xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Agregar comida - {MEAL_SECTIONS.find((m) => m.key === activeMeal)?.label}</DialogTitle>
+            <DialogDescription>
+              Registra alimentos en la comida activa usando carga manual, base de datos, favoritos o recientes.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-[200px_1fr]">

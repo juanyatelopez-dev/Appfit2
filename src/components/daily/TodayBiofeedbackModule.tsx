@@ -8,7 +8,7 @@ import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
 import { getBiofeedbackWeeklyAverages, getDailyBiofeedback, upsertDailyBiofeedback } from "@/services/dailyBiofeedback";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
@@ -169,6 +169,9 @@ const TodayBiofeedbackModule = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Check-in fisiologico de hoy</DialogTitle>
+            <DialogDescription>
+              Registra tus sensaciones del dia para dejar contexto de recuperacion, estres y energia.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
             <MetricInput label="Calidad de sueño" value={values.sleep_quality} onChange={(next) => setValues((prev) => ({ ...prev, sleep_quality: next }))} />

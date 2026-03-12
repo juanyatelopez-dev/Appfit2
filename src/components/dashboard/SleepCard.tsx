@@ -10,7 +10,7 @@ import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/
 import { addSleepLog, getSleepDay, getSleepGoal } from "@/services/sleep";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -124,6 +124,9 @@ const SleepCard = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("sleep.page.addTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("sleep.card.description")}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">

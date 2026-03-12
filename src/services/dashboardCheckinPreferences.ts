@@ -28,7 +28,8 @@ export const DEFAULT_DASHBOARD_CHECKIN_MODULES: DashboardCheckinModuleKey[] = [
 
 const GUEST_MODULES_KEY = "appfit_guest_dashboard_checkin_modules";
 const AUTH_MODULES_KEY_PREFIX = "appfit_dashboard_checkin_modules_";
-let dashboardCheckinSchemaUnavailable = false;
+const CHECKIN_SCHEMA_FLAG_KEY = "appfit_dashboard_checkin_modules_schema_unavailable";
+let dashboardCheckinSchemaUnavailable = localStorage.getItem(CHECKIN_SCHEMA_FLAG_KEY) === "true";
 
 const isDashboardCheckinModuleKey = (value: unknown): value is DashboardCheckinModuleKey =>
   typeof value === "string" && DASHBOARD_CHECKIN_MODULE_DEFINITIONS.some((definition) => definition.key === value);
@@ -57,6 +58,16 @@ const saveLocalModules = (userId: string | null, isGuest: boolean, keys: Dashboa
   localStorage.setItem(key, JSON.stringify(normalizeDashboardCheckinModuleKeys(keys)));
 };
 
+const markSchemaUnavailable = () => {
+  dashboardCheckinSchemaUnavailable = true;
+  localStorage.setItem(CHECKIN_SCHEMA_FLAG_KEY, "true");
+};
+
+const clearSchemaUnavailable = () => {
+  dashboardCheckinSchemaUnavailable = false;
+  localStorage.removeItem(CHECKIN_SCHEMA_FLAG_KEY);
+};
+
 const isSchemaMissingError = (error: unknown) => {
   const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
   const status = (error as { status?: number } | null)?.status;
@@ -80,11 +91,12 @@ export const getDashboardCheckinModulePreferences = async (
   const { data, error } = await supabase.from("profiles").select("dashboard_checkin_modules").eq("id", userId).maybeSingle();
   if (error) {
     if (isSchemaMissingError(error)) {
-      dashboardCheckinSchemaUnavailable = true;
+      markSchemaUnavailable();
       return getLocalModules(userId, false);
     }
     throw error;
   }
+  clearSchemaUnavailable();
 
   const normalized = normalizeDashboardCheckinModuleKeys((data as { dashboard_checkin_modules?: unknown } | null)?.dashboard_checkin_modules);
   saveLocalModules(userId, false, normalized);
@@ -111,12 +123,13 @@ export const saveDashboardCheckinModulePreferences = async (
   const { error } = await supabase.from("profiles").update({ dashboard_checkin_modules: normalized }).eq("id", userId);
   if (error) {
     if (isSchemaMissingError(error)) {
-      dashboardCheckinSchemaUnavailable = true;
+      markSchemaUnavailable();
       saveLocalModules(userId, false, normalized);
       return normalized;
     }
     throw error;
   }
+  clearSchemaUnavailable();
 
   saveLocalModules(userId, false, normalized);
   return normalized;

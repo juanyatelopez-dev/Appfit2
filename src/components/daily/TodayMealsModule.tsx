@@ -16,7 +16,7 @@ import {
 } from "@/services/nutrition";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -362,6 +362,9 @@ const TodayMealsModule = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Agregar comida a {MEALS.find((item) => item.key === activeMeal)?.label}</DialogTitle>
+            <DialogDescription>
+              Elige el modo de carga y registra alimentos en la comida seleccionada.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">

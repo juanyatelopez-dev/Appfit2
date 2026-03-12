@@ -52,7 +52,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const GUEST_STORAGE_KEY = 'appfit_is_guest';
 const AUTH_RESOLVE_TIMEOUT_MS = 8000;
+const PROFILE_FETCH_TIMEOUT_MS = 15000;
 const ONBOARDING_CACHE_KEY_PREFIX = "appfit_onboarding_completed_";
+const PROFILE_CACHE_KEY_PREFIX = "appfit_profile_cache_";
 
 const getOnboardingCacheKey = (userId: string) => `${ONBOARDING_CACHE_KEY_PREFIX}${userId}`;
 const getCachedOnboarding = (userId: string): boolean | null => {
@@ -62,6 +64,18 @@ const getCachedOnboarding = (userId: string): boolean | null => {
 };
 const setCachedOnboarding = (userId: string, value: boolean) =>
     localStorage.setItem(getOnboardingCacheKey(userId), value ? "true" : "false");
+const getProfileCacheKey = (userId: string) => `${PROFILE_CACHE_KEY_PREFIX}${userId}`;
+const getCachedProfile = (userId: string): Profile | null => {
+    const raw = localStorage.getItem(getProfileCacheKey(userId));
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw) as Profile;
+    } catch {
+        return null;
+    }
+};
+const setCachedProfile = (userId: string, profile: Profile) =>
+    localStorage.setItem(getProfileCacheKey(userId), JSON.stringify(profile));
 
 const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> =>
     new Promise<T>((resolve, reject) => {
@@ -233,6 +247,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             theme_background_style: data?.theme_background_style ?? "focus",
         };
         setAuthedProfile(nextProfile);
+        setCachedProfile(userId, nextProfile);
         return nextProfile;
     };
 
@@ -245,7 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const resolvedProfile = await withTimeout(
                 fetchProfile(authUser.id),
-                AUTH_RESOLVE_TIMEOUT_MS,
+                PROFILE_FETCH_TIMEOUT_MS,
                 'Profile fetch timed out.'
             );
             const derivedCompleted = deriveOnboardingCompleted(resolvedProfile);
@@ -254,9 +269,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setOnboardingCompleted(completed);
             setCachedOnboarding(authUser.id, completed);
         } catch (error) {
-            console.error('Error fetching profile:', error);
             const fallbackCompleted = getCachedOnboarding(authUser.id);
-            setOnboardingCompleted(prev => prev ?? fallbackCompleted ?? true);
+            const cachedProfile = getCachedProfile(authUser.id);
+            if (cachedProfile) {
+                setAuthedProfile(cachedProfile);
+            }
+            const derivedFallbackCompleted = cachedProfile ? deriveOnboardingCompleted(cachedProfile) : null;
+            setOnboardingCompleted(prev => prev ?? fallbackCompleted ?? derivedFallbackCompleted ?? true);
+            if (error instanceof Error && error.message === 'Profile fetch timed out.') {
+                console.warn('Profile fetch timed out. Using cached profile fallback when available.');
+            } else {
+                console.error('Error fetching profile:', error);
+            }
         }
     };
 

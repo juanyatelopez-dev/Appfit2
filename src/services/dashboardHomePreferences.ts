@@ -69,7 +69,8 @@ export const DEFAULT_DASHBOARD_HOME_WIDGETS: DashboardHomeWidgetKey[] = [
 
 const GUEST_WIDGETS_KEY = "appfit_guest_dashboard_home_widgets";
 const AUTH_WIDGETS_KEY_PREFIX = "appfit_dashboard_home_widgets_";
-let dashboardHomeWidgetsSchemaUnavailable = false;
+const HOME_WIDGETS_SCHEMA_FLAG_KEY = "appfit_dashboard_home_widgets_schema_unavailable";
+let dashboardHomeWidgetsSchemaUnavailable = localStorage.getItem(HOME_WIDGETS_SCHEMA_FLAG_KEY) === "true";
 
 const isDashboardHomeWidgetKey = (value: unknown): value is DashboardHomeWidgetKey =>
   typeof value === "string" && DASHBOARD_HOME_WIDGET_DEFINITIONS.some((definition) => definition.key === value);
@@ -98,6 +99,16 @@ const saveLocalWidgets = (userId: string | null, isGuest: boolean, keys: Dashboa
   localStorage.setItem(key, JSON.stringify(normalizeDashboardHomeWidgetKeys(keys)));
 };
 
+const markSchemaUnavailable = () => {
+  dashboardHomeWidgetsSchemaUnavailable = true;
+  localStorage.setItem(HOME_WIDGETS_SCHEMA_FLAG_KEY, "true");
+};
+
+const clearSchemaUnavailable = () => {
+  dashboardHomeWidgetsSchemaUnavailable = false;
+  localStorage.removeItem(HOME_WIDGETS_SCHEMA_FLAG_KEY);
+};
+
 const isSchemaMissingError = (error: unknown) => {
   const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
   const status = (error as { status?: number } | null)?.status;
@@ -121,11 +132,12 @@ export const getDashboardHomeWidgetPreferences = async (
   const { data, error } = await supabase.from("profiles").select("dashboard_home_widgets").eq("id", userId).maybeSingle();
   if (error) {
     if (isSchemaMissingError(error)) {
-      dashboardHomeWidgetsSchemaUnavailable = true;
+      markSchemaUnavailable();
       return getLocalWidgets(userId, false);
     }
     throw error;
   }
+  clearSchemaUnavailable();
 
   const normalized = normalizeDashboardHomeWidgetKeys((data as { dashboard_home_widgets?: unknown } | null)?.dashboard_home_widgets);
   saveLocalWidgets(userId, false, normalized);
@@ -152,12 +164,13 @@ export const saveDashboardHomeWidgetPreferences = async (
   const { error } = await supabase.from("profiles").update({ dashboard_home_widgets: normalized }).eq("id", userId);
   if (error) {
     if (isSchemaMissingError(error)) {
-      dashboardHomeWidgetsSchemaUnavailable = true;
+      markSchemaUnavailable();
       saveLocalWidgets(userId, false, normalized);
       return normalized;
     }
     throw error;
   }
+  clearSchemaUnavailable();
 
   saveLocalWidgets(userId, false, normalized);
   return normalized;

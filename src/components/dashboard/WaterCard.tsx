@@ -28,7 +28,7 @@ import {
 } from "@/features/water/waterUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -401,6 +401,9 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Agregar consumo personalizado</DialogTitle>
+            <DialogDescription>
+              Registra una cantidad manual de agua y, si quieres, guardala como opcion rapida.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
