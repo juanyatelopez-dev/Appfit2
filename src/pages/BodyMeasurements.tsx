@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Pencil, Ruler, Trash2 } from "lucide-react";
+import { CircleHelp, Pencil, Ruler, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/context/AuthContext";
@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -139,6 +140,42 @@ const BodyMeasurements = () => {
     }
     return { weightKg: null, source: null, measuredAt: null } as BodyMeasurementWeightReference;
   }, [profile?.weight, summary.latest, weightEntries]);
+
+  const bodyMetricCards = [
+    {
+      title: "Grasa corporal",
+      value:
+        summary.latest?.body_fat_pct !== null && summary.latest?.body_fat_pct !== undefined
+          ? `${Number(summary.latest.body_fat_pct).toFixed(1)}%`
+          : "--",
+      description: "Porcentaje del peso total que corresponde a grasa corporal.",
+      formula: "Masa grasa (kg) / peso total (kg) x 100",
+    },
+    {
+      title: "Grasa total",
+      value:
+        summary.latest?.fat_mass_kg !== null && summary.latest?.fat_mass_kg !== undefined
+          ? `${Number(summary.latest.fat_mass_kg).toFixed(1)} kg`
+          : "--",
+      description: "Cantidad estimada de grasa corporal expresada en kilos.",
+      formula: "Peso total (kg) x grasa corporal (%) / 100",
+    },
+    {
+      title: "Peso libre de grasa",
+      value:
+        summary.latest?.lean_mass_kg !== null && summary.latest?.lean_mass_kg !== undefined
+          ? `${Number(summary.latest.lean_mass_kg).toFixed(1)} kg`
+          : "--",
+      description: "Todo lo que no es grasa: musculo, agua, hueso y organos.",
+      formula: "Peso total (kg) - masa grasa (kg)",
+    },
+    {
+      title: "Registros",
+      value: String(measurementRows.length),
+      description: "Cantidad de mediciones guardadas para comparar tu evolucion.",
+      formula: "Conteo total de mediciones historicas registradas",
+    },
+  ] as const;
 
   const selectedWeightReference = useMemo(() => {
     const reference = resolveWeightReferenceFromEntries(weightEntries, dateKey);
@@ -321,52 +358,40 @@ const BodyMeasurements = () => {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Grasa corporal</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold md:text-2xl">
-              {summary.latest?.body_fat_pct !== null && summary.latest?.body_fat_pct !== undefined
-                ? `${Number(summary.latest.body_fat_pct).toFixed(1)}%`
-                : "--"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Masa grasa</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold md:text-2xl">
-              {summary.latest?.fat_mass_kg !== null && summary.latest?.fat_mass_kg !== undefined
-                ? `${Number(summary.latest.fat_mass_kg).toFixed(1)} kg`
-                : "--"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Masa magra</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold md:text-2xl">
-              {summary.latest?.lean_mass_kg !== null && summary.latest?.lean_mass_kg !== undefined
-                ? `${Number(summary.latest.lean_mass_kg).toFixed(1)} kg`
-                : "--"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Registros</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xl font-semibold md:text-2xl">{measurementRows.length}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <TooltipProvider delayDuration={120}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {bodyMetricCards.map((item) => (
+            <Card key={item.title}>
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <CardTitle className="text-sm">{item.title}</CardTitle>
+                    <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
+                  </div>
+                  <UiTooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary"
+                        aria-label={`Ver formula de ${item.title}`}
+                      >
+                        <CircleHelp className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px]">
+                      <p className="text-xs font-medium">{item.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.formula}</p>
+                    </TooltipContent>
+                  </UiTooltip>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-semibold md:text-2xl">{item.value}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </TooltipProvider>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">
         <Card>

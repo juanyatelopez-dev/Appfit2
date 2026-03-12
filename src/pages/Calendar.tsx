@@ -52,13 +52,6 @@ const formatDateKey = (date: Date) => format(date, "yyyy-MM-dd");
 const fromDateKey = (dateKey: string) => new Date(`${dateKey}T00:00:00`);
 const TIMELINE_HOUR_HEIGHT = 72;
 const DAY_TOTAL_MINUTES = 24 * 60;
-const PENDING_TIME_MAP: Record<string, number> = {
-  weight: 7 * 60,
-  sleep: 8 * 60,
-  biofeedback: 9 * 60,
-  nutrition: 13 * 60,
-  water: 21 * 60,
-};
 
 const clampMinutes = (value: number) => Math.min(DAY_TOTAL_MINUTES, Math.max(0, Math.round(value)));
 
@@ -262,30 +255,17 @@ const Calendar = () => {
       ? { breakfast: "Desayuno", lunch: "Almuerzo", dinner: "Cena", snack: "Snack" }
       : { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" };
 
-    if (selectedDay?.hasWeight && selectedDay.weightKg !== null) {
-      items.push({
-        id: `weight-${selectedDateKey}`,
-        title: language === "es" ? "Peso registrado" : "Weight logged",
-        detail: `${selectedDay.weightKg} kg`,
-        startMinutes: 7 * 60,
-        durationMinutes: 30,
-        variant: "logged",
-        icon: Scale,
-        surfaceClassName: "border-slate-300/45 bg-slate-950 text-white shadow-[0_10px_24px_rgba(2,6,23,0.42)]",
-        accentClassName: "bg-slate-300",
-        badge: language === "es" ? "Medicion" : "Measurement",
-      });
-    }
-
     dayLogs
       .slice()
       .sort((a, b) => a.logged_at.localeCompare(b.logged_at))
       .forEach((log: WaterLog) => {
+        const waterMinutes = getMinutesForTimestamp(log.logged_at, selectedDateKey);
+        if (waterMinutes === null) return;
         items.push({
           id: `water-${log.id}`,
           title: language === "es" ? "Agua" : "Water",
           detail: `${log.consumed_ml} ml`,
-          startMinutes: getMinutesForTimestamp(log.logged_at, selectedDateKey) ?? 12 * 60,
+          startMinutes: waterMinutes,
           durationMinutes: 25,
           variant: "logged",
           icon: Droplets,
@@ -299,6 +279,7 @@ const Calendar = () => {
       .slice()
       .sort((a: SleepLog, b: SleepLog) => a.created_at.localeCompare(b.created_at))
       .forEach((log: SleepLog, index: number) => {
+        if (!log.sleep_start && !log.sleep_end) return;
         const placement = getSleepTimelinePlacement(log, selectedDateKey);
         items.push({
           id: `sleep-${log.id ?? index}`,
@@ -315,18 +296,21 @@ const Calendar = () => {
       });
 
     if (selectedBiofeedback) {
-      items.push({
-        id: `bio-${selectedBiofeedback.id}`,
-        title: language === "es" ? "Biofeedback" : "Biofeedback",
-        detail: selectedBiofeedback.notes?.trim() || `${language === "es" ? "Energia" : "Energy"} ${selectedBiofeedback.daily_energy}/10`,
-        startMinutes: getMinutesForTimestamp(selectedBiofeedback.created_at, selectedDateKey) ?? 9 * 60,
-        durationMinutes: 35,
-        variant: "context",
-        icon: HeartPulse,
-        surfaceClassName: "border-rose-400/55 bg-[#1b1020] text-white shadow-[0_10px_24px_rgba(31,10,24,0.45)]",
-        accentClassName: "bg-rose-400",
-        badge: `${selectedBiofeedback.daily_energy}/10`,
-      });
+      const bioMinutes = getMinutesForTimestamp(selectedBiofeedback.created_at, selectedDateKey);
+      if (bioMinutes !== null) {
+        items.push({
+          id: `bio-${selectedBiofeedback.id}`,
+          title: language === "es" ? "Biofeedback" : "Biofeedback",
+          detail: selectedBiofeedback.notes?.trim() || `${language === "es" ? "Energia" : "Energy"} ${selectedBiofeedback.daily_energy}/10`,
+          startMinutes: bioMinutes,
+          durationMinutes: 35,
+          variant: "context",
+          icon: HeartPulse,
+          surfaceClassName: "border-rose-400/55 bg-[#1b1020] text-white shadow-[0_10px_24px_rgba(31,10,24,0.45)]",
+          accentClassName: "bg-rose-400",
+          badge: `${selectedBiofeedback.daily_energy}/10`,
+        });
+      }
     }
 
     if (selectedNutrition?.groups) {
@@ -335,11 +319,12 @@ const Calendar = () => {
         const normalizedMealKey = mealKey as keyof typeof selectedNutrition.groups;
         const mealTotals = selectedNutrition.mealTotals?.[normalizedMealKey];
         const firstEntryMinutes = getMinutesForTimestamp(entries[0]?.created_at, selectedDateKey);
+        if (firstEntryMinutes === null) return;
         items.push({
           id: `meal-${normalizedMealKey}-${selectedDateKey}`,
           title: mealLabels[normalizedMealKey],
           detail: mealTotals?.calories ? `${mealTotals.calories} kcal | ${entries.length} ${language === "es" ? "registros" : "entries"}` : `${entries.length} ${language === "es" ? "registros" : "entries"}`,
-          startMinutes: firstEntryMinutes ?? PENDING_TIME_MAP.nutrition,
+          startMinutes: firstEntryMinutes,
           durationMinutes: Math.max(40, entries.length * 18),
           variant: "logged",
           icon: UtensilsCrossed,
@@ -351,44 +336,28 @@ const Calendar = () => {
     }
 
     if (selectedNote) {
-      items.push({
-        id: `note-${selectedNote.id}`,
-        title: selectedNote.title?.trim() || (language === "es" ? "Nota diaria" : "Daily note"),
-        detail: selectedNote.content,
-        startMinutes: getMinutesForTimestamp(selectedNote.created_at, selectedDateKey) ?? 20 * 60 + 30,
-        durationMinutes: 50,
-        variant: "context",
-        icon: FileText,
-        surfaceClassName: "border-amber-400/60 bg-[#1d1608] text-white shadow-[0_10px_24px_rgba(36,27,8,0.48)]",
-        accentClassName: "bg-amber-400",
-        badge: language === "es" ? "Nota" : "Note",
-      });
+      const noteMinutes = getMinutesForTimestamp(selectedNote.created_at, selectedDateKey);
+      if (noteMinutes !== null) {
+        items.push({
+          id: `note-${selectedNote.id}`,
+          title: selectedNote.title?.trim() || (language === "es" ? "Nota diaria" : "Daily note"),
+          detail: selectedNote.content,
+          startMinutes: noteMinutes,
+          durationMinutes: 50,
+          variant: "context",
+          icon: FileText,
+          surfaceClassName: "border-amber-400/60 bg-[#1d1608] text-white shadow-[0_10px_24px_rgba(36,27,8,0.48)]",
+          accentClassName: "bg-amber-400",
+          badge: language === "es" ? "Nota" : "Note",
+        });
+      }
     }
-
-    missingModules.forEach((module) => {
-      items.push({
-        id: `pending-${module.key}-${selectedDateKey}`,
-        title: `${language === "es" ? "Pendiente" : "Pending"}: ${module.label}`,
-        detail: language === "es" ? "Registro sugerido para completar el dia." : "Suggested slot to complete the day.",
-        startMinutes: PENDING_TIME_MAP[module.key] ?? 12 * 60,
-        durationMinutes: 40,
-        variant: "pending",
-        icon: CheckCircle2,
-        href: module.href,
-        surfaceClassName: "border-primary/65 bg-[#201d11] text-white shadow-[0_10px_24px_rgba(41,33,6,0.42)]",
-        accentClassName: "bg-primary",
-        badge: language === "es" ? "Pendiente" : "Pending",
-      });
-    });
 
     return items.sort((a, b) => {
       if (a.startMinutes !== b.startMinutes) return a.startMinutes - b.startMinutes;
-      if (a.variant === b.variant) return a.title.localeCompare(b.title);
-      if (a.variant === "pending") return 1;
-      if (b.variant === "pending") return -1;
-      return 0;
+      return a.title.localeCompare(b.title);
     });
-  }, [dayLogs, language, missingModules, selectedBiofeedback, selectedDateKey, selectedDay, selectedNutrition, selectedNote, selectedSleepDay?.logs]);
+  }, [dayLogs, language, selectedBiofeedback, selectedDateKey, selectedNutrition, selectedNote, selectedSleepDay?.logs]);
 
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const isTodaySelected = selectedDateKey === todayKey;
@@ -483,17 +452,17 @@ const Calendar = () => {
         <CardHeader className="space-y-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div className="space-y-1">
-              <CardTitle>{language === "es" ? "Agenda del dia" : "Day timeline"}</CardTitle>
+              <CardTitle>{language === "es" ? "Timeline del dia" : "Day timeline"}</CardTitle>
               <CardDescription className="capitalize">{selectedDateLabel}</CardDescription>
             </div>
             <div className="grid grid-cols-2 gap-2 md:min-w-[18rem]">
               <div className="rounded-[16px] border px-3 py-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{language === "es" ? "Bloques" : "Blocks"}</p>
-                <p className="text-lg font-semibold">{timelineItems.filter((item) => item.variant !== "pending").length}</p>
+                <p className="text-lg font-semibold">{timelineItems.length}</p>
               </div>
               <div className="rounded-[16px] border px-3 py-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{language === "es" ? "Pendientes" : "Pending"}</p>
-                <p className="text-lg font-semibold">{timelineItems.filter((item) => item.variant === "pending").length}</p>
+                <p className="text-lg font-semibold">{missingModules.length}</p>
               </div>
             </div>
           </div>
@@ -512,8 +481,8 @@ const Calendar = () => {
                   <p className="text-sm font-semibold">{language === "es" ? "Completar este dia" : "Complete this day"}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedDateKey < todayKey
-                      ? "Si olvidaste registrar algo, todavia puedes ubicarlo en su bloque sugerido."
-                      : "Los bloques pendientes ya quedaron colocados en la timeline para que los cierres a tiempo."}
+                      ? "Estas acciones siguen pendientes y aun no aparecen en la timeline porque no tienen hora real."
+                      : "Las acciones pendientes se gestionan aparte y solo entran a la timeline cuando tengan una hora real."}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -619,19 +588,9 @@ const Calendar = () => {
                   <p className="text-sm font-semibold">{activeTimelineItem.title}</p>
                   <p className="mt-1 text-sm text-white/80">{activeTimelineItem.detail}</p>
                 </div>
-                {activeTimelineItem.variant === "pending" && activeTimelineItem.href ? (
-                  <Button asChild className="w-full">
-                    <Link to={activeTimelineItem.href}>{language === "es" ? "Abrir registro sugerido" : "Open suggested log"}</Link>
-                  </Button>
-                ) : null}
                 {activeTimelineItem.id.startsWith("bio-") && selectedBiofeedback ? (
                   <div className="rounded-[18px] border p-4 text-sm text-muted-foreground">
                     {language === "es" ? "Energia" : "Energy"} {selectedBiofeedback.daily_energy}/10 | {language === "es" ? "Estres" : "Stress"} {selectedBiofeedback.perceived_stress}/10 | {language === "es" ? "Hambre" : "Hunger"} {selectedBiofeedback.hunger_level}/10
-                  </div>
-                ) : null}
-                {activeTimelineItem.id.startsWith("weight-") && selectedDay?.weightKg !== null ? (
-                  <div className="rounded-[18px] border p-4 text-sm text-muted-foreground">
-                    {language === "es" ? "Peso actual para la fecha seleccionada." : "Current weight for the selected date."} {selectedDay.weightKg} kg
                   </div>
                 ) : null}
               </>
@@ -663,7 +622,7 @@ const Calendar = () => {
   const viewTabs = (
     <div className="rounded-[18px] border bg-card/90 p-1">
       <div className="grid grid-cols-3 gap-1">
-        {[{ key: "agenda", label: "Agenda" }, { key: "day", label: language === "es" ? "Dia" : "Day" }, { key: "month", label: language === "es" ? "Mes" : "Month" }].map((view) => (
+        {[{ key: "agenda", label: language === "es" ? "Historial" : "Agenda" }, { key: "day", label: language === "es" ? "Dia" : "Day" }, { key: "month", label: language === "es" ? "Mes" : "Month" }].map((view) => (
           <button
             key={view.key}
             type="button"
@@ -681,7 +640,7 @@ const Calendar = () => {
     <Card>
       <CardHeader>
         <CardTitle className="capitalize">{monthLabel}</CardTitle>
-        <CardDescription>{language === "es" ? "Historial del mes por dia." : "Month history by day."}</CardDescription>
+        <CardDescription>{language === "es" ? "Lista cronologica de dias con actividad durante el mes." : "Chronological list of active days in the month."}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {agendaDays.length === 0 ? (
@@ -728,6 +687,55 @@ const Calendar = () => {
     </Card>
   );
 
+  const selectedDaySummaryPanel = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{language === "es" ? "Resumen del dia seleccionado" : "Selected day summary"}</CardTitle>
+        <CardDescription className="capitalize">{selectedDateLabel}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!selectedDay ? (
+          <p className="text-sm text-muted-foreground">{language === "es" ? "Sin informacion para este dia." : "No information for this day."}</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-[18px] border p-3">
+                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{language === "es" ? "Registros" : "Tracked"}</p>
+                <p className="mt-2 text-lg font-semibold">{getTrackedItemsCount(selectedDay)}/6</p>
+              </div>
+              <div className="rounded-[18px] border p-3">
+                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{language === "es" ? "Pendientes" : "Pending"}</p>
+                <p className="mt-2 text-lg font-semibold">{missingModules.length}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              {selectedDay.hasWeight ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><Scale className="h-3.5 w-3.5" />{selectedDay.weightKg} kg</span> : null}
+              {selectedDay.hasWater ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><Droplets className="h-3.5 w-3.5 text-primary" />{selectedDay.totalWaterMl} ml</span> : null}
+              {selectedDay.hasSleep ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><Moon className="h-3.5 w-3.5 text-indigo-500" />{(selectedDay.totalSleepMinutes / 60).toFixed(1)} h</span> : null}
+              {selectedDay.hasNutrition ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><UtensilsCrossed className="h-3.5 w-3.5 text-emerald-500" />{selectedDay.nutritionCalories} kcal</span> : null}
+              {selectedDay.hasBiofeedback ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><HeartPulse className="h-3.5 w-3.5 text-rose-500" />Biofeedback</span> : null}
+              {selectedDay.hasNote ? <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"><FileText className="h-3.5 w-3.5 text-amber-500" />{language === "es" ? "Nota" : "Note"}</span> : null}
+            </div>
+            {selectedNote?.content ? (
+              <div className="rounded-[18px] border p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{language === "es" ? "Nota del dia" : "Daily note"}</p>
+                <p className="mt-2 line-clamp-4 text-sm text-muted-foreground">{selectedNote.title?.trim() || selectedNote.content}</p>
+              </div>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => setCalendarView("day")} className="w-full sm:w-auto">
+                {language === "es" ? "Abrir timeline del dia" : "Open day timeline"}
+              </Button>
+              <Button variant="outline" onClick={() => setCalendarView("month")} className="w-full sm:w-auto">
+                {language === "es" ? "Ver en mes" : "View in month"}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="container max-w-7xl space-y-5 py-6 md:space-y-6 md:py-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -744,14 +752,14 @@ const Calendar = () => {
         <Card><CardContent className="flex items-center justify-between gap-3 pt-5"><Button variant="outline" size="icon" onClick={() => changeMonth(-1)}><ChevronLeft className="h-4 w-4" /></Button><div className="min-w-0 text-center"><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{calendarView === "day" ? (language === "es" ? "Dia seleccionado" : "Selected day") : t("calendar.title")}</p><p className="truncate text-lg font-semibold capitalize">{calendarView === "day" ? selectedDateLabel : monthLabel}</p></div><Button variant="outline" size="icon" onClick={() => changeMonth(1)}><ChevronRight className="h-4 w-4" /></Button></CardContent><CardContent className="pt-0"><Button className="w-full" variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button></CardContent></Card>
         {calendarView === "agenda" && agendaPanel}
         {calendarView === "day" && dayPanel}
-        {calendarView === "month" && <div className="space-y-4">{monthCalendarCard}{dayPanel}</div>}
+        {calendarView === "month" && <div className="space-y-4">{monthCalendarCard}{selectedDaySummaryPanel}</div>}
       </div>
 
       <div className="hidden gap-4 md:flex md:flex-col">
         <div className="max-w-sm">{viewTabs}</div>
-        {calendarView === "agenda" && <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">{agendaPanel}{dayPanel}</div>}
+        {calendarView === "agenda" && <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.9fr]">{agendaPanel}{selectedDaySummaryPanel}</div>}
         {calendarView === "day" && <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">{dayPanel}{monthCalendarCard}</div>}
-        {calendarView === "month" && <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.8fr_1fr]">{monthCalendarCard}{dayPanel}</div>}
+        {calendarView === "month" && <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.8fr_1fr]">{monthCalendarCard}{selectedDaySummaryPanel}</div>}
       </div>
     </div>
   );
