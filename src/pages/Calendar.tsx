@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { addWaterIntake, getWaterGoal, getWaterLogsByDate, getWaterRangeTotals, type WaterLog } from "@/services/waterIntake";
 import { addSleepLog, getSleepDay, getSleepGoal, getSleepRangeTotals } from "@/services/sleep";
 import { getBiofeedbackRange, getDailyBiofeedback } from "@/services/dailyBiofeedback";
@@ -43,11 +42,9 @@ const Calendar = () => {
   const { user, isGuest, profile } = useAuth();
   const { language, t } = usePreferences();
   const queryClient = useQueryClient();
-  const isMobile = useIsMobile();
-
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
   const [selectedDateKey, setSelectedDateKey] = useState(() => formatDateKey(new Date()));
-  const [mobileView, setMobileView] = useState<"agenda" | "day" | "month">("agenda");
+  const [calendarView, setCalendarView] = useState<"agenda" | "day" | "month">("agenda");
   const [quickWaterMl, setQuickWaterMl] = useState("");
   const [quickWeightKg, setQuickWeightKg] = useState("");
   const [quickSleepMinutes, setQuickSleepMinutes] = useState("");
@@ -61,10 +58,6 @@ const Calendar = () => {
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
   const profileKey = [profile?.weight ?? "", profile?.height ?? "", profile?.goal_type ?? ""].join("|");
-
-  useEffect(() => {
-    if (!isMobile) setMobileView("agenda");
-  }, [isMobile]);
 
   const { data: waterGoal = { water_goal_ml: 2000 } } = useQuery({
     queryKey: ["water_goal", user?.id, isGuest],
@@ -194,18 +187,13 @@ const Calendar = () => {
   const missingModules = useMemo(() => {
     if (!selectedDay) return [];
     const modules: Array<{ key: string; label: string; href?: string; target?: string }> = [];
-    if (!selectedDay.hasWeight) modules.push({ key: "weight", label: "Peso", target: "quick-weight" });
-    if (!selectedDay.hasWater) modules.push({ key: "water", label: "Agua", target: "quick-water" });
-    if (!selectedDay.hasSleep) modules.push({ key: "sleep", label: "Sueno", target: "quick-sleep" });
+    if (!selectedDay.hasWeight) modules.push({ key: "weight", label: "Peso", href: `/weight?date=${selectedDateKey}` });
+    if (!selectedDay.hasWater) modules.push({ key: "water", label: "Agua", href: `/water?date=${selectedDateKey}` });
+    if (!selectedDay.hasSleep) modules.push({ key: "sleep", label: "Sueno", href: `/sleep?date=${selectedDateKey}` });
     if (!selectedDay.hasBiofeedback) modules.push({ key: "biofeedback", label: "Biofeedback", href: `/biofeedback?date=${selectedDateKey}` });
     if (!selectedDay.hasNutrition) modules.push({ key: "nutrition", label: "Alimentacion", href: `/nutrition?date=${selectedDateKey}` });
     return modules;
   }, [selectedDay, selectedDateKey]);
-
-  const scrollToQuickAdd = (sectionId: string) => {
-    const target = document.getElementById(sectionId);
-    target?.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
 
   const refreshCalendar = () => Promise.all([
     queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
@@ -302,10 +290,10 @@ const Calendar = () => {
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Faltan: {missingModules.map((module) => module.label).join(", ")}.</p>
             <div className="grid gap-2 sm:flex sm:flex-wrap">
-              {missingModules.map((module) => module.href ? (
-                <Button key={module.key} asChild size="sm" variant="outline" className="w-full sm:w-auto"><Link to={module.href}>Registrar {module.label}</Link></Button>
-              ) : (
-                <Button key={module.key} size="sm" variant="outline" className="w-full sm:w-auto" onClick={() => scrollToQuickAdd(module.target!)}>Registrar {module.label}</Button>
+              {missingModules.map((module) => (
+                <Button key={module.key} asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                  <Link to={module.href ?? "#"}>Registrar {module.label}</Link>
+                </Button>
               ))}
             </div>
           </CardContent>
@@ -339,6 +327,74 @@ const Calendar = () => {
     </div>
   );
 
+  const viewTabs = (
+    <div className="rounded-[18px] border bg-card/90 p-1">
+      <div className="grid grid-cols-3 gap-1">
+        {[{ key: "agenda", label: "Agenda" }, { key: "day", label: language === "es" ? "Dia" : "Day" }, { key: "month", label: language === "es" ? "Mes" : "Month" }].map((view) => (
+          <button
+            key={view.key}
+            type="button"
+            onClick={() => setCalendarView(view.key as "agenda" | "day" | "month")}
+            className={`rounded-[14px] px-3 py-2 text-sm font-medium transition ${calendarView === view.key ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            {view.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const agendaPanel = (
+    <Card>
+      <CardHeader>
+        <CardTitle className="capitalize">{monthLabel}</CardTitle>
+        <CardDescription>{language === "es" ? "Historial del mes por dia." : "Month history by day."}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {agendaDays.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{language === "es" ? "Sin actividad en este mes." : "No activity this month."}</p>
+        ) : (
+          agendaDays.map((day) => {
+            const date = fromDateKey(day.dateKey);
+            const isSelected = day.dateKey === selectedDateKey;
+            const notePreview = isSelected && selectedNote?.content ? selectedNote.title?.trim() || selectedNote.content.trim().slice(0, 72) : day.hasNote ? (language === "es" ? "Nota diaria guardada" : "Daily note saved") : null;
+            return (
+              <button
+                key={day.dateKey}
+                type="button"
+                onClick={() => { selectDate(day.dateKey); setCalendarView("day"); }}
+                className={`block w-full rounded-[18px] border p-4 text-left transition ${isSelected ? "border-primary/60 bg-primary/5" : "bg-card"}`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-[3rem] rounded-[14px] border px-2 py-2 text-center">
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{date.toLocaleDateString(language === "es" ? "es-ES" : "en-US", { weekday: "short" })}</p>
+                      <p className="text-xl font-semibold">{date.getDate()}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold capitalize">{date.toLocaleDateString(language === "es" ? "es-ES" : "en-US", { month: "long", day: "numeric" })}</p>
+                      <p className="text-sm text-muted-foreground">{getTrackedItemsCount(day)}/6 {language === "es" ? "bloques registrados" : "tracked blocks"}</p>
+                      {notePreview ? <p className="line-clamp-2 text-xs text-muted-foreground">{notePreview}</p> : null}
+                    </div>
+                  </div>
+                  <ChevronRight className="mt-1 h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {day.hasWater ? <span className="inline-flex items-center gap-1"><Droplets className="h-3.5 w-3.5 text-primary" />{day.totalWaterMl} ml</span> : null}
+                  {day.hasWeight ? <span className="inline-flex items-center gap-1"><Scale className="h-3.5 w-3.5" />{day.weightKg} kg</span> : null}
+                  {day.hasSleep ? <span className="inline-flex items-center gap-1"><Moon className="h-3.5 w-3.5 text-indigo-500" />{(day.totalSleepMinutes / 60).toFixed(1)}h</span> : null}
+                  {day.hasBiofeedback ? <span className="inline-flex items-center gap-1"><HeartPulse className="h-3.5 w-3.5 text-rose-500" />Biofeedback</span> : null}
+                  {day.hasNutrition ? <span className="inline-flex items-center gap-1"><UtensilsCrossed className="h-3.5 w-3.5 text-emerald-500" />{day.nutritionCalories} kcal</span> : null}
+                  {day.hasNote ? <span className="inline-flex items-center gap-1"><FileText className="h-3.5 w-3.5 text-amber-500" />{language === "es" ? "Nota" : "Note"}</span> : null}
+                </div>
+              </button>
+            );
+          })
+        )}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="container max-w-7xl space-y-5 py-6 md:space-y-6 md:py-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -351,34 +407,19 @@ const Calendar = () => {
       </div>
 
       <div className="space-y-4 md:hidden">
-        <div className="rounded-[18px] border bg-card/90 p-1"><div className="grid grid-cols-3 gap-1">{[{ key: "agenda", label: "Agenda" }, { key: "day", label: language === "es" ? "Dia" : "Day" }, { key: "month", label: language === "es" ? "Mes" : "Month" }].map((view) => <button key={view.key} type="button" onClick={() => setMobileView(view.key as "agenda" | "day" | "month")} className={`rounded-[14px] px-3 py-2 text-sm font-medium transition ${mobileView === view.key ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{view.label}</button>)}</div></div>
-        <Card><CardContent className="flex items-center justify-between gap-3 pt-5"><Button variant="outline" size="icon" onClick={() => changeMonth(-1)}><ChevronLeft className="h-4 w-4" /></Button><div className="min-w-0 text-center"><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{mobileView === "day" ? (language === "es" ? "Dia seleccionado" : "Selected day") : t("calendar.title")}</p><p className="truncate text-lg font-semibold capitalize">{mobileView === "day" ? selectedDateLabel : monthLabel}</p></div><Button variant="outline" size="icon" onClick={() => changeMonth(1)}><ChevronRight className="h-4 w-4" /></Button></CardContent><CardContent className="pt-0"><Button className="w-full" variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button></CardContent></Card>
-        {mobileView === "agenda" && (
-          <div className="space-y-3">
-            {agendaDays.length === 0 ? <Card><CardContent className="pt-5 text-sm text-muted-foreground">{language === "es" ? "Sin actividad en este mes." : "No activity this month."}</CardContent></Card> : agendaDays.map((day) => {
-              const date = fromDateKey(day.dateKey);
-              const isSelected = day.dateKey === selectedDateKey;
-              const notePreview = isSelected && selectedNote?.content ? selectedNote.title?.trim() || selectedNote.content.trim().slice(0, 72) : day.hasNote ? (language === "es" ? "Nota diaria guardada" : "Daily note saved") : null;
-              return (
-                <button key={day.dateKey} type="button" onClick={() => { selectDate(day.dateKey); setMobileView("day"); }} className={`block w-full rounded-[18px] border p-4 text-left transition ${isSelected ? "border-primary/60 bg-primary/5" : "bg-card"}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="min-w-[3rem] rounded-[14px] border px-2 py-2 text-center"><p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{date.toLocaleDateString(language === "es" ? "es-ES" : "en-US", { weekday: "short" })}</p><p className="text-xl font-semibold">{date.getDate()}</p></div>
-                      <div className="space-y-1"><p className="text-sm font-semibold capitalize">{date.toLocaleDateString(language === "es" ? "es-ES" : "en-US", { month: "long", day: "numeric" })}</p><p className="text-sm text-muted-foreground">{getTrackedItemsCount(day)}/6 {language === "es" ? "bloques registrados" : "tracked blocks"}</p>{notePreview ? <p className="line-clamp-2 text-xs text-muted-foreground">{notePreview}</p> : null}</div>
-                    </div>
-                    <ChevronRight className="mt-1 h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">{day.hasWater ? <span className="inline-flex items-center gap-1"><Droplets className="h-3.5 w-3.5 text-primary" />{day.totalWaterMl} ml</span> : null}{day.hasWeight ? <span className="inline-flex items-center gap-1"><Scale className="h-3.5 w-3.5" />{day.weightKg} kg</span> : null}{day.hasSleep ? <span className="inline-flex items-center gap-1"><Moon className="h-3.5 w-3.5 text-indigo-500" />{(day.totalSleepMinutes / 60).toFixed(1)}h</span> : null}{day.hasBiofeedback ? <span className="inline-flex items-center gap-1"><HeartPulse className="h-3.5 w-3.5 text-rose-500" />Biofeedback</span> : null}{day.hasNutrition ? <span className="inline-flex items-center gap-1"><UtensilsCrossed className="h-3.5 w-3.5 text-emerald-500" />{day.nutritionCalories} kcal</span> : null}{day.hasNote ? <span className="inline-flex items-center gap-1"><FileText className="h-3.5 w-3.5 text-amber-500" />{language === "es" ? "Nota" : "Note"}</span> : null}</div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-        {mobileView === "day" && dayPanel}
-        {mobileView === "month" && <div className="space-y-4">{monthCalendarCard}{dayPanel}</div>}
+        {viewTabs}
+        <Card><CardContent className="flex items-center justify-between gap-3 pt-5"><Button variant="outline" size="icon" onClick={() => changeMonth(-1)}><ChevronLeft className="h-4 w-4" /></Button><div className="min-w-0 text-center"><p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{calendarView === "day" ? (language === "es" ? "Dia seleccionado" : "Selected day") : t("calendar.title")}</p><p className="truncate text-lg font-semibold capitalize">{calendarView === "day" ? selectedDateLabel : monthLabel}</p></div><Button variant="outline" size="icon" onClick={() => changeMonth(1)}><ChevronRight className="h-4 w-4" /></Button></CardContent><CardContent className="pt-0"><Button className="w-full" variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button></CardContent></Card>
+        {calendarView === "agenda" && agendaPanel}
+        {calendarView === "day" && dayPanel}
+        {calendarView === "month" && <div className="space-y-4">{monthCalendarCard}{dayPanel}</div>}
       </div>
 
-      <div className="hidden grid-cols-1 gap-6 md:grid lg:grid-cols-[1.8fr_1fr]">{monthCalendarCard}{dayPanel}</div>
+      <div className="hidden gap-4 md:flex md:flex-col">
+        <div className="max-w-sm">{viewTabs}</div>
+        {calendarView === "agenda" && <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">{agendaPanel}{dayPanel}</div>}
+        {calendarView === "day" && <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">{dayPanel}{monthCalendarCard}</div>}
+        {calendarView === "month" && <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.8fr_1fr]">{monthCalendarCard}{dayPanel}</div>}
+      </div>
     </div>
   );
 };
