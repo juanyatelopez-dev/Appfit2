@@ -336,14 +336,6 @@ const Calendar = () => {
         </CardContent>
       </Card>
 
-      <Card id="calendar-quick-add">
-        <CardHeader><CardTitle>{t("calendar.quickAddTitle")}</CardTitle><CardDescription>Los registros rapidos se guardaran en {selectedDateKey}.</CardDescription></CardHeader>
-        <CardContent className="space-y-3">
-          <div id="quick-water" className="space-y-2"><label className="flex items-center gap-2 text-sm"><Droplets className="h-4 w-4" />{t("calendar.quickAdd.water")}</label><div className="flex flex-col gap-2 sm:flex-row"><Input type="number" value={quickWaterMl} onChange={(e) => setQuickWaterMl(e.target.value)} placeholder={t("calendar.quickAdd.waterPlaceholder")} /><Button className="w-full sm:w-auto" onClick={() => addWaterMutation.mutate()} disabled={addWaterMutation.isPending}>{t("calendar.quickAdd.addWater")}</Button></div></div>
-          <div id="quick-weight" className="space-y-2"><label className="flex items-center gap-2 text-sm"><Scale className="h-4 w-4" />{t("calendar.quickAdd.weight")}</label><div className="flex flex-col gap-2 sm:flex-row"><Input type="number" value={quickWeightKg} onChange={(e) => setQuickWeightKg(e.target.value)} step="0.1" placeholder={t("calendar.quickAdd.weightPlaceholder")} /><Button className="w-full sm:w-auto" onClick={() => addWeightMutation.mutate()} disabled={addWeightMutation.isPending}>{t("calendar.quickAdd.addWeight")}</Button></div></div>
-          <div id="quick-sleep" className="space-y-2"><label className="flex items-center gap-2 text-sm"><Moon className="h-4 w-4" />{t("calendar.quickAdd.sleep")}</label><div className="flex flex-col gap-2 sm:flex-row"><Input type="number" value={quickSleepMinutes} onChange={(e) => setQuickSleepMinutes(e.target.value)} placeholder={t("calendar.quickAdd.sleepPlaceholder")} /><Button className="w-full sm:w-auto" onClick={() => addSleepMutation.mutate()} disabled={addSleepMutation.isPending}>{t("calendar.quickAdd.addSleep")}</Button></div></div>
-        </CardContent>
-      </Card>
     </div>
   );
 
