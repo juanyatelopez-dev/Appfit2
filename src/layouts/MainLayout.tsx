@@ -40,16 +40,16 @@ const MainLayout = () => {
   }, [location.hash, location.pathname]);
 
   return (
-    <div className="app-shell flex min-h-[100dvh] overflow-hidden bg-background md:min-h-screen">
+    <div className="app-shell flex h-[100dvh] overflow-hidden bg-background md:h-screen">
       <div className="hidden md:block">
         <Sidebar />
       </div>
 
-      <div className="flex min-h-[100dvh] min-w-0 flex-1 flex-col overflow-hidden md:ml-64 md:min-h-screen">
+      <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:ml-64">
         <DashboardHeader />
         {isGuest && <GuestWarningBanner />}
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 pb-32 md:p-8 md:pb-8">
+        <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-32 md:p-8 md:pb-8">
           <Outlet />
         </main>
         <MobileBottomNav />
