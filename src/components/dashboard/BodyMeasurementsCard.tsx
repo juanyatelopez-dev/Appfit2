@@ -151,11 +151,11 @@ const BodyMeasurementsCard = ({
           <Link to="/body">Editar medidas</Link>
         </Button>
       </CardHeader>
-      <CardContent className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex justify-center lg:justify-start">
+      <CardContent className="grid gap-4 lg:grid-cols-[0.72fr_1.08fr]">
+        <div className="flex justify-center lg:justify-center">
           <BodyMannequin points={points} onPointClick={() => navigate("/body")} />
         </div>
-        <div className="w-full space-y-2">
+        <div className="w-full space-y-2 lg:max-w-[34rem]">
           <div className="rounded-lg border border-border/60 p-3">
             <p className="text-xs text-muted-foreground">Peso de referencia</p>
             <p className="text-lg font-semibold">{latestWeight !== null ? `${latestWeight.toFixed(1)} kg` : "--"}</p>

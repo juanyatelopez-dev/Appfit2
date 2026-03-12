@@ -346,50 +346,52 @@ const BodyMeasurements = () => {
         </div>
       </div>
 
-      <BodyMeasurementsCard
-        latest={summary.latest}
-        previous={summary.previous}
-        latestWeight={latestWeightReference.weightKg}
-        waistComparison={summary.waistComparison}
-        goalDirection={
-          profile?.goal_direction === "lose" || profile?.goal_direction === "gain" || profile?.goal_direction === "maintain"
-            ? profile.goal_direction
-            : null
-        }
-      />
-
       <TooltipProvider delayDuration={120}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          {bodyMetricCards.map((item) => (
-            <Card key={item.title}>
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <CardTitle className="text-sm">{item.title}</CardTitle>
-                    <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
+          <BodyMeasurementsCard
+            latest={summary.latest}
+            previous={summary.previous}
+            latestWeight={latestWeightReference.weightKg}
+            waistComparison={summary.waistComparison}
+            goalDirection={
+              profile?.goal_direction === "lose" || profile?.goal_direction === "gain" || profile?.goal_direction === "maintain"
+                ? profile.goal_direction
+                : null
+            }
+          />
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:sticky xl:top-6">
+            {bodyMetricCards.map((item) => (
+              <Card key={item.title}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm">{item.title}</CardTitle>
+                      <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
+                    </div>
+                    <UiTooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary"
+                          aria-label={`Ver formula de ${item.title}`}
+                        >
+                          <CircleHelp className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[240px]">
+                        <p className="text-xs font-medium">{item.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{item.formula}</p>
+                      </TooltipContent>
+                    </UiTooltip>
                   </div>
-                  <UiTooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/60 hover:text-primary"
-                        aria-label={`Ver formula de ${item.title}`}
-                      >
-                        <CircleHelp className="h-3.5 w-3.5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-[240px]">
-                      <p className="text-xs font-medium">{item.title}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{item.formula}</p>
-                    </TooltipContent>
-                  </UiTooltip>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xl font-semibold md:text-2xl">{item.value}</p>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xl font-semibold md:text-2xl">{item.value}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </TooltipProvider>
 

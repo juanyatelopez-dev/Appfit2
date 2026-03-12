@@ -654,7 +654,7 @@ const Calendar = () => {
               <button
                 key={day.dateKey}
                 type="button"
-                onClick={() => { selectDate(day.dateKey); setCalendarView("day"); }}
+                onClick={() => selectDate(day.dateKey)}
                 className={`block w-full rounded-[18px] border p-4 text-left transition ${isSelected ? "border-primary/60 bg-primary/5" : "bg-card"}`}
               >
                 <div className="flex items-start justify-between gap-4">
