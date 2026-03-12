@@ -69,6 +69,7 @@ export const DEFAULT_DASHBOARD_HOME_WIDGETS: DashboardHomeWidgetKey[] = [
 
 const GUEST_WIDGETS_KEY = "appfit_guest_dashboard_home_widgets";
 const AUTH_WIDGETS_KEY_PREFIX = "appfit_dashboard_home_widgets_";
+let dashboardHomeWidgetsSchemaUnavailable = false;
 
 const isDashboardHomeWidgetKey = (value: unknown): value is DashboardHomeWidgetKey =>
   typeof value === "string" && DASHBOARD_HOME_WIDGET_DEFINITIONS.some((definition) => definition.key === value);
@@ -99,7 +100,9 @@ const saveLocalWidgets = (userId: string | null, isGuest: boolean, keys: Dashboa
 
 const isSchemaMissingError = (error: unknown) => {
   const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
+  const status = (error as { status?: number } | null)?.status;
   return (
+    status === 400 ||
     message.includes("dashboard_home_widgets") ||
     message.includes("schema cache") ||
     message.includes("could not find") ||
@@ -113,10 +116,14 @@ export const getDashboardHomeWidgetPreferences = async (
 ): Promise<DashboardHomeWidgetKey[]> => {
   const isGuest = options?.isGuest || false;
   if (isGuest || !userId) return getLocalWidgets(userId, isGuest);
+  if (dashboardHomeWidgetsSchemaUnavailable) return getLocalWidgets(userId, false);
 
   const { data, error } = await supabase.from("profiles").select("dashboard_home_widgets").eq("id", userId).maybeSingle();
   if (error) {
-    if (isSchemaMissingError(error)) return getLocalWidgets(userId, false);
+    if (isSchemaMissingError(error)) {
+      dashboardHomeWidgetsSchemaUnavailable = true;
+      return getLocalWidgets(userId, false);
+    }
     throw error;
   }
 
@@ -137,10 +144,15 @@ export const saveDashboardHomeWidgetPreferences = async (
     saveLocalWidgets(userId, isGuest, normalized);
     return normalized;
   }
+  if (dashboardHomeWidgetsSchemaUnavailable) {
+    saveLocalWidgets(userId, false, normalized);
+    return normalized;
+  }
 
   const { error } = await supabase.from("profiles").update({ dashboard_home_widgets: normalized }).eq("id", userId);
   if (error) {
     if (isSchemaMissingError(error)) {
+      dashboardHomeWidgetsSchemaUnavailable = true;
       saveLocalWidgets(userId, false, normalized);
       return normalized;
     }

@@ -28,6 +28,7 @@ export const DEFAULT_DASHBOARD_CHECKIN_MODULES: DashboardCheckinModuleKey[] = [
 
 const GUEST_MODULES_KEY = "appfit_guest_dashboard_checkin_modules";
 const AUTH_MODULES_KEY_PREFIX = "appfit_dashboard_checkin_modules_";
+let dashboardCheckinSchemaUnavailable = false;
 
 const isDashboardCheckinModuleKey = (value: unknown): value is DashboardCheckinModuleKey =>
   typeof value === "string" && DASHBOARD_CHECKIN_MODULE_DEFINITIONS.some((definition) => definition.key === value);
@@ -58,7 +59,9 @@ const saveLocalModules = (userId: string | null, isGuest: boolean, keys: Dashboa
 
 const isSchemaMissingError = (error: unknown) => {
   const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
+  const status = (error as { status?: number } | null)?.status;
   return (
+    status === 400 ||
     message.includes("dashboard_checkin_modules") ||
     message.includes("schema cache") ||
     message.includes("could not find") ||
@@ -72,10 +75,14 @@ export const getDashboardCheckinModulePreferences = async (
 ): Promise<DashboardCheckinModuleKey[]> => {
   const isGuest = options?.isGuest || false;
   if (isGuest || !userId) return getLocalModules(userId, isGuest);
+  if (dashboardCheckinSchemaUnavailable) return getLocalModules(userId, false);
 
   const { data, error } = await supabase.from("profiles").select("dashboard_checkin_modules").eq("id", userId).maybeSingle();
   if (error) {
-    if (isSchemaMissingError(error)) return getLocalModules(userId, false);
+    if (isSchemaMissingError(error)) {
+      dashboardCheckinSchemaUnavailable = true;
+      return getLocalModules(userId, false);
+    }
     throw error;
   }
 
@@ -96,10 +103,15 @@ export const saveDashboardCheckinModulePreferences = async (
     saveLocalModules(userId, isGuest, normalized);
     return normalized;
   }
+  if (dashboardCheckinSchemaUnavailable) {
+    saveLocalModules(userId, false, normalized);
+    return normalized;
+  }
 
   const { error } = await supabase.from("profiles").update({ dashboard_checkin_modules: normalized }).eq("id", userId);
   if (error) {
     if (isSchemaMissingError(error)) {
+      dashboardCheckinSchemaUnavailable = true;
       saveLocalModules(userId, false, normalized);
       return normalized;
     }

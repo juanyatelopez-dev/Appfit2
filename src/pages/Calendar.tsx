@@ -186,6 +186,11 @@ const Calendar = () => {
       .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
   }, [calendarData, monthStart, monthEnd, selectedDateKey]);
 
+  const getTrackedItemsCount = (day: CalendarDayData | undefined) => {
+    if (!day) return 0;
+    return [day.hasWater, day.hasWeight, day.hasSleep, day.hasBiofeedback, day.hasNutrition, day.hasNote].filter(Boolean).length;
+  };
+
   const missingModules = useMemo(() => {
     if (!selectedDay) return [];
     const modules: Array<{ key: string; label: string; href?: string; target?: string }> = [];
