@@ -1,170 +1,28 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
+import {
+    getCachedOnboarding,
+    getCachedProfile,
+    setCachedOnboarding,
+    setCachedProfile,
+} from '@/context/auth/cache';
+import {
+    createEmptyProfile,
+    createGuestProfile,
+    deriveOnboardingCompleted,
+} from '@/context/auth/profile';
+import type { AuthContextType, Profile } from '@/context/auth/types';
+import { withTimeout } from '@/context/auth/utils';
 import { supabase } from '@/services/supabaseClient';
 import { toast } from 'sonner';
-
-interface Profile {
-    full_name: string | null;
-    birth_date: string | null;
-    avatar_url: string | null;
-    weight: number | null;
-    height: number | null;
-    biological_sex: "male" | "female" | null;
-    activity_level: "low" | "moderate" | "high" | "very_high" | "hyperactive" | null;
-    nutrition_goal_type: "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain" | null;
-    day_archetype: "base" | "heavy" | "recovery" | null;
-    goal_type: string | null;
-    target_weight_kg: number | null;
-    target_date: string | null;
-    start_weight_kg: number | null;
-    goal_direction: "lose" | "gain" | "maintain" | null;
-    water_goal_ml: number | null;
-    water_quick_options_ml: number[] | null;
-    sleep_goal_minutes: number | null;
-    calorie_goal: number | null;
-    protein_goal_g: number | null;
-    carb_goal_g: number | null;
-    fat_goal_g: number | null;
-    onboarding_completed: boolean | null;
-    app_language: "en" | "es" | null;
-    theme_preference: "light" | "dark" | "system" | null;
-    theme_accent_color: string | null;
-    theme_background_style: string | null;
-}
-
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    onboardingCompleted: boolean | null;
-    profile: Profile | null;
-    isGuest: boolean;
-    continueAsGuest: () => void;
-    exitGuest: () => void;
-    signIn: (email: string, password: string) => Promise<void>;
-    signUp: (email: string, password: string) => Promise<{ requiresEmailConfirmation: boolean }>;
-    signOut: () => Promise<void>;
-    completeOnboarding: () => Promise<void>;
-    refreshProfile: () => Promise<void>;
-    updateAvatar: (file: File) => Promise<string>;
-    updateProfile: (data: Partial<Profile>) => Promise<void>;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const GUEST_STORAGE_KEY = 'appfit_is_guest';
 const AUTH_RESOLVE_TIMEOUT_MS = 8000;
 const PROFILE_FETCH_TIMEOUT_MS = 15000;
-const ONBOARDING_CACHE_KEY_PREFIX = "appfit_onboarding_completed_";
-const PROFILE_CACHE_KEY_PREFIX = "appfit_profile_cache_";
 
-const getOnboardingCacheKey = (userId: string) => `${ONBOARDING_CACHE_KEY_PREFIX}${userId}`;
-const getCachedOnboarding = (userId: string): boolean | null => {
-    const raw = localStorage.getItem(getOnboardingCacheKey(userId));
-    if (raw === null) return null;
-    return raw === "true";
-};
-const setCachedOnboarding = (userId: string, value: boolean) =>
-    localStorage.setItem(getOnboardingCacheKey(userId), value ? "true" : "false");
-const getProfileCacheKey = (userId: string) => `${PROFILE_CACHE_KEY_PREFIX}${userId}`;
-const getCachedProfile = (userId: string): Profile | null => {
-    const raw = localStorage.getItem(getProfileCacheKey(userId));
-    if (!raw) return null;
-    try {
-        return JSON.parse(raw) as Profile;
-    } catch {
-        return null;
-    }
-};
-const setCachedProfile = (userId: string, profile: Profile) =>
-    localStorage.setItem(getProfileCacheKey(userId), JSON.stringify(profile));
-
-const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => {
-            reject(new Error(timeoutMessage));
-        }, timeoutMs);
-
-        promise
-            .then((value) => {
-                clearTimeout(timer);
-                resolve(value);
-            })
-            .catch((error) => {
-                clearTimeout(timer);
-                reject(error);
-            });
-    });
-
-const createGuestProfile = (): Profile => ({
-    full_name: 'Guest',
-    birth_date: null,
-    avatar_url: null,
-    weight: null,
-    height: null,
-    biological_sex: "male",
-    activity_level: "moderate",
-    nutrition_goal_type: "maintain",
-    day_archetype: "base",
-    goal_type: null,
-    target_weight_kg: null,
-    target_date: null,
-    start_weight_kg: null,
-    goal_direction: null,
-    water_goal_ml: 2000,
-    water_quick_options_ml: [250, 500, 1000, 2000],
-    sleep_goal_minutes: 480,
-    calorie_goal: 2000,
-    protein_goal_g: 150,
-    carb_goal_g: 250,
-    fat_goal_g: 70,
-    onboarding_completed: true,
-    app_language: "en",
-    theme_preference: "system",
-    theme_accent_color: "cyan",
-    theme_background_style: "focus",
-});
-
-const createEmptyProfile = (): Profile => ({
-    full_name: null,
-    birth_date: null,
-    avatar_url: null,
-    weight: null,
-    height: null,
-    biological_sex: "male",
-    activity_level: "moderate",
-    nutrition_goal_type: "maintain",
-    day_archetype: "base",
-    goal_type: null,
-    target_weight_kg: null,
-    target_date: null,
-    start_weight_kg: null,
-    goal_direction: null,
-    water_goal_ml: 2000,
-    water_quick_options_ml: [250, 500, 1000, 2000],
-    sleep_goal_minutes: 480,
-    calorie_goal: 2000,
-    protein_goal_g: 150,
-    carb_goal_g: 250,
-    fat_goal_g: 70,
-    onboarding_completed: null,
-    app_language: "en",
-    theme_preference: "system",
-    theme_accent_color: "cyan",
-    theme_background_style: "focus",
-});
-
-const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
-    if (!resolvedProfile) return false;
-    if (resolvedProfile.onboarding_completed === true) return true;
-
-    return Boolean(
-        resolvedProfile.full_name ||
-        resolvedProfile.weight !== null ||
-        resolvedProfile.height !== null ||
-        resolvedProfile.goal_type ||
-        resolvedProfile.nutrition_goal_type ||
-        resolvedProfile.activity_level
-    );
-};
+type ProfileRow = Partial<Profile> & Record<string, unknown>;
+type ProfileUpdatePayload = Partial<Profile> & { updated_at?: string };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -210,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .eq('id', userId)
                 .limit(1)
                 .maybeSingle();
-            data = fallback.data as any;
+            data = fallback.data as ProfileRow | null;
             error = fallback.error;
         }
 
@@ -498,16 +356,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const baseProfile = authedProfile ?? createEmptyProfile();
         setAuthedProfile({ ...baseProfile, ...data });
 
+        const payload: ProfileUpdatePayload = { ...data, updated_at: new Date().toISOString() };
+
         let { error } = await supabase
             .from('profiles')
-            .update({ ...data, updated_at: new Date().toISOString() } as any)
+            .update(payload)
             .eq('id', user.id);
 
         // Some projects don't have updated_at in profiles; retry without it.
         if (error && error.message?.includes("Could not find the 'updated_at' column")) {
             const retry = await supabase
                 .from('profiles')
-                .update(data as any)
+                .update(data)
                 .eq('id', user.id);
             error = retry.error;
         }

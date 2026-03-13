@@ -7,6 +7,45 @@ import {
   calculateSodiumPotassiumRatio,
 } from "@/lib/nutritionCalculator";
 import { getWeightReferenceForDate } from "@/services/bodyMetrics";
+import {
+  parseGuestDailyLogs,
+  parseGuestDayArchetypeMap,
+  parseGuestDayOverrideMap,
+  parseGuestEntries,
+  parseGuestFavorites,
+  parseGuestProfiles,
+  saveGuestDailyLogs,
+  saveGuestDayArchetypeMap,
+  saveGuestDayOverrideMap,
+  saveGuestEntries,
+  saveGuestFavorites,
+  saveGuestGoals,
+  saveGuestProfiles,
+} from "@/services/nutritionGuestState";
+import {
+  normalizeDailyLog,
+  normalizeEntry,
+  normalizeFavorite,
+  normalizeFoodDatabaseItem,
+  normalizeNutritionProfile,
+} from "@/services/nutritionNormalization";
+import {
+  DEFAULT_METABOLIC_PROFILE,
+  DEFAULT_NUTRITION_GOALS,
+  getLocalizedNutritionText,
+  isSchemaError,
+  normalizeActivityLevel,
+  normalizeDayArchetype,
+  normalizeGoalType,
+  normalizeLocalizedNutritionText,
+  normalizeSex,
+  sanitizeNumber,
+  type NutritionGoalOptions,
+  type NutritionGoalsLegacy,
+  type NutritionProfileLike,
+  type ResolvePlanOptions,
+  type UpsertNutritionProfileInput,
+} from "@/services/nutritionShared";
 import { supabase } from "@/services/supabaseClient";
 import {
   DailyNutritionLog,
@@ -39,34 +78,6 @@ export type {
   NutritionProfileRecord,
 };
 
-type NutritionProfileLike = {
-  birth_date?: string | null;
-  weight?: number | null;
-  height?: number | null;
-  goal_type?: string | null;
-  goal_direction?: "lose" | "gain" | "maintain" | null;
-  biological_sex?: string | null;
-  activity_level?: string | null;
-  nutrition_goal_type?: string | null;
-  day_archetype?: string | null;
-};
-
-type NutritionGoalOptions = {
-  isGuest?: boolean;
-  timeZone?: string;
-  date?: Date;
-  profile?: NutritionProfileLike | null;
-  includeArchivedProfiles?: boolean;
-  language?: "en" | "es";
-};
-
-type NutritionGoalsLegacy = {
-  calorie_goal: number;
-  protein_goal_g: number;
-  carb_goal_g: number;
-  fat_goal_g: number;
-};
-
 type NutritionEntryInsertParams = {
   userId: string | null;
   date: Date;
@@ -90,84 +101,6 @@ type NutritionEntryInsertParams = {
   timeZone?: string;
 };
 
-type UpsertNutritionProfileInput = {
-  id?: string;
-  name: string;
-  archetype: NutritionDayArchetype;
-  is_default?: boolean;
-};
-
-type ResolvePlanOptions = NutritionGoalOptions & {
-  forceProfileId?: string | null;
-  clearProfileSelection?: boolean;
-  forceDayArchetype?: NutritionDayArchetype;
-  forceCalorieOverride?: number | null;
-};
-
-const DEFAULT_NUTRITION_GOALS: NutritionGoalsLegacy = {
-  calorie_goal: 2000,
-  protein_goal_g: 150,
-  carb_goal_g: 250,
-  fat_goal_g: 70,
-};
-
-const DEFAULT_METABOLIC_PROFILE: NutritionMetabolicProfile = {
-  sex: "male",
-  age: 30,
-  weightKg: 75,
-  heightCm: 175,
-  activityLevel: "moderate",
-  goalType: "maintain",
-  dayArchetype: "base",
-  birthDate: null,
-  calorieOverride: null,
-  isCalorieOverrideEnabled: false,
-};
-
-const GUEST_NUTRITION_ENTRIES_KEY = "appfit_guest_nutrition_entries";
-const GUEST_NUTRITION_FAVORITES_KEY = "appfit_guest_nutrition_favorites";
-const GUEST_NUTRITION_GOALS_KEY = "appfit_guest_nutrition_goals";
-const GUEST_NUTRITION_PROFILES_KEY = "appfit_guest_nutrition_profiles";
-const GUEST_DAILY_LOGS_KEY = "appfit_guest_daily_nutrition_logs";
-const GUEST_DAY_ARCHETYPE_KEY = "appfit_guest_nutrition_day_archetype";
-const GUEST_DAY_OVERRIDE_KEY = "appfit_guest_nutrition_day_calorie_override";
-
-const isSchemaError = (error: unknown) => {
-  const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
-  return (
-    message.includes("schema cache") ||
-    message.includes("does not exist") ||
-    message.includes("could not find") ||
-    message.includes("column") ||
-    message.includes("relation")
-  );
-};
-
-const sanitizeNumber = (value: unknown, fallback = 0) => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : fallback;
-};
-
-const normalizeLocalizedText = (value: unknown): LocalizedNutritionText | null => {
-  if (!value || typeof value !== "object") return null;
-  const row = value as Record<string, unknown>;
-  const next: LocalizedNutritionText = {};
-  if (typeof row.en === "string" && row.en.trim()) next.en = row.en.trim();
-  if (typeof row.es === "string" && row.es.trim()) next.es = row.es.trim();
-  return Object.keys(next).length > 0 ? next : null;
-};
-
-export const getLocalizedNutritionText = (
-  value: LocalizedNutritionText | null | undefined,
-  language: "en" | "es" | undefined,
-  fallback: string | null | undefined,
-) => {
-  const preferred = language ? value?.[language]?.trim() : "";
-  if (preferred) return preferred;
-  const alternate = language === "es" ? value?.en?.trim() : value?.es?.trim();
-  if (alternate) return alternate;
-  return fallback?.trim() || "";
-};
 
 const getFoodSearchText = (row: FoodDatabaseItem) =>
   [row.food_name, row.food_name_i18n?.en, row.food_name_i18n?.es, row.category, row.category_i18n?.en, row.category_i18n?.es]
@@ -183,191 +116,6 @@ const assertPositive = (value: number, field: string) => {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`${field} must be greater than 0.`);
 };
 
-const normalizeSex = (value: string | null | undefined): "male" | "female" => {
-  const normalized = String(value ?? "").trim().toLowerCase();
-  if (["female", "f", "woman", "mujer", "femenino"].includes(normalized)) return "female";
-  return "male";
-};
-
-const normalizeActivityLevel = (value: string | null | undefined): NutritionMetabolicProfile["activityLevel"] => {
-  const normalized = String(value ?? "").trim().toLowerCase();
-  if (["low", "bajo", "sedentary"].includes(normalized)) return "low";
-  if (["moderate", "moderado", "medium"].includes(normalized)) return "moderate";
-  if (["high", "alto", "active"].includes(normalized)) return "high";
-  if (["very_high", "very high", "muy_alto", "muy alto"].includes(normalized)) return "very_high";
-  if (["hyperactive", "hiperactivo", "extreme"].includes(normalized)) return "hyperactive";
-  return "moderate";
-};
-
-const normalizeGoalType = (value: string | null | undefined): NutritionMetabolicProfile["goalType"] => {
-  const normalized = String(value ?? "").trim().toLowerCase();
-  if (["lose_slow", "lose slow", "perder peso lentamente", "slow cut", "deficit moderado"].some((item) => normalized.includes(item))) return "lose_slow";
-  if (["lose", "lose weight", "bajar", "bajar de peso", "fat loss", "cut"].some((item) => normalized.includes(item))) return "lose";
-  if (["gain_slow", "gain slow", "aumentar peso lentamente", "superavit moderado"].some((item) => normalized.includes(item))) return "gain_slow";
-  if (["gain", "build", "muscle", "bulk", "aumentar", "ganar"].some((item) => normalized.includes(item))) return "gain";
-  return "maintain";
-};
-
-const normalizeDayArchetype = (value: string | null | undefined): NutritionDayArchetype => {
-  const normalized = String(value ?? "").trim().toLowerCase();
-  if (["heavy", "pesado", "hard"].includes(normalized)) return "heavy";
-  if (["recovery", "descanso", "rest"].includes(normalized)) return "recovery";
-  return "base";
-};
-
-const normalizeEntry = (row: any): NutritionEntry => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  date_key: String(row.date_key),
-  daily_log_id: row.daily_log_id ? String(row.daily_log_id) : null,
-  meal_type: row.meal_type as NutritionMealType,
-  food_name: String(row.food_name ?? ""),
-  food_name_i18n: normalizeLocalizedText(row.food_name_i18n),
-  serving_size: sanitizeNumber(row.serving_size),
-  serving_unit: String(row.serving_unit ?? "g"),
-  calories: sanitizeNumber(row.calories),
-  protein_g: sanitizeNumber(row.protein_g),
-  carbs_g: sanitizeNumber(row.carbs_g),
-  fat_g: sanitizeNumber(row.fat_g),
-  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
-  sugar_g: row.sugar_g === null || row.sugar_g === undefined ? null : sanitizeNumber(row.sugar_g),
-  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
-  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
-  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
-  nutrient_density_score: row.nutrient_density_score === null || row.nutrient_density_score === undefined ? null : sanitizeNumber(row.nutrient_density_score),
-  notes: row.notes ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeFavorite = (row: any): FavoriteFood => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  name: String(row.name ?? ""),
-  name_i18n: normalizeLocalizedText(row.name_i18n),
-  serving_size: sanitizeNumber(row.serving_size),
-  serving_unit: String(row.serving_unit ?? "g"),
-  calories: sanitizeNumber(row.calories),
-  protein_g: sanitizeNumber(row.protein_g),
-  carbs_g: sanitizeNumber(row.carbs_g),
-  fat_g: sanitizeNumber(row.fat_g),
-  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
-  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
-  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
-  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
-  nutrient_density_score: row.nutrient_density_score === null || row.nutrient_density_score === undefined ? null : sanitizeNumber(row.nutrient_density_score),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeFoodDatabaseItem = (row: any): FoodDatabaseItem => ({
-  id: String(row.id),
-  food_name: String(row.food_name ?? ""),
-  food_name_i18n: normalizeLocalizedText(row.food_name_i18n),
-  category: String(row.category ?? "Other"),
-  category_i18n: normalizeLocalizedText(row.category_i18n),
-  serving_size: sanitizeNumber(row.serving_size, 100),
-  serving_unit: String(row.serving_unit ?? "g"),
-  calories: sanitizeNumber(row.calories),
-  protein_g: sanitizeNumber(row.protein_g),
-  carbs_g: sanitizeNumber(row.carbs_g),
-  fat_g: sanitizeNumber(row.fat_g),
-  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
-  sugar_g: row.sugar_g === null || row.sugar_g === undefined ? null : sanitizeNumber(row.sugar_g),
-  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
-  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
-  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
-  source: String(row.source ?? "USDA"),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeNutritionProfile = (row: any): NutritionProfileRecord => ({
-  id: String(row.id),
-  user_id: String(row.user_id ?? "guest"),
-  name: String(row.name ?? "Perfil"),
-  archetype: normalizeDayArchetype(row.archetype),
-  is_default: Boolean(row.is_default),
-  is_archived: Boolean(row.is_archived),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeDailyLog = (row: any): DailyNutritionLog => ({
-  id: String(row.id),
-  user_id: String(row.user_id ?? "guest"),
-  date_key: String(row.date_key),
-  nutrition_profile_id: row.nutrition_profile_id ? String(row.nutrition_profile_id) : null,
-  profile_name_snapshot: row.profile_name_snapshot ?? null,
-  archetype_snapshot: row.archetype_snapshot ? normalizeDayArchetype(row.archetype_snapshot) : null,
-  target_calories: row.target_calories === null || row.target_calories === undefined ? null : sanitizeNumber(row.target_calories),
-  target_protein_g: row.target_protein_g === null || row.target_protein_g === undefined ? null : sanitizeNumber(row.target_protein_g),
-  target_carbs_g: row.target_carbs_g === null || row.target_carbs_g === undefined ? null : sanitizeNumber(row.target_carbs_g),
-  target_fat_g: row.target_fat_g === null || row.target_fat_g === undefined ? null : sanitizeNumber(row.target_fat_g),
-  base_tdee: row.base_tdee === null || row.base_tdee === undefined ? null : sanitizeNumber(row.base_tdee),
-  weight_snapshot_kg: row.weight_snapshot_kg === null || row.weight_snapshot_kg === undefined ? null : sanitizeNumber(row.weight_snapshot_kg),
-  calorie_adjustment: row.calorie_adjustment === null || row.calorie_adjustment === undefined ? null : sanitizeNumber(row.calorie_adjustment),
-  calorie_override: row.calorie_override === null || row.calorie_override === undefined ? null : sanitizeNumber(row.calorie_override),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
-
-const parseJsonArray = <T>(key: string, normalizer: (row: any) => T): T[] => {
-  const raw = localStorage.getItem(key);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw) as any[];
-    return Array.isArray(parsed) ? parsed.map(normalizer) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveJsonArray = (key: string, rows: unknown[]) => localStorage.setItem(key, JSON.stringify(rows));
-
-const parseGuestEntries = () => parseJsonArray(GUEST_NUTRITION_ENTRIES_KEY, normalizeEntry);
-const saveGuestEntries = (rows: NutritionEntry[]) => saveJsonArray(GUEST_NUTRITION_ENTRIES_KEY, rows);
-const parseGuestFavorites = () => parseJsonArray(GUEST_NUTRITION_FAVORITES_KEY, normalizeFavorite);
-const saveGuestFavorites = (rows: FavoriteFood[]) => saveJsonArray(GUEST_NUTRITION_FAVORITES_KEY, rows);
-const parseGuestProfiles = () => parseJsonArray(GUEST_NUTRITION_PROFILES_KEY, normalizeNutritionProfile);
-const saveGuestProfiles = (rows: NutritionProfileRecord[]) => saveJsonArray(GUEST_NUTRITION_PROFILES_KEY, rows);
-const parseGuestDailyLogs = () => parseJsonArray(GUEST_DAILY_LOGS_KEY, normalizeDailyLog);
-const saveGuestDailyLogs = (rows: DailyNutritionLog[]) => saveJsonArray(GUEST_DAILY_LOGS_KEY, rows);
-const saveGuestGoals = (goals: NutritionGoalsLegacy) => localStorage.setItem(GUEST_NUTRITION_GOALS_KEY, JSON.stringify(goals));
-
-const parseGuestDayArchetypeMap = (): Record<string, NutritionDayArchetype> => {
-  const raw = localStorage.getItem(GUEST_DAY_ARCHETYPE_KEY);
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    const result: Record<string, NutritionDayArchetype> = {};
-    Object.entries(parsed || {}).forEach(([key, value]) => {
-      result[key] = normalizeDayArchetype(value);
-    });
-    return result;
-  } catch {
-    return {};
-  }
-};
-
-const saveGuestDayArchetypeMap = (value: Record<string, NutritionDayArchetype>) =>
-  localStorage.setItem(GUEST_DAY_ARCHETYPE_KEY, JSON.stringify(value));
-
-const parseGuestDayOverrideMap = (): Record<string, number> => {
-  const raw = localStorage.getItem(GUEST_DAY_OVERRIDE_KEY);
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as Record<string, number>;
-    const next: Record<string, number> = {};
-    Object.entries(parsed || {}).forEach(([key, value]) => {
-      const numeric = Number(value);
-      if (Number.isFinite(numeric) && numeric > 0) next[key] = numeric;
-    });
-    return next;
-  } catch {
-    return {};
-  }
-};
-
-const saveGuestDayOverrideMap = (value: Record<string, number>) =>
-  localStorage.setItem(GUEST_DAY_OVERRIDE_KEY, JSON.stringify(value));
 
 const aggregateTotals = (entries: NutritionEntry[]): NutritionMacroTotals => {
   const densityValues: number[] = [];
@@ -590,7 +338,7 @@ const getProfileSource = async (userId: string | null, options?: ResolvePlanOpti
     .maybeSingle();
   if (error && isSchemaError(error)) {
     const fallback = await supabase.from("profiles").select("birth_date,weight,height,goal_type,goal_direction").eq("id", userId).limit(1).maybeSingle();
-    data = fallback.data as any;
+    data = (fallback.data ?? null) as NutritionProfileLike | null;
     error = fallback.error;
   }
   if (error) throw error;
@@ -989,7 +737,7 @@ export const updateNutritionEntry = async (
   }
   if (!userId) return null;
 
-  const { data, error } = await supabase.from("nutrition_entries").update(updates as any).eq("id", id).eq("user_id", userId).select("*").single();
+  const { data, error } = await supabase.from("nutrition_entries").update(updates).eq("id", id).eq("user_id", userId).select("*").single();
   if (error) throw error;
   return normalizeEntry(data);
 };
@@ -1303,7 +1051,9 @@ export const searchFoodDatabase = async (params?: {
 export const listFoodDatabaseCategories = async (): Promise<string[]> => {
   const { data, error } = await supabase.from("food_database").select("category");
   if (error) throw error;
-  const unique = Array.from(new Set((data || []).map((row: any) => String(row.category || "").trim()).filter(Boolean)));
+  const unique = Array.from(
+    new Set((data || []).map((row: Record<string, unknown>) => String(row.category || "").trim()).filter(Boolean)),
+  );
   return unique.sort((a, b) => a.localeCompare(b));
 };
 

@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# AppFit
 
-## Project info
+AppFit is a fitness tracking single-page application built with React, TypeScript, Vite, and Supabase. The app covers authentication, onboarding, dashboard tracking, water, sleep, body metrics, nutrition, training, and profile management.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Stack
 
-## How can I edit this code?
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui + Radix UI
+- React Query
+- Supabase
+- Vitest
+- Docker + Nginx
+- Dokploy
 
-There are several ways of editing your application.
+## Local Development
 
-**Use Lovable**
+Requirements:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- Node.js 20+
+- npm
 
-Changes made via Lovable will be committed automatically to this repo.
+Install dependencies:
 
-**Use your preferred IDE**
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Start the dev server:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Build production assets:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+Run tests:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm test
+```
 
-## What technologies are used for this project?
+## Environment Variables
 
-This project is built with:
+The frontend expects these variables:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PROJECT_ID`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-## How can I deploy this project?
+Use `.env.example` as the reference template. Do not commit real secret values.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Deployment
 
-## Can I connect a custom domain to my Lovable project?
+The app is deployed as a static bundle behind Nginx using the included `Dockerfile` and `nginx.conf`.
 
-Yes, you can!
+Current deployment assumptions:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- build via Dokploy
+- SPA fallback handled by Nginx
+- Vite variables must be present at build time
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+See:
+
+- `docs/DEPLOYMENT.md`
+- `docs/COMMANDS.md`
+- `docs/SERVER_OPERATIONS.md`
+
+## Engineering Docs
+
+The repo includes agent-oriented documentation in `docs/`:
+
+- `ENGINEERING_RUNBOOK.md`
+- `ARCHITECTURE.md`
+- `DEPLOYMENT.md`
+- `COMMANDS.md`
+- `KNOWN_BUGS.md`
+- `SERVER_OPERATIONS.md`
+- `SCAN_PROJECT_REPORT.md`
+
+## Current Priorities
+
+Based on the current repo scan:
+
+1. protect secrets and repo hygiene
+2. consolidate Supabase access
+3. refactor auth and training incrementally
+4. improve test coverage on critical flows

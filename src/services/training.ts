@@ -1,6 +1,26 @@
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
 import { DAY_LABELS, DEFAULT_EXERCISE_SEEDS, DEFAULT_TEMPLATE_SEEDS } from "@/features/training/catalog";
 import { createClientId } from "@/lib/id";
+import {
+  getTrainingErrorMessage,
+  getLocalizedText,
+  MAX_NOTES_LENGTH,
+  normalizeLocalizedText,
+  validateExerciseInput,
+  validateWorkoutInput,
+} from "@/services/trainingHelpers";
+import {
+  normalizeExercise,
+  normalizeExercisePr,
+  normalizeExerciseSet,
+  normalizeSessionNote,
+  normalizeWorkout,
+  normalizeWorkoutExercise,
+  normalizeWorkoutSchedule,
+  normalizeWorkoutSession,
+} from "@/services/trainingNormalization";
+import { readGuestTrainingState, saveGuestTrainingState } from "@/services/trainingGuestState";
+import { isRpcMissingError, isSchemaError, type GuestTrainingState, type TrainingOptions } from "@/services/trainingShared";
 import { supabase } from "@/services/supabaseClient";
 import type {
   ActiveWorkoutExercise,
@@ -27,238 +47,15 @@ import type {
   WorkoutTemplateDetail,
 } from "@/types/training";
 
-type TrainingOptions = {
-  isGuest?: boolean;
-  timeZone?: string;
-  language?: "en" | "es";
-};
+export {
+  getTrainingErrorMessage,
+  getLocalizedText,
+  validateExerciseInput,
+  validateWorkoutInput,
+} from "@/services/trainingHelpers";
 
-type GuestTrainingState = {
-  customExercises: ExerciseRecord[];
-  workouts: WorkoutRecord[];
-  workoutExercises: WorkoutExerciseRecord[];
-  schedule: WorkoutScheduleRecord[];
-  sessions: WorkoutSessionRecord[];
-  sets: ExerciseSetRecord[];
-  sessionNotes: SessionExerciseNoteRecord[];
-  prs: ExercisePrRecord[];
-};
-
-const GUEST_TRAINING_KEY = "appfit_guest_training_state";
-
-const defaultGuestState = (): GuestTrainingState => ({
-  customExercises: [],
-  workouts: [],
-  workoutExercises: [],
-  schedule: [],
-  sessions: [],
-  sets: [],
-  sessionNotes: [],
-  prs: [],
-});
-
-const readGuestState = (): GuestTrainingState => {
-  const raw = localStorage.getItem(GUEST_TRAINING_KEY);
-  if (!raw) return defaultGuestState();
-  try {
-    const parsed = JSON.parse(raw) as GuestTrainingState;
-    return { ...defaultGuestState(), ...parsed };
-  } catch {
-    return defaultGuestState();
-  }
-};
-
-const saveGuestState = (state: GuestTrainingState) => {
-  localStorage.setItem(GUEST_TRAINING_KEY, JSON.stringify(state));
-};
-
-const isSchemaError = (error: unknown) => {
-  const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
-  return message.includes("schema cache") || message.includes("does not exist") || message.includes("relation") || message.includes("column");
-};
-
-const isRpcMissingError = (error: unknown) => {
-  const message = (error as { message?: string } | null)?.message?.toLowerCase() ?? "";
-  return message.includes("function") && (message.includes("does not exist") || message.includes("schema cache"));
-};
-
-const normalizeLocalizedText = (value: unknown): LocalizedText | null => {
-  if (!value || typeof value !== "object") return null;
-  const entry = value as Record<string, unknown>;
-  const normalized: LocalizedText = {};
-  if (typeof entry.en === "string" && entry.en.trim()) normalized.en = entry.en.trim();
-  if (typeof entry.es === "string" && entry.es.trim()) normalized.es = entry.es.trim();
-  return Object.keys(normalized).length > 0 ? normalized : null;
-};
-
-export const getLocalizedText = (
-  value: LocalizedText | null | undefined,
-  language: "en" | "es" | undefined,
-  fallback: string | null | undefined,
-) => {
-  const preferred = language ? value?.[language]?.trim() : "";
-  if (preferred) return preferred;
-  const alternate = language === "es" ? value?.en?.trim() : value?.es?.trim();
-  if (alternate) return alternate;
-  return fallback?.trim() || "";
-};
-
-const MAX_TEXT_LENGTH = 160;
-const MAX_NOTES_LENGTH = 1000;
-const MAX_INSTRUCTIONS_LENGTH = 4000;
-
-const validateWorkoutExerciseInput = (input: SaveWorkoutInput["exercises"][number], index: number) => {
-  if (!input.exercise_id) throw new Error(`El ejercicio ${index + 1} no es valido.`);
-  if (!Number.isInteger(input.target_sets) || input.target_sets < 1 || input.target_sets > 20) {
-    throw new Error(`Las series objetivo del ejercicio ${index + 1} deben estar entre 1 y 20.`);
-  }
-  if (!input.target_reps.trim() || input.target_reps.trim().length > 20) {
-    throw new Error(`Las repeticiones objetivo del ejercicio ${index + 1} no son validas.`);
-  }
-  if (!Number.isInteger(input.rest_seconds) || input.rest_seconds < 0 || input.rest_seconds > 1800) {
-    throw new Error(`El descanso del ejercicio ${index + 1} debe estar entre 0 y 1800 segundos.`);
-  }
-  if ((input.notes ?? "").trim().length > MAX_NOTES_LENGTH) {
-    throw new Error(`La nota del ejercicio ${index + 1} excede el maximo permitido.`);
-  }
-};
-
-export const validateWorkoutInput = (input: SaveWorkoutInput) => {
-  const name = input.name.trim();
-  if (!name) throw new Error("La rutina necesita un nombre.");
-  if (name.length > MAX_TEXT_LENGTH) throw new Error("El nombre de la rutina es demasiado largo.");
-  if ((input.description ?? "").trim().length > MAX_NOTES_LENGTH) throw new Error("La descripcion de la rutina es demasiado larga.");
-  if (input.exercises.length === 0) throw new Error("Agrega al menos un ejercicio.");
-  const seen = new Set<string>();
-  input.exercises.forEach((exercise, index) => {
-    validateWorkoutExerciseInput(exercise, index);
-    const duplicateKey = `${exercise.exercise_id}:${exercise.order_index}`;
-    if (seen.has(duplicateKey)) throw new Error("La rutina contiene ejercicios duplicados en la misma posicion.");
-    seen.add(duplicateKey);
-  });
-};
-
-export const validateExerciseInput = (input: SaveExerciseInput) => {
-  const name = input.name.trim();
-  if (!name) throw new Error("El nombre del ejercicio es obligatorio.");
-  if (name.length > MAX_TEXT_LENGTH) throw new Error("El nombre del ejercicio es demasiado largo.");
-  if ((input.secondary_muscles ?? []).some((item) => item.trim().length > 40)) {
-    throw new Error("Uno de los musculos secundarios es demasiado largo.");
-  }
-  if ((input.instructions ?? "").trim().length > MAX_INSTRUCTIONS_LENGTH) {
-    throw new Error("Las instrucciones del ejercicio son demasiado largas.");
-  }
-  if ((input.video_url ?? "").trim()) {
-    try {
-      new URL(input.video_url);
-    } catch {
-      throw new Error("La URL del video no es valida.");
-    }
-  }
-};
-
-export const getTrainingErrorMessage = (error: unknown) => {
-  if (error instanceof Error && error.message.trim()) return error.message;
-  const message = (error as { message?: string } | null)?.message;
-  if (message?.trim()) return message.trim();
-  return "No se pudo completar la accion de entrenamiento.";
-};
-
-const normalizeExercise = (row: any): ExerciseRecord => ({
-  id: String(row.id),
-  name: String(row.name ?? ""),
-  name_i18n: normalizeLocalizedText(row.name_i18n),
-  muscle_group: row.muscle_group,
-  secondary_muscles: Array.isArray(row.secondary_muscles) ? row.secondary_muscles.map(String) : [],
-  equipment: row.equipment,
-  movement_type: row.movement_type,
-  difficulty: row.difficulty,
-  instructions: row.instructions ?? null,
-  instructions_i18n: normalizeLocalizedText(row.instructions_i18n),
-  video_url: row.video_url ?? null,
-  is_custom: Boolean(row.is_custom),
-  created_by: row.created_by ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeWorkout = (row: any): WorkoutRecord => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  name: String(row.name ?? ""),
-  description: row.description ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeWorkoutExercise = (row: any): WorkoutExerciseRecord => ({
-  id: String(row.id),
-  workout_id: String(row.workout_id),
-  exercise_id: String(row.exercise_id),
-  order_index: Number(row.order_index ?? 0),
-  target_sets: Number(row.target_sets ?? 3),
-  target_reps: String(row.target_reps ?? "8-10"),
-  rest_seconds: Number(row.rest_seconds ?? 90),
-  notes: row.notes ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeWorkoutSchedule = (row: any): WorkoutScheduleRecord => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  day_of_week: Number(row.day_of_week ?? 0),
-  workout_id: row.workout_id ?? null,
-  is_rest_day: Boolean(row.is_rest_day),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeWorkoutSession = (row: any): WorkoutSessionRecord => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  workout_id: String(row.workout_id),
-  started_at: String(row.started_at ?? new Date().toISOString()),
-  ended_at: row.ended_at ?? null,
-  status: row.status,
-  notes: row.notes ?? null,
-  total_volume: Number(row.total_volume ?? 0),
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeExerciseSet = (row: any): ExerciseSetRecord => ({
-  id: String(row.id),
-  session_id: String(row.session_id),
-  exercise_id: String(row.exercise_id),
-  set_number: Number(row.set_number ?? 1),
-  weight: Number(row.weight ?? 0),
-  reps: Number(row.reps ?? 0),
-  rir: row.rir === null || row.rir === undefined ? null : Number(row.rir),
-  completed: Boolean(row.completed),
-  notes: row.notes ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeSessionNote = (row: any): SessionExerciseNoteRecord => ({
-  id: String(row.id),
-  session_id: String(row.session_id),
-  exercise_id: String(row.exercise_id),
-  notes: row.notes ?? null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
-
-const normalizeExercisePr = (row: any): ExercisePrRecord => ({
-  id: String(row.id),
-  user_id: String(row.user_id),
-  exercise_id: String(row.exercise_id),
-  pr_type: row.pr_type,
-  value_num: Number(row.value_num ?? 0),
-  achieved_at: String(row.achieved_at ?? new Date().toISOString()),
-  session_id: row.session_id ?? null,
-  set_id: row.set_id ?? null,
-  metadata: row.metadata && typeof row.metadata === "object" ? (row.metadata as Record<string, unknown>) : null,
-  created_at: String(row.created_at ?? new Date().toISOString()),
-  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
-});
+const readGuestState = readGuestTrainingState;
+const saveGuestState = saveGuestTrainingState;
 
 const round1 = (value: number) => Math.round(value * 10) / 10;
 const round2 = (value: number) => Math.round(value * 100) / 100;

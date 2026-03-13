@@ -1,0 +1,110 @@
+import {
+  normalizeDayArchetype,
+  normalizeLocalizedNutritionText,
+  sanitizeNumber,
+} from "@/services/nutritionShared";
+import type {
+  DailyNutritionLog,
+  FavoriteFood,
+  FoodDatabaseItem,
+  NutritionEntry,
+  NutritionMicronutrients,
+  NutritionProfileRecord,
+  NutritionMealType,
+} from "@/types/nutrition";
+
+type NutritionRow = Record<string, unknown>;
+
+export const normalizeEntry = (row: NutritionRow): NutritionEntry => ({
+  id: String(row.id),
+  user_id: String(row.user_id),
+  date_key: String(row.date_key),
+  daily_log_id: row.daily_log_id ? String(row.daily_log_id) : null,
+  meal_type: row.meal_type as NutritionMealType,
+  food_name: String(row.food_name ?? ""),
+  food_name_i18n: normalizeLocalizedNutritionText(row.food_name_i18n),
+  serving_size: sanitizeNumber(row.serving_size),
+  serving_unit: String(row.serving_unit ?? "g"),
+  calories: sanitizeNumber(row.calories),
+  protein_g: sanitizeNumber(row.protein_g),
+  carbs_g: sanitizeNumber(row.carbs_g),
+  fat_g: sanitizeNumber(row.fat_g),
+  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
+  sugar_g: row.sugar_g === null || row.sugar_g === undefined ? null : sanitizeNumber(row.sugar_g),
+  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
+  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
+  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
+  nutrient_density_score: row.nutrient_density_score === null || row.nutrient_density_score === undefined ? null : sanitizeNumber(row.nutrient_density_score),
+  notes: row.notes ?? null,
+  created_at: String(row.created_at ?? new Date().toISOString()),
+});
+
+export const normalizeFavorite = (row: NutritionRow): FavoriteFood => ({
+  id: String(row.id),
+  user_id: String(row.user_id),
+  name: String(row.name ?? ""),
+  name_i18n: normalizeLocalizedNutritionText(row.name_i18n),
+  serving_size: sanitizeNumber(row.serving_size),
+  serving_unit: String(row.serving_unit ?? "g"),
+  calories: sanitizeNumber(row.calories),
+  protein_g: sanitizeNumber(row.protein_g),
+  carbs_g: sanitizeNumber(row.carbs_g),
+  fat_g: sanitizeNumber(row.fat_g),
+  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
+  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
+  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
+  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
+  nutrient_density_score: row.nutrient_density_score === null || row.nutrient_density_score === undefined ? null : sanitizeNumber(row.nutrient_density_score),
+  created_at: String(row.created_at ?? new Date().toISOString()),
+});
+
+export const normalizeFoodDatabaseItem = (row: NutritionRow): FoodDatabaseItem => ({
+  id: String(row.id),
+  food_name: String(row.food_name ?? ""),
+  food_name_i18n: normalizeLocalizedNutritionText(row.food_name_i18n),
+  category: String(row.category ?? "Other"),
+  category_i18n: normalizeLocalizedNutritionText(row.category_i18n),
+  serving_size: sanitizeNumber(row.serving_size, 100),
+  serving_unit: String(row.serving_unit ?? "g"),
+  calories: sanitizeNumber(row.calories),
+  protein_g: sanitizeNumber(row.protein_g),
+  carbs_g: sanitizeNumber(row.carbs_g),
+  fat_g: sanitizeNumber(row.fat_g),
+  fiber_g: row.fiber_g === null || row.fiber_g === undefined ? null : sanitizeNumber(row.fiber_g),
+  sugar_g: row.sugar_g === null || row.sugar_g === undefined ? null : sanitizeNumber(row.sugar_g),
+  sodium_mg: row.sodium_mg === null || row.sodium_mg === undefined ? null : sanitizeNumber(row.sodium_mg),
+  potassium_mg: row.potassium_mg === null || row.potassium_mg === undefined ? null : sanitizeNumber(row.potassium_mg),
+  micronutrients: row.micronutrients && typeof row.micronutrients === "object" ? (row.micronutrients as NutritionMicronutrients) : null,
+  source: String(row.source ?? "USDA"),
+  created_at: String(row.created_at ?? new Date().toISOString()),
+});
+
+export const normalizeNutritionProfile = (row: NutritionRow): NutritionProfileRecord => ({
+  id: String(row.id),
+  user_id: String(row.user_id ?? "guest"),
+  name: String(row.name ?? "Perfil"),
+  archetype: normalizeDayArchetype(row.archetype),
+  is_default: Boolean(row.is_default),
+  is_archived: Boolean(row.is_archived),
+  created_at: String(row.created_at ?? new Date().toISOString()),
+  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
+});
+
+export const normalizeDailyLog = (row: NutritionRow): DailyNutritionLog => ({
+  id: String(row.id),
+  user_id: String(row.user_id ?? "guest"),
+  date_key: String(row.date_key),
+  nutrition_profile_id: row.nutrition_profile_id ? String(row.nutrition_profile_id) : null,
+  profile_name_snapshot: row.profile_name_snapshot ?? null,
+  archetype_snapshot: row.archetype_snapshot ? normalizeDayArchetype(row.archetype_snapshot) : null,
+  target_calories: row.target_calories === null || row.target_calories === undefined ? null : sanitizeNumber(row.target_calories),
+  target_protein_g: row.target_protein_g === null || row.target_protein_g === undefined ? null : sanitizeNumber(row.target_protein_g),
+  target_carbs_g: row.target_carbs_g === null || row.target_carbs_g === undefined ? null : sanitizeNumber(row.target_carbs_g),
+  target_fat_g: row.target_fat_g === null || row.target_fat_g === undefined ? null : sanitizeNumber(row.target_fat_g),
+  base_tdee: row.base_tdee === null || row.base_tdee === undefined ? null : sanitizeNumber(row.base_tdee),
+  weight_snapshot_kg: row.weight_snapshot_kg === null || row.weight_snapshot_kg === undefined ? null : sanitizeNumber(row.weight_snapshot_kg),
+  calorie_adjustment: row.calorie_adjustment === null || row.calorie_adjustment === undefined ? null : sanitizeNumber(row.calorie_adjustment),
+  calorie_override: row.calorie_override === null || row.calorie_override === undefined ? null : sanitizeNumber(row.calorie_override),
+  created_at: String(row.created_at ?? new Date().toISOString()),
+  updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
+});
