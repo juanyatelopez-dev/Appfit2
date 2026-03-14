@@ -1,6 +1,7 @@
 import { TrendingUp } from "lucide-react";
 
 import GuestWarningBanner from "@/components/GuestWarningBanner";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { StatsGoalSummaryCard } from "@/pages/stats/components/StatsGoalSummaryCard";
 import { StatsSummaryCards } from "@/pages/stats/components/StatsSummaryCards";
 import { StatsTrendChartsGrid } from "@/pages/stats/components/StatsTrendChartsGrid";
@@ -54,16 +55,16 @@ const Stats = () => {
   } = useStatsPageState();
 
   return (
-    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
-      {isGuest ? <GuestWarningBanner /> : null}
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        {isGuest ? <GuestWarningBanner /> : null}
 
-      <div className="flex items-center gap-3">
-        <TrendingUp className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">Progreso</h1>
-          <p className="text-sm text-muted-foreground">Analisis longitudinal, tendencias y revision semanal en un solo contexto.</p>
-        </div>
-      </div>
+        <AppPageIntro
+          eyebrow="Trend Review"
+          icon={<TrendingUp className="h-3.5 w-3.5" />}
+          title="Progreso"
+          description="Analisis longitudinal, tendencias y revision semanal en un solo contexto."
+        />
 
       <StatsGoalSummaryCard
         latestWeight={latestWeight}
@@ -126,7 +127,7 @@ const Stats = () => {
         formatChartDate={formatChartDate}
       />
 
-      <StatsWeeklyReviewCard
+        <StatsWeeklyReviewCard
         weeklyReview={weeklyReview}
         hydrationState={hydrationState}
         onHydrationStateChange={setHydrationState}
@@ -136,7 +137,8 @@ const Stats = () => {
         onWeeklyNotesChange={setWeeklyNotes}
         isPending={saveWeeklyReviewMutation.isPending}
         onSave={() => saveWeeklyReviewMutation.mutate()}
-      />
+        />
+      </div>
     </div>
   );
 };

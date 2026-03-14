@@ -13,6 +13,7 @@ import {
   saveGuestWeightGoal,
 } from "@/services/bodyMetrics";
 import ProfileCalibrationPanel from "@/components/profile/ProfileCalibrationPanel";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -243,21 +244,16 @@ const Profile = () => {
       .slice(0, 2);
 
   return (
-    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
-      <div className="space-y-3 px-1">
-        <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
-          <Flag className="h-3.5 w-3.5" />
-          Perfil Fitness
-        </div>
-        <div>
-          <h1 className="text-2xl font-black tracking-tight md:text-3xl">{fullName || (isGuest ? "Usuario invitado" : "Mi plan metabolico")}</h1>
-          <p className="app-surface-muted mt-2 text-sm">
-            Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabolicas.
-          </p>
-        </div>
-      </div>
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        <AppPageIntro
+          eyebrow="Perfil Fitness"
+          icon={<Flag className="h-3.5 w-3.5" />}
+          title={fullName || (isGuest ? "Usuario invitado" : "Mi plan metabolico")}
+          description="Configura en una sola vista tus datos base, actividad, objetivo corporal, meta de peso y metas metabolicas."
+        />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
         <Card className="app-surface-hero overflow-hidden rounded-[24px] md:rounded-[28px]">
           <CardContent className="grid gap-5 p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
             <div className="flex items-start justify-center lg:justify-start">
@@ -321,9 +317,9 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      <Card>
+        <Card>
         <CardHeader>
           <CardTitle>Configuración del plan</CardTitle>
           <CardDescription>Todo tu modelo metabólico y tus metas en una sola pantalla.</CardDescription>
@@ -428,7 +424,8 @@ const Profile = () => {
             </Button>
           </CardFooter>
         </form>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

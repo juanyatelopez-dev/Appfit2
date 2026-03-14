@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { TrainingCustomExerciseDialog } from "@/modules/training/ui/components/TrainingCustomExerciseDialog";
 import { TrainingDeleteWorkoutDialog } from "@/modules/training/ui/components/TrainingDeleteWorkoutDialog";
 import { TrainingHistorySection } from "@/modules/training/ui/components/TrainingHistorySection";
@@ -79,16 +80,14 @@ const Training = () => {
   } = useTrainingPageState();
 
   return (
-    <div className="space-y-6 py-4">
-      <div className="space-y-2 px-1">
-        <h1 className="text-2xl font-black tracking-tight md:text-3xl">{copy.title}</h1>
-        <p className="app-surface-muted max-w-2xl text-sm">{copy.subtitle}</p>
-      </div>
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        <AppPageIntro eyebrow="Training Logbook" title={copy.title} description={copy.subtitle} />
 
-      {isTrainingLoading ? <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{copy.loading}</div> : null}
-      {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {trainingErrorMessage}</div> : null}
+        {isTrainingLoading ? <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{copy.loading}</div> : null}
+        {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {trainingErrorMessage}</div> : null}
 
-      <Tabs value={tab} onValueChange={handleTabChange} className="space-y-5">
+        <Tabs value={tab} onValueChange={handleTabChange} className="space-y-5">
         <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 sm:grid-cols-3 lg:grid-cols-5">
           <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="today">{copy.tabs.today}</TabsTrigger>
           <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="routines">{copy.tabs.routines}</TabsTrigger>
@@ -188,9 +187,9 @@ const Training = () => {
             onSelectExercise={setSelectedExerciseId}
           />
         </TabsContent>
-      </Tabs>
+        </Tabs>
 
-      <TrainingWorkoutDialog
+        <TrainingWorkoutDialog
         copy={copy}
         open={workoutDialogOpen}
         editingWorkoutId={editingWorkoutId}
@@ -207,9 +206,9 @@ const Training = () => {
         onExercisePickerChange={setExercisePickerId}
         onWorkoutExercisesChange={setWorkoutExercises}
         onSave={saveWorkoutFromDraft}
-      />
+        />
 
-      <TrainingCustomExerciseDialog
+        <TrainingCustomExerciseDialog
         copy={copy}
         open={customExerciseOpen}
         form={customExerciseForm}
@@ -217,14 +216,15 @@ const Training = () => {
         onOpenChange={setCustomExerciseOpen}
         onFormChange={setCustomExerciseForm}
         onSave={() => saveCustomExerciseMutation.mutate(customExerciseForm)}
-      />
+        />
 
-      <TrainingDeleteWorkoutDialog
+        <TrainingDeleteWorkoutDialog
         copy={copy}
         workoutId={deleteWorkoutId}
         onOpenChange={(open) => !open && setDeleteWorkoutId(null)}
         onConfirm={(workoutId) => deleteWorkoutMutation.mutate(workoutId)}
-      />
+        />
+      </div>
     </div>
   );
 };

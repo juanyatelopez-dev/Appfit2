@@ -1,6 +1,7 @@
 import { CheckCircle2, ChevronLeft, ChevronRight, Droplets, FileText, HeartPulse, Moon, Scale, UtensilsCrossed } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -394,20 +395,22 @@ const Calendar = () => {
   );
 
   return (
-    <div className="container max-w-7xl space-y-5 py-6 md:space-y-6 md:py-8">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">{t("calendar.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("calendar.description")}</p>
-        </div>
-        <div className="hidden gap-2 md:flex">
-          <Button variant="outline" size="sm" onClick={() => changeMonth(-1)}><ChevronLeft className="mr-1 h-4 w-4" />{t("calendar.prevMonth")}</Button>
-          <Button variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button>
-          <Button variant="outline" size="sm" onClick={() => changeMonth(1)}>{t("calendar.nextMonth")}<ChevronRight className="ml-1 h-4 w-4" /></Button>
-        </div>
-      </div>
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        <AppPageIntro
+          eyebrow="Activity Ledger"
+          title={t("calendar.title")}
+          description={t("calendar.description")}
+          actions={(
+            <div className="hidden gap-2 md:flex">
+              <Button variant="outline" size="sm" onClick={() => changeMonth(-1)}><ChevronLeft className="mr-1 h-4 w-4" />{t("calendar.prevMonth")}</Button>
+              <Button variant="outline" size="sm" onClick={goToToday}>{t("calendar.today")}</Button>
+              <Button variant="outline" size="sm" onClick={() => changeMonth(1)}>{t("calendar.nextMonth")}<ChevronRight className="ml-1 h-4 w-4" /></Button>
+            </div>
+          )}
+        />
 
-      <div className="space-y-4 md:hidden">
+        <div className="space-y-4 md:hidden">
         {viewTabs}
         <Card>
           <CardContent className="flex items-center justify-between gap-3 pt-5">
@@ -425,13 +428,14 @@ const Calendar = () => {
         {calendarView === "agenda" ? <div className="space-y-4">{agendaPanel}{selectedDaySummaryPanel}</div> : null}
         {calendarView === "day" ? dayPanel : null}
         {calendarView === "month" ? <div className="space-y-4">{monthCalendarCard}{selectedDaySummaryPanel}</div> : null}
-      </div>
+        </div>
 
-      <div className="hidden gap-4 md:flex md:flex-col">
+        <div className="hidden gap-4 md:flex md:flex-col">
         <div className="max-w-sm">{viewTabs}</div>
         {calendarView === "agenda" ? <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.9fr]">{agendaPanel}{selectedDaySummaryPanel}</div> : null}
         {calendarView === "day" ? <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">{dayPanel}{monthCalendarCard}</div> : null}
         {calendarView === "month" ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.8fr_1fr]">{monthCalendarCard}{selectedDaySummaryPanel}</div> : null}
+        </div>
       </div>
     </div>
   );

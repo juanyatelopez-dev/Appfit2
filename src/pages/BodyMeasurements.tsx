@@ -23,6 +23,7 @@ import {
 } from "@/services/bodyMeasurements";
 import BodyMeasurementsCard from "@/components/dashboard/BodyMeasurementsCard";
 import GuestWarningBanner from "@/components/GuestWarningBanner";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -337,19 +338,19 @@ const BodyMeasurements = () => {
   };
 
   return (
-    <div className="container max-w-6xl space-y-5 py-6 md:space-y-6 md:py-8">
-      {isGuest && <GuestWarningBanner />}
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        {isGuest && <GuestWarningBanner />}
 
-      <div className="flex items-center gap-3">
-        <Ruler className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold md:text-3xl">Cuerpo</h1>
-          <p className="text-sm text-muted-foreground">Perimetros, composicion corporal estimada y comparativas de progreso.</p>
-        </div>
-      </div>
+        <AppPageIntro
+          eyebrow="Body Metrics"
+          icon={<Ruler className="h-3.5 w-3.5" />}
+          title="Cuerpo"
+          description="Perimetros, composicion corporal estimada y comparativas de progreso."
+        />
 
-      <TooltipProvider delayDuration={120}>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
+        <TooltipProvider delayDuration={120}>
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.45fr_0.95fr] xl:items-start">
           <BodyMeasurementsCard
             latest={summary.latest}
             previous={summary.previous}
@@ -362,7 +363,7 @@ const BodyMeasurements = () => {
             }
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:sticky xl:top-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:sticky xl:top-6">
             {bodyMetricCards.map((item) => (
               <Card key={item.title}>
                 <CardHeader className="pb-2">
@@ -417,11 +418,11 @@ const BodyMeasurements = () => {
                 </CardContent>
               </Card>
             ))}
+            </div>
           </div>
-        </div>
-      </TooltipProvider>
+        </TooltipProvider>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_1fr]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.25fr_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>{editingMeasurementId ? "Editar medicion" : "Nueva medicion"}</CardTitle>
@@ -522,9 +523,9 @@ const BodyMeasurements = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      <Card>
+        <Card>
         <CardHeader>
           <CardTitle>Comparacion libre</CardTitle>
           <CardDescription>Compara cualquier par de fechas guardadas y revisa el cambio por perimetro.</CardDescription>
@@ -580,9 +581,9 @@ const BodyMeasurements = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
 
-      <Card>
+        <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
             <CardTitle>Historial</CardTitle>
@@ -681,9 +682,9 @@ const BodyMeasurements = () => {
             </>
           )}
         </CardContent>
-      </Card>
+        </Card>
 
-      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar medicion</AlertDialogTitle>
@@ -696,7 +697,8 @@ const BodyMeasurements = () => {
             <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+        </AlertDialog>
+      </div>
     </div>
   );
 };

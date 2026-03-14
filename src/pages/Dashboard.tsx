@@ -17,6 +17,7 @@ import TodayMealsModule from "@/components/daily/TodayMealsModule";
 import TodayWeightModule from "@/components/daily/TodayWeightModule";
 import SleepCard from "@/components/dashboard/SleepCard";
 import WaterCard from "@/components/dashboard/WaterCard";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -440,23 +441,16 @@ const Dashboard = () => {
   const desktopColumns = useMemo(() => balanceDashboardColumns(stackCards), [stackCards]);
 
   return (
-    <div className="space-y-5 py-3 md:space-y-6 md:py-4">
-      <div className="flex flex-col gap-4 px-1 xl:flex-row xl:items-start xl:justify-between">
-        <div className="space-y-3">
-          <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
-            <Crosshair className="h-3.5 w-3.5" />
-            Daily Check-In
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
-            <p className="app-surface-muted mt-2 max-w-2xl text-sm">
-              Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
-            </p>
-          </div>
-        </div>
-        <Popover>
+    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1540px] space-y-6">
+        <AppPageIntro
+          eyebrow="Daily Check-In"
+          icon={<Crosshair className="h-3.5 w-3.5" />}
+          title="Centro operativo"
+          description="Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla."
+          actions={<Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="app-outline-button rounded-2xl self-start xl:mt-2">
+            <Button variant="outline" className="app-outline-button rounded-2xl">
               <Settings2 className="mr-2 h-4 w-4" />
               Widgets visibles
             </Button>
@@ -485,10 +479,10 @@ const Dashboard = () => {
               </div>
             </div>
           </PopoverContent>
-        </Popover>
-      </div>
+          </Popover>}
+        />
 
-      <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
+        <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
         <CardContent className={cn("grid gap-4 p-4 md:gap-6 md:p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
           <div className="space-y-4">
             {isWidgetVisible("hero_routine") ? (
@@ -696,6 +690,7 @@ const Dashboard = () => {
           </div>
         </>
       ) : null}
+      </div>
     </div>
   );
 };
