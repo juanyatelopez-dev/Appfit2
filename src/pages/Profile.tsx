@@ -14,7 +14,7 @@ import {
 } from "@/services/bodyMetrics";
 import ProfileCalibrationPanel from "@/components/profile/ProfileCalibrationPanel";
 import { AppPageIntro } from "@/components/layout/AppPageIntro";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -255,16 +255,16 @@ const Profile = () => {
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
         <Card className="app-surface-hero overflow-hidden rounded-[24px] md:rounded-[28px]">
-          <CardContent className="grid gap-5 p-6 lg:grid-cols-[auto_minmax(0,1fr)]">
-            <div className="flex items-start justify-center lg:justify-start">
-              <Avatar className="h-24 w-24">
+          <CardContent className="grid gap-6 p-6 md:p-8 lg:min-h-[15rem] lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
+            <div className="flex items-center justify-center lg:justify-start">
+              <Avatar className="h-24 w-24 md:h-28 md:w-28">
+                <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar de perfil" className="object-cover" />
                 <AvatarFallback className="app-surface-soft text-2xl">
                   {fullName ? getInitials(fullName) : <User className="h-12 w-12" />}
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="space-y-5">
-
+            <div className="space-y-6">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="app-surface-tile rounded-2xl p-4">
                   <p className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Actual</p>
@@ -283,7 +283,7 @@ const Profile = () => {
                   <p className="app-surface-heading mt-2 text-xl font-semibold">{progress === null ? "--" : `${progress.toFixed(0)}%`}</p>
                 </div>
               </div>
-              <div className="space-y-2 xl:max-w-[32rem]">
+              <div className="space-y-2 xl:max-w-[34rem]">
                 <div className="app-surface-muted flex flex-col gap-1 text-xs uppercase tracking-[0.22em] sm:flex-row sm:items-center sm:justify-between">
                   <span>Meta de peso</span>
                   <span>Restante {remaining}</span>
