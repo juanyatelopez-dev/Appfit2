@@ -441,17 +441,51 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-5 py-3 md:space-y-6 md:py-4">
-      <div className="space-y-3 px-1">
-        <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
-          <Crosshair className="h-3.5 w-3.5" />
-          Daily Check-In
+      <div className="flex flex-col gap-4 px-1 xl:flex-row xl:items-start xl:justify-between">
+        <div className="space-y-3">
+          <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
+            <Crosshair className="h-3.5 w-3.5" />
+            Daily Check-In
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
+            <p className="app-surface-muted mt-2 max-w-2xl text-sm">
+              Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
-          <p className="app-surface-muted mt-2 max-w-2xl text-sm">
-            Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
-          </p>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="app-outline-button rounded-2xl self-start xl:mt-2">
+              <Settings2 className="mr-2 h-4 w-4" />
+              Widgets visibles
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Centro operativo</p>
+              <p className="text-xs text-muted-foreground">Controla que cards aparecen en la pestaña Centro operativo.</p>
+              <div className="grid max-h-72 gap-2 overflow-auto pr-1">
+                {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
+                  const checked = selectedWidgetKeys.includes(widget.key);
+                  return (
+                    <div key={widget.key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`dashboard-widget-${widget.key}`}
+                        checked={checked}
+                        onCheckedChange={(value) => handleToggleWidget(widget.key, Boolean(value))}
+                        disabled={saveWidgetPreferencesMutation.isPending}
+                      />
+                      <Label htmlFor={`dashboard-widget-${widget.key}`} className="text-sm font-normal">
+                        {widget.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
