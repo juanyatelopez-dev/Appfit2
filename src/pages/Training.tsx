@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrainingCustomExerciseDialog } from "@/modules/training/ui/components/TrainingCustomExerciseDialog";
 import { TrainingDeleteWorkoutDialog } from "@/modules/training/ui/components/TrainingDeleteWorkoutDialog";
@@ -86,24 +85,6 @@ const Training = () => {
         <p className="app-surface-muted max-w-2xl text-sm">{copy.subtitle}</p>
       </div>
 
-      <Card className="app-surface-hero overflow-hidden border-border/60">
-        <CardContent className="grid gap-6 px-6 py-6 xl:min-h-[8.5rem] xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:items-center">
-          <div />
-          <div className="grid gap-3 sm:grid-cols-2 xl:self-start">
-            <div className="app-surface-tile rounded-2xl p-4">
-              <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.today}</div>
-              <div className="app-surface-heading mt-2 text-lg font-semibold">
-                {activeSession ? copy.activeSession : scheduledWorkout?.name ?? copy.noWorkout}
-              </div>
-            </div>
-            <div className="app-surface-tile rounded-2xl p-4">
-              <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.rest}</div>
-              <div className="app-surface-heading mt-2 text-lg font-semibold">{restRemaining}s</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {isTrainingLoading ? <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{copy.loading}</div> : null}
       {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {trainingErrorMessage}</div> : null}
 
@@ -124,6 +105,7 @@ const Training = () => {
             schedule={schedule}
             workouts={workouts}
             activeProgress={activeProgress}
+            restRemaining={restRemaining}
             finishNotes={finishNotes}
             noteDrafts={noteDrafts}
             renderPlaceholder={renderPlaceholder}

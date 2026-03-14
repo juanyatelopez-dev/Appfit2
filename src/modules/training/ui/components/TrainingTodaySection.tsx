@@ -33,6 +33,7 @@ type TrainingTodaySectionProps = {
   schedule: WorkoutScheduleDay[];
   workouts: WorkoutRecord[];
   activeProgress: ActiveProgress;
+  restRemaining: number;
   finishNotes: string;
   noteDrafts: Record<string, string>;
   renderPlaceholder: (message: string) => ReactNode;
@@ -65,6 +66,7 @@ export function TrainingTodaySection({
   schedule,
   workouts,
   activeProgress,
+  restRemaining,
   finishNotes,
   noteDrafts,
   renderPlaceholder,
@@ -270,6 +272,19 @@ export function TrainingTodaySection({
       </Card>
 
       <div className="space-y-5">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="app-surface-tile rounded-2xl p-4">
+            <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.today}</div>
+            <div className="app-surface-heading mt-2 text-lg font-semibold">
+              {activeSession ? copy.activeSession : scheduledWorkout?.name ?? copy.noWorkout}
+            </div>
+          </div>
+          <div className="app-surface-tile rounded-2xl p-4">
+            <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.rest}</div>
+            <div className="app-surface-heading mt-2 text-lg font-semibold">{restRemaining}s</div>
+          </div>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>{copy.week}</CardTitle>
