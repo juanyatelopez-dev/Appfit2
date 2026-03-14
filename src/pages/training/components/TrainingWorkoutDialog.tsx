@@ -9,9 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { MUSCLE_GROUP_LABELS } from "@/features/training/catalog";
 import { createClientId } from "@/lib/id";
 import { toNumber, type TrainingCopy } from "@/pages/training/trainingConstants";
-import type { ExerciseRecord, SaveWorkoutInput } from "@/types/training";
-
-export type WorkoutExerciseDraft = SaveWorkoutInput["exercises"][number] & { clientId: string; exercise?: ExerciseRecord };
+import type { WorkoutExerciseDraft } from "@/pages/training/types";
+import type { ExerciseRecord } from "@/types/training";
 
 type TrainingWorkoutDialogProps = {
   copy: TrainingCopy;
