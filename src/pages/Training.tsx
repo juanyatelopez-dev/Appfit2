@@ -81,12 +81,14 @@ const Training = () => {
 
   return (
     <div className="space-y-6 py-4">
+      <div className="space-y-2 px-1">
+        <h1 className="text-2xl font-black tracking-tight md:text-3xl">{copy.title}</h1>
+        <p className="app-surface-muted max-w-2xl text-sm">{copy.subtitle}</p>
+      </div>
+
       <Card className="app-surface-hero overflow-hidden border-border/60">
-        <CardContent className="grid gap-6 px-6 py-8 xl:min-h-[10.5rem] xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:items-center">
-          <div className="flex min-h-full flex-col justify-center space-y-3">
-            <h1 className="text-2xl font-black tracking-tight md:text-3xl">{copy.title}</h1>
-            <p className="app-surface-muted mt-2 max-w-2xl text-sm">{copy.subtitle}</p>
-          </div>
+        <CardContent className="grid gap-6 px-6 py-6 xl:min-h-[8.5rem] xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:items-center">
+          <div />
           <div className="grid gap-3 sm:grid-cols-2 xl:self-start">
             <div className="app-surface-tile rounded-2xl p-4">
               <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">{copy.today}</div>

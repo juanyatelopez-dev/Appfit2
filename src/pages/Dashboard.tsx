@@ -441,22 +441,24 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-5 py-3 md:space-y-6 md:py-4">
+      <div className="space-y-3 px-1">
+        <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
+          <Crosshair className="h-3.5 w-3.5" />
+          Daily Check-In
+        </div>
+        <div>
+          <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
+          <p className="app-surface-muted mt-2 max-w-2xl text-sm">
+            Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
+          </p>
+        </div>
+      </div>
+
       <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
         <CardContent className={cn("grid gap-4 p-4 md:gap-6 md:p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
           <div className="space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="space-y-3">
-                <div className="app-chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]">
-                  <Crosshair className="h-3.5 w-3.5" />
-                  Daily Check-In
-                </div>
-                <div>
-                  <h1 className="text-2xl font-black tracking-tight md:text-3xl">Centro operativo</h1>
-                  <p className="app-surface-muted mt-2 max-w-2xl text-sm">
-                    Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla. La idea es entender en segundos como vas y que deberias registrar despues.
-                  </p>
-                </div>
-              </div>
+              <div />
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="app-outline-button rounded-2xl">
