@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setAuthedProfile(cachedProfile);
             }
             const derivedFallbackCompleted = cachedProfile ? deriveOnboardingCompleted(cachedProfile) : null;
-            setOnboardingCompleted(prev => prev ?? fallbackCompleted ?? derivedFallbackCompleted ?? true);
+            setOnboardingCompleted(prev => prev ?? fallbackCompleted ?? derivedFallbackCompleted ?? false);
             if (error instanceof Error && error.message === 'Profile fetch timed out.') {
                 console.warn('Profile fetch timed out. Using cached profile fallback when available.');
             } else {

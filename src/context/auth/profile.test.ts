@@ -19,7 +19,16 @@ describe("auth profile helpers", () => {
   it("derives onboarding completion from profile state", () => {
     expect(deriveOnboardingCompleted(null)).toBe(false);
     expect(deriveOnboardingCompleted({ ...createEmptyProfile(), onboarding_completed: true })).toBe(true);
-    expect(deriveOnboardingCompleted({ ...createEmptyProfile(), full_name: "Stevan" })).toBe(true);
-    expect(deriveOnboardingCompleted(createEmptyProfile())).toBe(true);
+    expect(deriveOnboardingCompleted({ ...createEmptyProfile(), full_name: "Stevan" })).toBe(false);
+    expect(
+      deriveOnboardingCompleted({
+        ...createEmptyProfile(),
+        full_name: "Stevan",
+        weight: 80,
+        height: 180,
+        goal_type: "Maintain Weight",
+      }),
+    ).toBe(true);
+    expect(deriveOnboardingCompleted(createEmptyProfile())).toBe(false);
   });
 });

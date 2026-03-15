@@ -63,11 +63,9 @@ export const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
   if (resolvedProfile.onboarding_completed === true) return true;
 
   return Boolean(
-    resolvedProfile.full_name ||
-      resolvedProfile.weight !== null ||
-      resolvedProfile.height !== null ||
-      resolvedProfile.goal_type ||
-      resolvedProfile.nutrition_goal_type ||
-      resolvedProfile.activity_level,
+    resolvedProfile.full_name &&
+      resolvedProfile.weight !== null &&
+      resolvedProfile.height !== null &&
+      resolvedProfile.goal_type,
   );
 };

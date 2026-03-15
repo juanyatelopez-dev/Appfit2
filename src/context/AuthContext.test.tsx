@@ -176,6 +176,25 @@ describe("AuthProvider", () => {
     expect(localStorage.getItem("appfit_onboarding_completed_user-1")).toBe("true");
   });
 
+  it("keeps onboarding incomplete when profile fetch fails and there is no cache", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: { id: "user-2" },
+        },
+      },
+    });
+    mockMaybeSingle.mockRejectedValueOnce(new Error("profiles unavailable"));
+
+    renderAuthProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("loading")).toHaveTextContent("false");
+      expect(screen.getByTestId("user")).toHaveTextContent("user-2");
+      expect(screen.getByTestId("onboarding")).toHaveTextContent("false");
+    });
+  });
+
   it("resends the confirmation email with the callback redirect", async () => {
     renderAuthProvider();
 
