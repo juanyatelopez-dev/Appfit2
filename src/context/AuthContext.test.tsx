@@ -5,6 +5,7 @@ const mockGetSession = vi.fn();
 const mockOnAuthStateChange = vi.fn();
 const mockSignInWithPassword = vi.fn();
 const mockSignUp = vi.fn();
+const mockResend = vi.fn();
 const mockSignOut = vi.fn();
 const mockMaybeSingle = vi.fn();
 const mockUpdateEq = vi.fn();
@@ -29,6 +30,7 @@ vi.mock("@/services/supabaseClient", () => ({
       onAuthStateChange: (...args: unknown[]) => mockOnAuthStateChange(...args),
       signInWithPassword: (...args: unknown[]) => mockSignInWithPassword(...args),
       signUp: (...args: unknown[]) => mockSignUp(...args),
+      resend: (...args: unknown[]) => mockResend(...args),
       signOut: (...args: unknown[]) => mockSignOut(...args),
     },
     from: (...args: unknown[]) => mockFrom(...args),
@@ -58,6 +60,7 @@ function AuthHarness() {
       <button type="button" onClick={() => auth.continueAsGuest()}>continue-guest</button>
       <button type="button" onClick={() => auth.exitGuest()}>exit-guest</button>
       <button type="button" onClick={() => auth.signUp("user@test.com", "secret123")}>signup</button>
+      <button type="button" onClick={() => auth.resendConfirmationEmail("user@test.com")}>resend</button>
       <button type="button" onClick={() => auth.completeOnboarding()}>complete-onboarding</button>
     </div>
   );
@@ -78,6 +81,7 @@ describe("AuthProvider", () => {
     mockOnAuthStateChange.mockReset();
     mockSignInWithPassword.mockReset();
     mockSignUp.mockReset();
+    mockResend.mockReset();
     mockSignOut.mockReset();
     mockMaybeSingle.mockReset();
     mockUpdateEq.mockReset();
@@ -91,6 +95,7 @@ describe("AuthProvider", () => {
       },
     });
     mockSignUp.mockResolvedValue({ data: { session: null }, error: null });
+    mockResend.mockResolvedValue({ error: null });
     mockMaybeSingle.mockResolvedValue({
       data: {
         full_name: "Test User",
@@ -169,5 +174,25 @@ describe("AuthProvider", () => {
     });
 
     expect(localStorage.getItem("appfit_onboarding_completed_user-1")).toBe("true");
+  });
+
+  it("resends the confirmation email with the callback redirect", async () => {
+    renderAuthProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("loading")).toHaveTextContent("false");
+    });
+
+    fireEvent.click(screen.getByText("resend"));
+
+    await waitFor(() => {
+      expect(mockResend).toHaveBeenCalledWith({
+        type: "signup",
+        email: "user@test.com",
+        options: {
+          emailRedirectTo: "http://localhost:3000/auth/callback",
+        },
+      });
+    });
   });
 });

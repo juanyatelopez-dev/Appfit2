@@ -16,9 +16,10 @@ const Auth = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [resendingEmail, setResendingEmail] = useState(false);
     const [pendingEmailConfirmation, setPendingEmailConfirmation] = useState(false);
 
-    const { user, isGuest, signIn, signUp, continueAsGuest } = useAuth();
+    const { user, isGuest, signIn, signUp, resendConfirmationEmail, continueAsGuest } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const allowGuestAuth = Boolean((location.state as { fromGuestSwitch?: boolean } | null)?.fromGuestSwitch);
@@ -62,6 +63,24 @@ const Auth = () => {
         }
     };
 
+    const handleResendConfirmation = async () => {
+        if (!email) {
+            toast.error("Enter your email first so we know where to resend the confirmation.");
+            return;
+        }
+
+        setResendingEmail(true);
+        try {
+            await resendConfirmationEmail(email);
+            toast.success("We sent a new confirmation email.");
+        } catch (error: any) {
+            console.error("Resend confirmation error:", error);
+            toast.error(error.message || "We could not resend the confirmation email.");
+        } finally {
+            setResendingEmail(false);
+        }
+    };
+
     return (
         <div className="app-shell min-h-screen flex items-center justify-center bg-background p-4">
             <Card className="w-full max-w-md glass-card animate-in fade-in zoom-in duration-300">
@@ -93,6 +112,22 @@ const Auth = () => {
                                 <AlertDescription>
                                     Open the confirmation link we sent to your email. You will be redirected back to AppFit automatically.
                                 </AlertDescription>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="mt-3 w-full"
+                                    onClick={handleResendConfirmation}
+                                    disabled={resendingEmail}
+                                >
+                                    {resendingEmail ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Resending email...
+                                        </>
+                                    ) : (
+                                        "Resend confirmation email"
+                                    )}
+                                </Button>
                             </Alert>
                         )}
                         <div className="space-y-2">

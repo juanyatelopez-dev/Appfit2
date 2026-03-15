@@ -261,6 +261,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { requiresEmailConfirmation };
     };
 
+    const resendConfirmationEmail = async (email: string) => {
+        logFlow("Resending confirmation email...");
+        const { error } = await supabase.auth.resend({
+            type: "signup",
+            email,
+            options: {
+                emailRedirectTo: getEmailVerificationRedirectUrl(),
+            },
+        });
+
+        if (error) throw error;
+    };
+
     const signOut = async () => {
         logFlow("Signing out...");
         setIsGuest(false);
@@ -400,6 +413,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             exitGuest,
             signIn,
             signUp,
+            resendConfirmationEmail,
             signOut,
             completeOnboarding,
             refreshProfile,

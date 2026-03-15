@@ -39,6 +39,7 @@ export interface AuthContextType {
   exitGuest: () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<{ requiresEmailConfirmation: boolean }>;
+  resendConfirmationEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
   refreshProfile: () => Promise<void>;
