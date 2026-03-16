@@ -195,6 +195,35 @@ describe("AuthProvider", () => {
     });
   });
 
+  it("prioritizes explicit false onboarding state over stale cached true", async () => {
+    localStorage.setItem("appfit_onboarding_completed_user-3", "true");
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: { id: "user-3" },
+        },
+      },
+    });
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: {
+        full_name: "Legacy User",
+        weight: 82,
+        height: 178,
+        goal_type: "Maintain Weight",
+        onboarding_completed: false,
+      },
+      error: null,
+    });
+
+    renderAuthProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("loading")).toHaveTextContent("false");
+      expect(screen.getByTestId("user")).toHaveTextContent("user-3");
+      expect(screen.getByTestId("onboarding")).toHaveTextContent("false");
+    });
+  });
+
   it("resends the confirmation email with the callback redirect", async () => {
     renderAuthProvider();
 

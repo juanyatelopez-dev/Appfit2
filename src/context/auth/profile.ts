@@ -61,6 +61,7 @@ export const createEmptyProfile = (): Profile => ({
 export const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
   if (!resolvedProfile) return false;
   if (resolvedProfile.onboarding_completed === true) return true;
+  if (resolvedProfile.onboarding_completed === false) return false;
 
   return Boolean(
     resolvedProfile.full_name &&
@@ -68,4 +69,13 @@ export const deriveOnboardingCompleted = (resolvedProfile: Profile | null) => {
       resolvedProfile.height !== null &&
       resolvedProfile.goal_type,
   );
+};
+
+export const resolveOnboardingCompleted = (resolvedProfile: Profile | null, cachedCompleted: boolean | null) => {
+  if (!resolvedProfile) return cachedCompleted === true;
+
+  if (resolvedProfile.onboarding_completed === true) return true;
+  if (resolvedProfile.onboarding_completed === false) return false;
+
+  return cachedCompleted === true || deriveOnboardingCompleted(resolvedProfile);
 };

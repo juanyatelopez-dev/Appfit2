@@ -9,9 +9,10 @@ import {
 import {
     createEmptyProfile,
     createGuestProfile,
-    deriveOnboardingCompleted,
+    resolveOnboardingCompleted,
 } from '@/context/auth/profile';
 import type { AuthContextType, Profile } from '@/context/auth/types';
+import type { AccountRole } from '@/context/auth/types';
 import { getEmailVerificationRedirectUrl, withTimeout } from '@/context/auth/utils';
 import { supabase } from '@/services/supabaseClient';
 import { toast } from 'sonner';
@@ -23,15 +24,22 @@ const PROFILE_FETCH_TIMEOUT_MS = 15000;
 
 type ProfileRow = Partial<Profile> & Record<string, unknown>;
 type ProfileUpdatePayload = Partial<Profile> & { updated_at?: string };
+type UserAccountRow = {
+    account_role?: AccountRole | null;
+    onboarding_completed?: boolean | null;
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
     const [authedProfile, setAuthedProfile] = useState<Profile | null>(null);
+    const [accountRole, setAccountRole] = useState<AccountRole>("member");
     const [guestProfile, setGuestProfile] = useState<Profile>(() => createGuestProfile());
     const [isGuest, setIsGuest] = useState(() => localStorage.getItem(GUEST_STORAGE_KEY) === 'true');
     const profile = isGuest ? guestProfile : authedProfile;
+    const canAccessAdmin = accountRole === "admin_manager" || accountRole === "super_admin";
+    const canManageAdminRoles = accountRole === "super_admin";
 
     const logFlow = (message: string) => {
         if (import.meta.env.DEV) {
@@ -109,11 +117,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return nextProfile;
     };
 
+    const fetchUserAccount = async (userId: string): Promise<UserAccountRow> => {
+        const { data, error } = await supabase
+            .from("users")
+            .select("account_role,onboarding_completed")
+            .eq("id", userId)
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return {
+            account_role: (data?.account_role as AccountRole | null | undefined) ?? "member",
+            onboarding_completed: data?.onboarding_completed ?? null,
+        };
+    };
+
     const syncAuthenticatedUser = async (authUser: User) => {
         logFlow("Syncing authenticated user: " + authUser.id);
         setUser(authUser);
         setIsGuest(false);
         localStorage.removeItem(GUEST_STORAGE_KEY);
+
+        let resolvedAccount: UserAccountRow | null = null;
+        try {
+            resolvedAccount = await withTimeout(
+                fetchUserAccount(authUser.id),
+                AUTH_RESOLVE_TIMEOUT_MS,
+                "User account fetch timed out.",
+            );
+        } catch (error) {
+            console.warn("Falling back to default member role while account metadata is unavailable.", error);
+        }
+
+        setAccountRole(resolvedAccount?.account_role ?? "member");
 
         try {
             const resolvedProfile = await withTimeout(
@@ -121,9 +160,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 PROFILE_FETCH_TIMEOUT_MS,
                 'Profile fetch timed out.'
             );
-            const derivedCompleted = deriveOnboardingCompleted(resolvedProfile);
             const cachedCompleted = getCachedOnboarding(authUser.id);
-            const completed = derivedCompleted || cachedCompleted === true;
+            const profileForOnboarding =
+                typeof resolvedAccount?.onboarding_completed === "boolean"
+                    ? { ...resolvedProfile, onboarding_completed: resolvedAccount.onboarding_completed }
+                    : resolvedProfile;
+            const completed = resolveOnboardingCompleted(profileForOnboarding, cachedCompleted);
             setOnboardingCompleted(completed);
             setCachedOnboarding(authUser.id, completed);
         } catch (error) {
@@ -132,8 +174,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (cachedProfile) {
                 setAuthedProfile(cachedProfile);
             }
-            const derivedFallbackCompleted = cachedProfile ? deriveOnboardingCompleted(cachedProfile) : null;
-            setOnboardingCompleted(prev => prev ?? fallbackCompleted ?? derivedFallbackCompleted ?? false);
+            const resolvedFallbackCompleted = cachedProfile
+                ? resolveOnboardingCompleted(
+                    typeof resolvedAccount?.onboarding_completed === "boolean"
+                        ? { ...cachedProfile, onboarding_completed: resolvedAccount.onboarding_completed }
+                        : cachedProfile,
+                    fallbackCompleted,
+                )
+                : fallbackCompleted === true;
+            setOnboardingCompleted(prev => prev ?? resolvedFallbackCompleted);
             if (error instanceof Error && error.message === 'Profile fetch timed out.') {
                 console.warn('Profile fetch timed out. Using cached profile fallback when available.');
             } else {
@@ -167,6 +216,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     logFlow("No initial session detected.");
                     setUser(null);
                     setAuthedProfile(null);
+                    setAccountRole("member");
                     setGuestProfile(createGuestProfile());
                     setOnboardingCompleted(isGuest ? true : false);
                 }
@@ -175,6 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (isMounted) {
                     setUser(null);
                     setAuthedProfile(null);
+                    setAccountRole("member");
                     setGuestProfile(createGuestProfile());
                     setOnboardingCompleted(isGuest ? true : false);
                 }
@@ -199,6 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     } else if (localStorage.getItem(GUEST_STORAGE_KEY) !== 'true') {
                         setUser(null);
                         setAuthedProfile(null);
+                        setAccountRole("member");
                         setOnboardingCompleted(false);
                     }
                 } catch (error) {
@@ -206,6 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     if (localStorage.getItem(GUEST_STORAGE_KEY) !== 'true') {
                         setUser(null);
                         setAuthedProfile(null);
+                        setAccountRole("member");
                         setOnboardingCompleted(false);
                     }
                 } finally {
@@ -218,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setAuthedProfile(null);
+                setAccountRole("member");
                 setGuestProfile(createGuestProfile());
                 setOnboardingCompleted(false);
                 setIsGuest(false);
@@ -280,6 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem(GUEST_STORAGE_KEY);
         setUser(null);
         setAuthedProfile(null);
+        setAccountRole("member");
         setGuestProfile(createGuestProfile());
         setOnboardingCompleted(false);
 
@@ -293,6 +348,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(GUEST_STORAGE_KEY, 'true');
         setUser(null);
         setAuthedProfile(null);
+        setAccountRole("member");
         setOnboardingCompleted(true);
         setGuestProfile(createGuestProfile());
     };
@@ -301,6 +357,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsGuest(false);
         localStorage.removeItem(GUEST_STORAGE_KEY);
         setGuestProfile(createGuestProfile());
+        setAccountRole("member");
         setOnboardingCompleted(false);
     };
 
@@ -308,13 +365,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!user || isGuest) return;
         logFlow("Completing onboarding...");
         try {
-            const { error } = await supabase
+            const profileUpdate = await supabase
                 .from("profiles")
                 .update({ onboarding_completed: true })
                 .eq("id", user.id);
 
-            if (error && !error.message?.includes("onboarding_completed")) {
-                throw error;
+            if (profileUpdate.error && !profileUpdate.error.message?.includes("onboarding_completed")) {
+                throw profileUpdate.error;
+            }
+
+            const accountUpdate = await supabase
+                .from("users")
+                .update({ onboarding_completed: true })
+                .eq("id", user.id);
+
+            if (accountUpdate.error && !accountUpdate.error.message?.includes("onboarding_completed")) {
+                throw accountUpdate.error;
             }
         } catch (error) {
             console.warn("Could not persist onboarding_completed in profiles, using local cache fallback.", error);
@@ -395,6 +461,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (typeof data.onboarding_completed === "boolean" && user?.id) {
+            const accountUpdate = await supabase
+                .from("users")
+                .update({ onboarding_completed: data.onboarding_completed })
+                .eq("id", user.id);
+            if (accountUpdate.error) {
+                console.warn("Could not persist onboarding_completed in users, continuing with profile state.", accountUpdate.error);
+            }
             setCachedOnboarding(user.id, data.onboarding_completed);
             setOnboardingCompleted(data.onboarding_completed);
         }
@@ -408,6 +481,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             loading,
             onboardingCompleted,
             profile,
+            accountRole,
+            canAccessAdmin,
+            canManageAdminRoles,
             isGuest,
             continueAsGuest,
             exitGuest,

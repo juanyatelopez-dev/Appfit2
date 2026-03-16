@@ -706,16 +706,19 @@ export type Database = {
       }
       users: {
         Row: {
+          account_role: string
           created_at: string | null
           id: string
           onboarding_completed: boolean | null
         }
         Insert: {
+          account_role?: string
           created_at?: string | null
           id: string
           onboarding_completed?: boolean | null
         }
         Update: {
+          account_role?: string
           created_at?: string | null
           id?: string
           onboarding_completed?: boolean | null
@@ -916,7 +919,57 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_account_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_admin_dashboard_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_users: number
+          body_measurements_entries: number
+          body_metrics_entries: number
+          completed_onboarding_users: number
+          nutrition_entries: number
+          nutrition_profiles: number
+          onboarding_inconsistent: number
+          total_users: number
+          users_without_activity: number
+          users_without_profile: number
+        }[]
+      }
+      get_admin_role_change_audit: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string | null
+          id: string
+          next_role: string
+          previous_role: string
+          target_email: string | null
+          target_user_id: string
+        }[]
+      }
+      get_admin_user_directory: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_role: string
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          onboarding_completed: boolean | null
+          user_id: string
+        }[]
+      }
+      set_user_account_role: {
+        Args: {
+          next_role: string
+          target_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

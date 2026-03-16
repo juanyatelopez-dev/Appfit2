@@ -7,6 +7,7 @@ import {
   Plus,
   Ruler,
   Settings,
+  ShieldCheck,
   Target,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +28,7 @@ import {
 
 const DashboardHeader = () => {
   const { language, t } = usePreferences();
-  const { signOut, isGuest, exitGuest } = useAuth();
+  const { signOut, isGuest, exitGuest, canAccessAdmin } = useAuth();
   const navigate = useNavigate();
   const today = new Date();
 
@@ -41,6 +42,10 @@ const DashboardHeader = () => {
     { label: t("nav.fitnessProfile"), path: "/fitness-profile", icon: Target },
     { label: t("nav.settings"), path: "/settings", icon: Settings },
   ];
+
+  if (canAccessAdmin) {
+    mobileNavItems.unshift({ label: "Admin", path: "/admin", icon: ShieldCheck });
+  }
 
   const handleAuthAction = async () => {
     try {

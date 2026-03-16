@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, Dumbbell, Home, Settings, Target, UtensilsCrossed, Ruler } from "lucide-react";
+import { BarChart3, CalendarDays, Dumbbell, Home, Settings, ShieldCheck, Target, UtensilsCrossed, Ruler } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 
 const Sidebar = () => {
-  const { profile, user, isGuest } = useAuth();
+  const { profile, user, isGuest, canAccessAdmin } = useAuth();
   const { t } = usePreferences();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -23,6 +23,10 @@ const Sidebar = () => {
     { title: t("nav.fitnessProfile"), icon: Target, path: "/fitness-profile" },
     { title: t("nav.settings"), icon: Settings, path: "/settings" },
   ];
+
+  if (canAccessAdmin) {
+    menuItems.push({ title: "Admin", icon: ShieldCheck, path: "/admin" });
+  }
 
   const displayName = isGuest ? t("sidebar.guest") : profile?.full_name?.trim() || user?.email || t("sidebar.user");
   const heightLabel = profile?.height ? `${profile.height} cm` : "--";

@@ -1,7 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "@/layouts/MainLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+import RequireAccountRole from "@/routes/RequireAccountRole";
 import RequireOnboarding from "@/routes/RequireOnboarding";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminUsers from "@/pages/AdminUsers";
 import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
 import Profile from "@/pages/Profile";
@@ -32,6 +36,13 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/onboarding" element={<Onboarding />} />
+
+        <Route element={<RequireAccountRole allowedRoles={["admin_manager", "super_admin"]} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+          </Route>
+        </Route>
 
         <Route element={<RequireOnboarding />}>
           <Route element={<MainLayout />}>

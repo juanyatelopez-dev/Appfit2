@@ -1,5 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 
+export type AccountRole = "member" | "admin_manager" | "super_admin";
+
 export interface Profile {
   full_name: string | null;
   birth_date: string | null;
@@ -34,6 +36,9 @@ export interface AuthContextType {
   loading: boolean;
   onboardingCompleted: boolean | null;
   profile: Profile | null;
+  accountRole: AccountRole;
+  canAccessAdmin: boolean;
+  canManageAdminRoles: boolean;
   isGuest: boolean;
   continueAsGuest: () => void;
   exitGuest: () => void;
