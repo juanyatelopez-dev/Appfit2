@@ -1,4 +1,4 @@
-import { BarChart3, ShieldCheck, Users } from "lucide-react";
+import { Activity, BarChart3, ShieldCheck, Users } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 const adminNavItems = [
   { label: "Resumen", path: "/admin", icon: BarChart3, exact: true },
   { label: "Usuarios", path: "/admin/users", icon: Users },
+  { label: "Uso", path: "/admin/usage", icon: Activity },
 ];
 
 const AdminLayout = () => {

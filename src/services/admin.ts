@@ -22,6 +22,9 @@ export type AdminUserDirectoryRow = {
   onboarding_completed: boolean | null;
   avatar_url: string | null;
   created_at: string | null;
+  missing_profile: boolean;
+  onboarding_inconsistent: boolean;
+  without_activity: boolean;
 };
 
 export type AdminRoleAuditRow = {
@@ -33,6 +36,21 @@ export type AdminRoleAuditRow = {
   previous_role: AccountRole;
   next_role: AccountRole;
   created_at: string | null;
+};
+
+export type AdminPanelUsageRow = {
+  panel_key: string;
+  feature_area: string;
+  route: string;
+  total_views: number;
+  unique_users: number;
+  last_viewed_at: string | null;
+};
+
+export type AdminUsageDailyRow = {
+  event_date: string;
+  total_views: number;
+  unique_users: number;
 };
 
 const normalizeMetrics = (row: Partial<AdminDashboardMetrics> | null | undefined): AdminDashboardMetrics => ({
@@ -57,7 +75,7 @@ export async function getAdminDashboardMetrics() {
 }
 
 export async function getAdminUserDirectory() {
-  const { data, error } = await supabase.rpc("get_admin_user_directory");
+  const { data, error } = await supabase.rpc("get_admin_user_directory_detailed");
 
   if (error) throw error;
 
@@ -69,6 +87,9 @@ export async function getAdminUserDirectory() {
     onboarding_completed: row.onboarding_completed ?? null,
     avatar_url: row.avatar_url ?? null,
     created_at: row.created_at ?? null,
+    missing_profile: Boolean(row.missing_profile),
+    onboarding_inconsistent: Boolean(row.onboarding_inconsistent),
+    without_activity: Boolean(row.without_activity),
   }));
 }
 
@@ -95,5 +116,36 @@ export async function getAdminRoleChangeAudit() {
     previous_role: (row.previous_role as AccountRole | undefined) ?? "member",
     next_role: (row.next_role as AccountRole | undefined) ?? "member",
     created_at: row.created_at ?? null,
+  }));
+}
+
+export async function getAdminPanelUsage(days = 30) {
+  const { data, error } = await supabase.rpc("get_admin_panel_usage", {
+    p_days: days,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as Partial<AdminPanelUsageRow>[]).map((row) => ({
+    panel_key: row.panel_key ?? "unknown-panel",
+    feature_area: row.feature_area ?? "workspace",
+    route: row.route ?? "/",
+    total_views: Number(row.total_views ?? 0),
+    unique_users: Number(row.unique_users ?? 0),
+    last_viewed_at: row.last_viewed_at ?? null,
+  }));
+}
+
+export async function getAdminUsageDaily(days = 14) {
+  const { data, error } = await supabase.rpc("get_admin_usage_daily", {
+    p_days: days,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as Partial<AdminUsageDailyRow>[]).map((row) => ({
+    event_date: row.event_date ?? "",
+    total_views: Number(row.total_views ?? 0),
+    unique_users: Number(row.unique_users ?? 0),
   }));
 }

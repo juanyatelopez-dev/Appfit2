@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, BarChart3, ClipboardList, ShieldCheck, UserCheck, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,20 +22,24 @@ const signalCards = [
     key: "users_without_profile",
     title: "Usuarios sin perfil",
     description: "Detecta cuentas creadas que no tienen fila en public.profiles.",
+    filter: "missing_profile",
   },
   {
     key: "onboarding_inconsistent",
     title: "Onboarding inconsistente",
     description: "Diferencias entre public.users y public.profiles que deben revisarse.",
+    filter: "onboarding_inconsistent",
   },
   {
     key: "users_without_activity",
     title: "Usuarios sin actividad",
-    description: "Cuentas que aún no generan datos relevantes en la app.",
+    description: "Cuentas que aun no generan datos relevantes en la app.",
+    filter: "without_activity",
   },
 ];
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const metricsQuery = useQuery({
     queryKey: ["admin_dashboard_metrics"],
     queryFn: getAdminDashboardMetrics,
@@ -82,7 +87,7 @@ const AdminDashboard = () => {
       <Card className="rounded-3xl border-border/60">
         <CardHeader>
           <CardTitle>Salud operativa del prototipo</CardTitle>
-          <CardDescription>Lectura rápida para decidir si el producto ya está listo para pruebas controladas.</CardDescription>
+          <CardDescription>Lectura rapida para decidir si el producto ya esta listo para pruebas controladas.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
@@ -105,7 +110,7 @@ const AdminDashboard = () => {
 
       <Card className="rounded-3xl border-border/60">
         <CardHeader>
-          <CardTitle>Señales operativas</CardTitle>
+          <CardTitle>Senales operativas</CardTitle>
           <CardDescription>Controles para detectar problemas funcionales del prototipo antes de una demo o piloto.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
@@ -116,7 +121,16 @@ const AdminDashboard = () => {
             return (
               <div
                 key={signal.key}
-                className={`rounded-2xl border p-4 ${
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/admin/users?signal=${signal.filter}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/admin/users?signal=${signal.filter}`);
+                  }
+                }}
+                className={`cursor-pointer rounded-2xl border p-4 transition-transform hover:-translate-y-0.5 ${
                   isHealthy ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"
                 }`}
               >

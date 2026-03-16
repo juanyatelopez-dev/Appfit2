@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { PreferencesProvider } from "@/context/PreferencesContext";
 import AppRoutes from "@/routes/AppRoutes";
 import RouteIndicator from "@/components/RouteIndicator";
+import PanelUsageTracker from "@/components/PanelUsageTracker";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => {
             <TooltipProvider>
               <Toaster />
               <Sonner />
+              <PanelUsageTracker />
               <AppRoutes />
               <RouteIndicator />
             </TooltipProvider>

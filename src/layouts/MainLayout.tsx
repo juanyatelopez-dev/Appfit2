@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import DashboardHeader from "@/components/Header";
+import NotificationBanner from "@/components/NotificationBanner";
 import { Outlet, useLocation } from "react-router-dom";
 import GuestWarningBanner from "@/components/GuestWarningBanner";
 import { useAuth } from "@/context/AuthContext";
@@ -45,11 +46,12 @@ const MainLayout = () => {
         <Sidebar />
       </div>
 
-      <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:ml-64">
-        <DashboardHeader />
-        {isGuest && <GuestWarningBanner />}
+        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:ml-64">
+          <DashboardHeader />
+          {isGuest && <GuestWarningBanner />}
+          {!isGuest && <NotificationBanner />}
 
-        <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[10px] pt-5 pb-28 md:p-8 md:pb-8">
+          <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[10px] pt-5 pb-28 md:p-8 md:pb-8">
           <Outlet />
         </main>
         <MobileBottomNav />

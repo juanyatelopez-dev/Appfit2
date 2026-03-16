@@ -951,6 +951,37 @@ export type Database = {
           target_user_id: string
         }[]
       }
+      get_admin_notification_audit: {
+        Args: {
+          p_limit?: number
+        }
+        Returns: {
+          action_path: string | null
+          created_at: string | null
+          id: string
+          notification_kind: string
+          read_at: string | null
+          sender_email: string | null
+          sender_user_id: string | null
+          severity: string
+          target_email: string | null
+          target_user_id: string
+          title: string
+        }[]
+      }
+      get_admin_panel_usage: {
+        Args: {
+          p_days?: number
+        }
+        Returns: {
+          feature_area: string
+          last_viewed_at: string | null
+          panel_key: string
+          route: string
+          total_views: number
+          unique_users: number
+        }[]
+      }
       get_admin_user_directory: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -963,10 +994,88 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_admin_user_directory_detailed: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_role: string
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          missing_profile: boolean
+          onboarding_completed: boolean | null
+          onboarding_inconsistent: boolean
+          user_id: string
+          without_activity: boolean
+        }[]
+      }
+      get_admin_usage_daily: {
+        Args: {
+          p_days?: number
+        }
+        Returns: {
+          event_date: string
+          total_views: number
+          unique_users: number
+        }[]
+      }
+      list_my_notifications: {
+        Args: {
+          p_limit?: number
+        }
+        Returns: {
+          action_label: string | null
+          action_path: string | null
+          body: string
+          created_at: string | null
+          id: string
+          metadata: Json
+          notification_kind: string
+          read_at: string | null
+          sender_email: string | null
+          sender_user_id: string | null
+          severity: string
+          title: string
+        }[]
+      }
+      mark_all_my_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      mark_my_notification_read: {
+        Args: {
+          p_notification_id: string
+        }
+        Returns: undefined
+      }
+      send_admin_notification: {
+        Args: {
+          p_action_label?: string
+          p_action_path?: string
+          p_body: string
+          p_metadata?: Json
+          p_notification_kind: string
+          p_severity?: string
+          p_target_user_id: string
+          p_title: string
+        }
+        Returns: string
+      }
       set_user_account_role: {
         Args: {
           next_role: string
           target_user_id: string
+        }
+        Returns: undefined
+      }
+      track_panel_event: {
+        Args: {
+          p_event_name?: string
+          p_feature_area: string
+          p_metadata?: Json
+          p_panel_key: string
+          p_route: string
+          p_session_id: string
         }
         Returns: undefined
       }

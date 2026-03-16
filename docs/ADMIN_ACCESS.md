@@ -12,6 +12,7 @@ Rutas nuevas:
 
 - `/admin`
 - `/admin/users`
+- `/admin/usage`
 
 El acceso esta protegido por el guard `RequireAccountRole`.
 
@@ -25,13 +26,37 @@ Ese script:
 
 - agrega `account_role` a `public.users`
 - rellena filas faltantes para usuarios existentes
-- expone RPCs seguras para metricas y directorio de usuarios
+- expone RPCs seguras para metricas, directorio detallado y uso de paneles
+- crea la tabla `public.product_panel_events` para trazabilidad de paneles
+
+Sistema de notificaciones:
+
+- ejecutar `supabase_notifications.sql`
+- habilita recordatorios internos enviados por admins
+- conecta el icono de campana con un inbox persistente dentro de la app
 
 ## RPCs usadas por el frontend
 
 - `get_admin_dashboard_metrics`
 - `get_admin_user_directory`
+- `get_admin_user_directory_detailed`
+- `get_admin_panel_usage`
+- `get_admin_usage_daily`
 - `set_user_account_role`
+- `track_panel_event`
+- `send_admin_notification`
+- `list_my_notifications`
+- `mark_my_notification_read`
+- `mark_all_my_notifications_read`
+- `get_admin_notification_audit`
+
+## Senales por usuario
+
+La vista de usuarios ahora muestra tres senales operativas por cuenta:
+
+- `Sin perfil`: existe en `public.users` pero no en `public.profiles`
+- `Onboarding inconsistente`: `public.users.onboarding_completed` no coincide con `public.profiles.onboarding_completed`
+- `Sin actividad`: no tiene registros en nutricion, peso ni medidas corporales
 
 ## Recomendacion operativa
 

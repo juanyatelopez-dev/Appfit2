@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  Bell,
   CalendarDays,
   LogOut,
   Menu,
@@ -16,6 +15,7 @@ import { toast } from "sonner";
 import { usePreferences } from "@/context/PreferencesContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import NotificationCenter from "@/components/NotificationCenter";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
@@ -151,10 +151,9 @@ const DashboardHeader = () => {
             <DropdownMenuItem onSelect={() => navigate("/today#nutrition")}>Agregar comida</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <button className="relative hidden h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground md:flex">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
-        </button>
+        <div className="flex">
+          <NotificationCenter />
+        </div>
         <button
           className="hidden h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground md:flex"
           onClick={handleAuthAction}

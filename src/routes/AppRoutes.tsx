@@ -6,6 +6,7 @@ import RequireAccountRole from "@/routes/RequireAccountRole";
 import RequireOnboarding from "@/routes/RequireOnboarding";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUsers from "@/pages/AdminUsers";
+import AdminUsage from "@/pages/AdminUsage";
 import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
 import Profile from "@/pages/Profile";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/usage" element={<AdminUsage />} />
           </Route>
         </Route>
 
