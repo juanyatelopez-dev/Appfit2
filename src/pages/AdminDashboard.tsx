@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAdminDashboardMetrics } from "@/services/admin";
+import { adminQueryDefaults, getAdminDashboardMetrics } from "@/services/admin";
 
 const metricCards = [
   { key: "total_users", title: "Usuarios totales", icon: Users, description: "Cuentas creadas en la plataforma." },
@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const metricsQuery = useQuery({
     queryKey: ["admin_dashboard_metrics"],
     queryFn: getAdminDashboardMetrics,
+    ...adminQueryDefaults,
   });
 
   const completionRate = useMemo(() => {

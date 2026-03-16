@@ -1,6 +1,13 @@
 import { supabase } from "@/services/supabaseClient";
 import type { AccountRole } from "@/context/auth/types";
 
+export const adminQueryDefaults = {
+  staleTime: 60_000,
+  gcTime: 10 * 60_000,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: true,
+} as const;
+
 export type AdminDashboardMetrics = {
   total_users: number;
   completed_onboarding_users: number;

@@ -22,7 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/context/AuthContext";
 import type { AccountRole } from "@/context/auth/types";
-import { getAdminRoleChangeAudit, getAdminUserDirectory, updateUserAccountRole } from "@/services/admin";
+import { adminQueryDefaults, getAdminRoleChangeAudit, getAdminUserDirectory, updateUserAccountRole } from "@/services/admin";
 import { getAdminNotificationAudit, reminderTemplates, sendAdminReminder, type NotificationKind } from "@/services/notifications";
 
 const roleMeta: Record<AccountRole, { label: string; variant: "default" | "secondary" | "outline" }> = {
@@ -65,16 +65,19 @@ const AdminUsers = () => {
   const usersQuery = useQuery({
     queryKey: ["admin_user_directory"],
     queryFn: getAdminUserDirectory,
+    ...adminQueryDefaults,
   });
 
   const auditQuery = useQuery({
     queryKey: ["admin_role_change_audit"],
     queryFn: getAdminRoleChangeAudit,
+    ...adminQueryDefaults,
   });
 
   const notificationAuditQuery = useQuery({
     queryKey: ["admin_notification_audit"],
     queryFn: () => getAdminNotificationAudit(20),
+    ...adminQueryDefaults,
   });
 
   const updateRoleMutation = useMutation({

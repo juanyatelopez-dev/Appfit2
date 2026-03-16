@@ -7,17 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getAdminPanelUsage, getAdminUsageDaily } from "@/services/admin";
+import { adminQueryDefaults, getAdminPanelUsage, getAdminUsageDaily } from "@/services/admin";
 
 const AdminUsage = () => {
   const panelUsageQuery = useQuery({
     queryKey: ["admin_panel_usage", 30],
     queryFn: () => getAdminPanelUsage(30),
+    ...adminQueryDefaults,
   });
 
   const dailyUsageQuery = useQuery({
     queryKey: ["admin_usage_daily", 14],
     queryFn: () => getAdminUsageDaily(14),
+    ...adminQueryDefaults,
   });
 
   const usageSummary = useMemo(() => {
