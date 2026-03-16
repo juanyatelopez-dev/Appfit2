@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getErrorMessage } from "@/lib/errors";
 import {
   DASHBOARD_TREND_METRIC_DEFINITIONS,
   DEFAULT_DASHBOARD_TREND_METRICS,
@@ -64,7 +65,7 @@ const TrendChart = ({ title, color, data, dataKey }: { title: string; color: str
           <XAxis dataKey="label" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
           <YAxis hide domain={["auto", "auto"]} />
           <Tooltip
-            formatter={(value: any) => formatMetricValue(dataKey, typeof value === "number" ? value : Number(value))}
+            formatter={(value: number | string) => formatMetricValue(dataKey, typeof value === "number" ? value : Number(value))}
             labelFormatter={(label) => `Dia ${label}`}
           />
           <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={false} connectNulls />
@@ -94,8 +95,8 @@ const WeeklyTrendsCard = ({ loading = false, data }: Props) => {
       queryClient.setQueryData(preferencesKey, saved);
       toast.success("Metricas de tendencias actualizadas.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudieron guardar las metricas.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudieron guardar las metricas."));
     },
   });
 

@@ -42,6 +42,7 @@ import {
   getDashboardHomeWidgetPreferences,
   saveDashboardHomeWidgetPreferences,
 } from "@/services/dashboardHomePreferences";
+import { getErrorMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 
 type DashboardStackCard = {
@@ -96,7 +97,7 @@ const Dashboard = () => {
   const snapshot = useDashboardSnapshot(currentMonth);
   const [visibleModuleKey, setVisibleModuleKey] = useState<string | null>(null);
   const [isModuleTransitioning, setIsModuleTransitioning] = useState(false);
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
   const saveNoteMutation = useMutation({
     mutationFn: (payload: { title?: string | null; content: string }) => snapshot.saveTodayNote(payload),
@@ -107,8 +108,8 @@ const Dashboard = () => {
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar la nota.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar la nota."));
     },
   });
 
@@ -182,7 +183,8 @@ const Dashboard = () => {
   }, [nextModule, visibleModuleKey]);
 
   const visibleModule = missingModules.find((module) => module.key === visibleModuleKey) ?? nextModule;
-  const isWidgetVisible = (widgetKey: DashboardHomeWidgetKey) => widgetKey === "hero_modules" || selectedWidgetKeys.includes(widgetKey);
+  const visibleWidgetKeySet = useMemo(() => new Set<DashboardHomeWidgetKey>(selectedWidgetKeys), [selectedWidgetKeys]);
+  const isWidgetVisible = (widgetKey: DashboardHomeWidgetKey) => widgetKey === "hero_modules" || visibleWidgetKeySet.has(widgetKey);
 
   const saveModulePreferencesMutation = useMutation({
     mutationFn: (next: DashboardCheckinModuleKey[]) => saveDashboardCheckinModulePreferences(user?.id ?? null, next, { isGuest }),
@@ -190,8 +192,8 @@ const Dashboard = () => {
       queryClient.setQueryData(modulePreferencesKey, saved);
       toast.success("Modulos del check-in actualizados.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudieron guardar los modulos.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudieron guardar los modulos."));
     },
   });
   const saveWidgetPreferencesMutation = useMutation({
@@ -200,8 +202,8 @@ const Dashboard = () => {
       queryClient.setQueryData(widgetPreferencesKey, saved);
       toast.success("Widgets del dashboard actualizados.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudieron guardar los widgets.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudieron guardar los widgets."));
     },
   });
 
@@ -227,26 +229,33 @@ const Dashboard = () => {
     saveWidgetPreferencesMutation.mutate(next);
   };
 
-  const nutritionSummary = core?.nutritionToday
-    ? {
-        profileName: core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
-        archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
-        targetCalories: core.nutritionToday.goals.calorie_goal,
-        consumedCalories: core.nutritionToday.totals.calories,
-        proteinGoal: core.nutritionToday.goals.protein_goal_g,
-        carbsGoal: core.nutritionToday.goals.carb_goal_g,
-        fatGoal: core.nutritionToday.goals.fat_goal_g,
-      }
-    : null;
+  const nutritionSummary = useMemo(
+    () =>
+      core?.nutritionToday
+        ? {
+            profileName:
+              core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
+            archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
+            targetCalories: core.nutritionToday.goals.calorie_goal,
+            consumedCalories: core.nutritionToday.totals.calories,
+            proteinGoal: core.nutritionToday.goals.protein_goal_g,
+            carbsGoal: core.nutritionToday.goals.carb_goal_g,
+            fatGoal: core.nutritionToday.goals.fat_goal_g,
+          }
+        : null,
+    [core?.nutritionToday],
+  );
   const visibleRightCards = useMemo(
-    () => [isWidgetVisible("hero_recovery"), isWidgetVisible("hero_focus")].some(Boolean),
-    [selectedWidgetKeys],
+    () => visibleWidgetKeySet.has("hero_recovery") || visibleWidgetKeySet.has("hero_focus"),
+    [visibleWidgetKeySet],
   );
   const visibleStatusRow = isWidgetVisible("status_row");
   const stackCards = useMemo(() => {
     const cards: DashboardStackCard[] = [];
+    const widgetIsVisible = (widgetKey: DashboardHomeWidgetKey) =>
+      widgetKey === "hero_modules" || visibleWidgetKeySet.has(widgetKey);
 
-    if (isWidgetVisible("physical_progress")) {
+    if (widgetIsVisible("physical_progress")) {
       cards.push({
         key: "physical_progress",
         weight: 5,
@@ -256,7 +265,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("quick_actions")) {
+    if (widgetIsVisible("quick_actions")) {
       cards.push({
         key: "quick_actions",
         weight: 4,
@@ -266,7 +275,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("nutrition")) {
+    if (widgetIsVisible("nutrition")) {
       cards.push({
         key: "nutrition",
         weight: 8,
@@ -280,7 +289,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("water")) {
+    if (widgetIsVisible("water")) {
       cards.push({
         key: "water",
         weight: 5,
@@ -294,7 +303,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("weight")) {
+    if (widgetIsVisible("weight")) {
       cards.push({
         key: "weight",
         weight: 4,
@@ -308,7 +317,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("sleep")) {
+    if (widgetIsVisible("sleep")) {
       cards.push({
         key: "sleep",
         weight: 4,
@@ -322,7 +331,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("biofeedback")) {
+    if (widgetIsVisible("biofeedback")) {
       cards.push({
         key: "biofeedback",
         weight: 5,
@@ -336,7 +345,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("body_measurements")) {
+    if (widgetIsVisible("body_measurements")) {
       cards.push({
         key: "body_measurements",
         weight: 6,
@@ -355,7 +364,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("notes")) {
+    if (widgetIsVisible("notes")) {
       cards.push({
         key: "notes",
         weight: 5,
@@ -372,7 +381,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("recovery_card")) {
+    if (widgetIsVisible("recovery_card")) {
       cards.push({
         key: "recovery_card",
         weight: 5,
@@ -397,7 +406,7 @@ const Dashboard = () => {
       });
     }
 
-    if (isWidgetVisible("calendar")) {
+    if (widgetIsVisible("calendar")) {
       cards.push({
         key: "calendar",
         weight: 5,
@@ -421,7 +430,6 @@ const Dashboard = () => {
     core?.latestMeasurementWeight,
     core?.noteLatest,
     core?.noteToday,
-    core?.nutritionToday,
     core?.physicalSummary,
     core?.previousMeasurement,
     core?.recovery.drivers,
@@ -430,7 +438,7 @@ const Dashboard = () => {
     core?.recovery.subscores,
     core?.waistComparison,
     currentMonth,
-    isWidgetVisible,
+    visibleWidgetKeySet,
     nextActionLabel,
     nutritionSummary,
     saveNoteMutation,

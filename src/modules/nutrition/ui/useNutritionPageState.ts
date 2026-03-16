@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
 import { NUTRITION_ARCHETYPE_META } from "@/features/nutrition/nutritionProfiles";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
+import { getErrorMessage } from "@/lib/errors";
 import { MEAL_SECTIONS, type AddMode } from "@/modules/nutrition/ui/nutritionConstants";
 import {
   addNutritionEntry,
@@ -40,7 +41,7 @@ export function useNutritionPageState() {
   const { language } = usePreferences();
   const userId = user?.id ?? null;
   const queryEnabled = Boolean(userId) || isGuest;
-  const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
     profile?.birth_date ?? "",
     profile?.weight ?? "",
@@ -98,7 +99,7 @@ export function useNutritionPageState() {
 
   const summaryQuery = useQuery({
     queryKey: ["nutrition_day_summary", userId, todayKey, isGuest, timeZone, metabolicProfileKey],
-    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile: profile as any }),
+    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile }),
     enabled: queryEnabled,
   });
 
@@ -160,13 +161,13 @@ export function useNutritionPageState() {
       setMealDialogOpen(false);
       await invalidateNutrition();
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo guardar la comida."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo guardar la comida.")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteNutritionEntry(id, userId, { isGuest }),
     onSuccess: invalidateNutrition,
-    onError: (error: any) => toast.error(error?.message || "No se pudo eliminar la comida."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo eliminar la comida.")),
   });
 
   const saveFavoriteMutation = useMutation({
@@ -192,12 +193,12 @@ export function useNutritionPageState() {
 
   const profileSelectionMutation = useMutation({
     mutationFn: (profileId: string | null) =>
-      setNutritionProfileForDate(userId, selectedDate, profileId, { isGuest, timeZone, profile: profile as any }),
+      setNutritionProfileForDate(userId, selectedDate, profileId, { isGuest, timeZone, profile }),
     onSuccess: async () => {
       await invalidateNutrition();
       toast.success("Perfil del dia actualizado.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo actualizar el perfil del dia."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo actualizar el perfil del dia.")),
   });
 
   const saveProfileMutation = useMutation({
@@ -221,7 +222,7 @@ export function useNutritionPageState() {
       await invalidateNutrition();
       toast.success("Perfil nutricional guardado.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo guardar el perfil."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo guardar el perfil.")),
   });
 
   const archiveProfileMutation = useMutation({
@@ -230,7 +231,7 @@ export function useNutritionPageState() {
       await invalidateNutrition();
       toast.success("Perfil archivado.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo archivar el perfil."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo archivar el perfil.")),
   });
 
   const deleteProfileMutation = useMutation({
@@ -239,7 +240,7 @@ export function useNutritionPageState() {
       await invalidateNutrition();
       toast.success(result.archived ? "El perfil se archivo para proteger el historial." : "Perfil eliminado.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo eliminar el perfil."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo eliminar el perfil.")),
   });
 
   const defaultProfileMutation = useMutation({
@@ -248,7 +249,7 @@ export function useNutritionPageState() {
       await invalidateNutrition();
       toast.success("Perfil marcado como predeterminado.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo marcar el perfil predeterminado."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo marcar el perfil predeterminado.")),
   });
 
   const daySummary = summaryQuery.data;

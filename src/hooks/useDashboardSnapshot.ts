@@ -21,13 +21,14 @@ import { getGoalProgress, getUserGoal } from "@/services/goals";
 import { getSleepDay, getSleepGoal, getSleepRangeTotals } from "@/services/sleep";
 import { getWaterDayTotal, getWaterGoal, getWaterRangeTotals } from "@/services/waterIntake";
 import { computeRecoveryScore } from "@/utils/dashboard";
+import type { DailyBiofeedback } from "@/services/dailyBiofeedback";
 
 const formatDateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
 export const useDashboardSnapshot = (currentMonth: Date) => {
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
     profile?.weight ?? "",
     profile?.height ?? "",
@@ -155,7 +156,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
         getBiofeedbackRange(userId, sevenDaysAgo, today, { isGuest, timeZone }),
         listDailyNotesByRange(userId, sevenDaysAgo, today, { isGuest, timeZone }),
         listBodyMeasurements(userId, { isGuest }),
-        getNutritionDaySummary(userId, today, { isGuest, timeZone, profile: profile as any }).catch(() => null),
+        getNutritionDaySummary(userId, today, { isGuest, timeZone, profile }).catch(() => null),
         getDailyNote(userId, today, { isGuest, timeZone }),
         getLatestDailyNote(userId, { isGuest }),
       ]);
@@ -246,7 +247,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
     const weightRows = coreQuery.data?.weightSnapshot?.entries ?? [];
     const weightMap = new Map<string, number>();
     weightRows.forEach((row) => weightMap.set(row.measured_at, Number(row.weight_kg)));
-    const bioMap = new Map<string, any>();
+    const bioMap = new Map<string, DailyBiofeedback>();
     (coreQuery.data?.bio7d ?? []).forEach((row) => bioMap.set(row.date_key, row));
     const notesMap = new Set((coreQuery.data?.notes7d ?? []).map((row) => row.date_key));
     const measurementMap = new Map<string, { waistCm: number | null; bodyFatPct: number | null }>();

@@ -21,6 +21,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
+
+type BiologicalSex = "male" | "female";
+type ActivityLevel = "low" | "moderate" | "high" | "very_high" | "hyperactive";
+type NutritionGoalType = "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain";
 
 const formatNumber = (n: number | null) => (n === null ? "--" : `${n.toFixed(1)} kg`);
 
@@ -32,9 +37,9 @@ const Profile = () => {
   const [birthDate, setBirthDate] = useState("");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
-  const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
-  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
-  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
+  const [biologicalSex, setBiologicalSex] = useState<BiologicalSex>("male");
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>("moderate");
+  const [nutritionGoalType, setNutritionGoalType] = useState<NutritionGoalType>("maintain");
   const [targetWeight, setTargetWeight] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [goalDirection, setGoalDirection] = useState<GoalDirection>("lose");
@@ -76,17 +81,17 @@ const Profile = () => {
     setBirthDate(profile.birth_date || "");
     setWeight(profile.weight?.toString() || "");
     setHeight(profile.height?.toString() || "");
-    setBiologicalSex((profile.biological_sex as "male" | "female" | null) ?? "male");
-    setActivityLevel((profile.activity_level as "low" | "moderate" | "high" | "very_high" | "hyperactive" | null) ?? "moderate");
-    setNutritionGoalType((profile.nutrition_goal_type as "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain" | null) ?? "maintain");
+    setBiologicalSex(profile.biological_sex ?? "male");
+    setActivityLevel(profile.activity_level ?? "moderate");
+    setNutritionGoalType(profile.nutrition_goal_type ?? "maintain");
     setTargetWeight(profile.target_weight_kg ? String(profile.target_weight_kg) : "");
     setTargetDate(profile.target_date || "");
     setGoalDirection((profile.goal_direction as GoalDirection | null) ?? "lose");
     setSleepGoalMinutes(profile.sleep_goal_minutes?.toString() || "480");
-    setCalorieGoal((profile as any).calorie_goal?.toString() || "2000");
-    setProteinGoal((profile as any).protein_goal_g?.toString() || "150");
-    setCarbGoal((profile as any).carb_goal_g?.toString() || "250");
-    setFatGoal((profile as any).fat_goal_g?.toString() || "70");
+    setCalorieGoal(profile.calorie_goal?.toString() || "2000");
+    setProteinGoal(profile.protein_goal_g?.toString() || "150");
+    setCarbGoal(profile.carb_goal_g?.toString() || "250");
+    setFatGoal(profile.fat_goal_g?.toString() || "70");
   }, [profile]);
 
   const selectedGoal = useMemo(() => GOAL_OPTIONS.find((option) => option.value === nutritionGoalType), [nutritionGoalType]);
@@ -189,7 +194,7 @@ const Profile = () => {
 
     setIsSaving(true);
     try {
-      const payload = {
+      const payload: Parameters<typeof updateProfile>[0] = {
         full_name: fullName,
         birth_date: birthDate || null,
         weight: parsedWeight,
@@ -207,7 +212,7 @@ const Profile = () => {
         protein_goal_g: parsedProteinGoal,
         carb_goal_g: parsedCarbGoal,
         fat_goal_g: parsedFatGoal,
-      } as any;
+      };
 
       await updateProfile(payload);
 
@@ -227,8 +232,8 @@ const Profile = () => {
       } else {
         toast.success("Perfil fitness actualizado.");
       }
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo actualizar el perfil fitness.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo actualizar el perfil fitness."));
     } finally {
       setIsSaving(false);
     }

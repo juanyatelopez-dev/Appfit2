@@ -229,7 +229,7 @@ const AdminUsers = () => {
     },
   });
 
-  const directoryRows = usersQuery.data ?? [];
+  const directoryRows = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
 
   const signalSummary = useMemo(
     () => ({

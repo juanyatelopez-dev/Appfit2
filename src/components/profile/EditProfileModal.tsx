@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Activity, Scale, Ruler, Target } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getErrorMessage } from "@/lib/errors";
 
 interface EditProfileModalProps {
   open: boolean;
@@ -33,6 +34,30 @@ interface EditProfileModalProps {
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange }) => {
   const { profile, updateProfile, updateAvatar, isGuest } = useAuth();
   const queryClient = useQueryClient();
+  const updateProfilePayload = useMemo<Parameters<typeof updateProfile>[0]>(
+    () => ({
+      full_name: fullName,
+      birth_date: birthDate || null,
+      weight: weight ? Number(weight) : null,
+      height: height ? Number(height) : null,
+      biological_sex: biologicalSex,
+      activity_level: activityLevel,
+      nutrition_goal_type: nutritionGoalType,
+      goal_type: selectedGoal?.legacyGoalTypeLabel ?? "Maintain Weight",
+      avatar_url: profile?.avatar_url ?? null,
+    }),
+    [
+      activityLevel,
+      biologicalSex,
+      birthDate,
+      fullName,
+      height,
+      nutritionGoalType,
+      profile?.avatar_url,
+      selectedGoal?.legacyGoalTypeLabel,
+      weight,
+    ],
+  );
   const [fullName, setFullName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [weight, setWeight] = useState("");
@@ -135,16 +160,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
       }
 
       await updateProfile({
-        full_name: fullName,
-        birth_date: birthDate || null,
+        ...updateProfilePayload,
         weight: parsedWeight,
         height: parsedHeight,
-        biological_sex: biologicalSex,
-        activity_level: activityLevel,
-        nutrition_goal_type: nutritionGoalType,
-        goal_type: selectedGoal?.legacyGoalTypeLabel ?? "Maintain Weight",
         avatar_url: nextAvatarUrl,
-      } as any);
+      });
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
@@ -162,8 +182,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
         toast.success("Perfil actualizado correctamente");
       }
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo actualizar el perfil");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo actualizar el perfil"));
     } finally {
       setIsSaving(false);
     }

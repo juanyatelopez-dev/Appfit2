@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/errors";
 
 type HydrationState = "dry" | "retention" | "variable";
 type TrainingPerformance = "better" | "same" | "worse";
@@ -31,7 +32,7 @@ const WeeklyReview = () => {
   const { user, isGuest, profile } = useAuth();
   const queryClient = useQueryClient();
 
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const weekStartDate = useMemo(() => startOfWeek(new Date(), { weekStartsOn: 1 }), []);
   const weekKey = toDateKey(weekStartDate);
 
@@ -84,8 +85,8 @@ const WeeklyReview = () => {
         queryClient.invalidateQueries({ queryKey: ["stats"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar la revision semanal.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar la revision semanal."));
     },
   });
 

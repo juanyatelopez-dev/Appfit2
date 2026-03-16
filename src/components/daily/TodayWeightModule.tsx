@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClientId } from "@/lib/id";
+import { getErrorMessage } from "@/lib/errors";
 
 const todayDateKey = () => new Date().toISOString().slice(0, 10);
 
@@ -92,8 +93,8 @@ const TodayWeightModule = () => {
       await invalidateWeightQueries();
       toast.success(todayEntry ? "Peso de hoy actualizado." : "Peso de hoy registrado.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar el peso.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar el peso."));
     },
   });
 

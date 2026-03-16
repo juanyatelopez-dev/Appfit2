@@ -26,6 +26,7 @@ import {
 } from "@/services/dailyMetricTasks";
 import { getSleepRangeTotals } from "@/services/sleep";
 import { getWaterRangeTotals } from "@/services/waterIntake";
+import { getErrorMessage } from "@/lib/errors";
 
 type DashboardCore = {
   waterTodayMl: number;
@@ -54,7 +55,7 @@ const DailyMetricsTodoCard = ({ core }: { core: DashboardCore | null | undefined
   const queryClient = useQueryClient();
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
-  const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
   const todayKey = getDateKeyForTimezone(today, timeZone);
   const preferencesKey = ["dashboard", "metric_task_preferences", userId, isGuest] as const;
@@ -150,8 +151,8 @@ const DailyMetricsTodoCard = ({ core }: { core: DashboardCore | null | undefined
       queryClient.setQueryData(preferencesKey, saved);
       toast.success("Tareas del To-Do actualizadas.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudieron guardar las tareas.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudieron guardar las tareas."));
     },
   });
 

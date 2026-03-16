@@ -10,15 +10,15 @@ import { Progress } from "@/components/ui/progress";
 import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
 import { getNutritionDaySummary } from "@/modules/nutrition/services";
 
-const NutritionCard = () => {
+  const NutritionCard = () => {
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
-  const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
 
   const dayQuery = useQuery({
     queryKey: ["nutrition_day_summary", userId, "dashboard_today", isGuest, timeZone],
-    queryFn: () => getNutritionDaySummary(userId, today, { isGuest, timeZone, profile: profile as any }).catch(() => null),
+    queryFn: () => getNutritionDaySummary(userId, today, { isGuest, timeZone, profile }).catch(() => null),
     enabled: Boolean(userId) || isGuest,
   });
 

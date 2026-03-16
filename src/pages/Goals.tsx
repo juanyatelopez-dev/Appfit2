@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
 
 const formatNumber = (n: number | null) => (n === null ? "--" : `${n.toFixed(1)} kg`);
 
@@ -98,8 +99,8 @@ const Goals = () => {
       } else {
         toast.success("Meta de peso guardada.");
       }
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo guardar la meta.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo guardar la meta."));
     }
   };
 

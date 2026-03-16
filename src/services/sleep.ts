@@ -13,6 +13,11 @@ export type SleepLog = {
   created_at: string;
 };
 
+type SleepTotalRow = {
+  date_key: string;
+  total_minutes: number;
+};
+
 type AddSleepInput = {
   userId: string | null;
   date: Date;
@@ -163,7 +168,7 @@ export const getSleepRangeTotals = async (
       .lte("date_key", toKey)
       .order("date_key", { ascending: true });
     if (error) throw error;
-    (data || []).forEach((row: any) => {
+    ((data || []) as SleepTotalRow[]).forEach((row) => {
       map.set(row.date_key, (map.get(row.date_key) ?? 0) + Number(row.total_minutes || 0));
     });
   }
@@ -253,4 +258,3 @@ export const listRecentSleepLogs = async (
   if (error) throw error;
   return (data || []) as SleepLog[];
 };
-

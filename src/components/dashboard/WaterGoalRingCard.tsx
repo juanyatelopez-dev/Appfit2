@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
 
 type WaterGoalRingCardProps = {
   waterMl: number;
@@ -24,7 +25,7 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 const WaterGoalRingCard = ({ waterMl, goalMl, loading = false }: WaterGoalRingCardProps) => {
   const queryClient = useQueryClient();
   const { user, isGuest, profile } = useAuth();
-  const timeZone = (profile as { timezone?: string } | null)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const [customOpen, setCustomOpen] = useState(false);
   const [customValue, setCustomValue] = useState("");
   const [customUnit, setCustomUnit] = useState<"ml" | "l">("ml");
@@ -54,8 +55,8 @@ const WaterGoalRingCard = ({ waterMl, goalMl, loading = false }: WaterGoalRingCa
         queryClient.invalidateQueries({ queryKey: ["water_logs_day"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo registrar el agua.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo registrar el agua."));
     },
   });
 

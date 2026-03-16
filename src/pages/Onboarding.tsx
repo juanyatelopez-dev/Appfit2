@@ -10,6 +10,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
+
+type BiologicalSex = "male" | "female";
+type ActivityLevel = "low" | "moderate" | "high" | "very_high" | "hyperactive";
+type NutritionGoalType = "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain";
 
 const calculateAge = (birthDate: string) => {
   const parsed = new Date(`${birthDate}T00:00:00`);
@@ -33,9 +38,9 @@ const Onboarding = () => {
   const [birthDate, setBirthDate] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [heightCm, setHeightCm] = useState("");
-  const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
-  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
-  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
+  const [biologicalSex, setBiologicalSex] = useState<BiologicalSex>("male");
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>("moderate");
+  const [nutritionGoalType, setNutritionGoalType] = useState<NutritionGoalType>("maintain");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -45,9 +50,9 @@ const Onboarding = () => {
     setBirthDate(profile.birth_date ?? "");
     setWeightKg(profile.weight !== null && profile.weight !== undefined ? String(profile.weight) : "");
     setHeightCm(profile.height !== null && profile.height !== undefined ? String(profile.height) : "");
-    setBiologicalSex((profile.biological_sex as "male" | "female" | null) ?? "male");
-    setActivityLevel((profile.activity_level as "low" | "moderate" | "high" | "very_high" | "hyperactive" | null) ?? "moderate");
-    setNutritionGoalType((profile.nutrition_goal_type as "lose" | "lose_slow" | "maintain" | "gain_slow" | "gain" | null) ?? "maintain");
+    setBiologicalSex(profile.biological_sex ?? "male");
+    setActivityLevel(profile.activity_level ?? "moderate");
+    setNutritionGoalType(profile.nutrition_goal_type ?? "maintain");
   }, [profile]);
 
   const selectedActivity = useMemo(() => ACTIVITY_OPTIONS.find((option) => option.value === activityLevel), [activityLevel]);
@@ -84,7 +89,7 @@ const Onboarding = () => {
 
     setIsSaving(true);
     try {
-      await updateProfile({
+      const profileUpdate: Parameters<typeof updateProfile>[0] = {
         full_name: fullName.trim(),
         birth_date: birthDate || null,
         weight: parsedWeight,
@@ -93,7 +98,9 @@ const Onboarding = () => {
         activity_level: activityLevel,
         nutrition_goal_type: nutritionGoalType,
         goal_type: selectedGoal?.legacyGoalTypeLabel ?? "Maintain Weight",
-      } as any);
+      };
+
+      await updateProfile(profileUpdate);
 
       if (!isGuest) {
         await completeOnboarding();
@@ -109,8 +116,8 @@ const Onboarding = () => {
 
       toast.success("Onboarding completado.");
       navigate("/today", { replace: true });
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo completar el onboarding.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo completar el onboarding."));
     } finally {
       setIsSaving(false);
     }

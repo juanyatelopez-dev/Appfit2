@@ -41,7 +41,7 @@ const percent = (value: number, total: number) => {
 const TremorAnalyticsPanel = ({ trends, core }: Props) => {
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
     profile?.weight ?? "",
     profile?.height ?? "",
@@ -69,7 +69,7 @@ const TremorAnalyticsPanel = ({ trends, core }: Props) => {
           days: [],
           averages: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
         })),
-        getNutritionGoals(userId, { isGuest, profile: profile as any }).catch(() => ({
+        getNutritionGoals(userId, { isGuest, profile }).catch(() => ({
           calorie_goal: 2000,
           protein_goal_g: 150,
           carb_goal_g: 250,

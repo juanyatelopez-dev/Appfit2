@@ -27,9 +27,13 @@ export type WaterPreset = {
   created_at: string;
 };
 
-type WaterGoalRecord = {
+export type WaterGoalRecord = {
   water_goal_ml: number;
   water_quick_options_ml: number[];
+};
+
+type WaterConsumedRow = {
+  consumed_ml: number;
 };
 
 type AddWaterInput = {
@@ -162,7 +166,7 @@ export const getWaterDayTotal = async (
     .eq("date_key", dateKey);
 
   if (error) throw error;
-  return (data || []).reduce((acc, row: any) => acc + Number(row.consumed_ml || 0), 0);
+  return ((data || []) as WaterConsumedRow[]).reduce((acc, row) => acc + Number(row.consumed_ml || 0), 0);
 };
 
 export const getWaterRangeTotals = async (

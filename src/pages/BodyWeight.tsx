@@ -37,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getErrorMessage } from "@/lib/errors";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -200,8 +201,8 @@ const BodyWeight = () => {
 
       toast.success("Registro de peso guardado.");
       resetForm();
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo guardar el registro de peso.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo guardar el registro de peso."));
     }
   };
 
@@ -235,8 +236,8 @@ const BodyWeight = () => {
         await deleteMutation.mutateAsync(deleteTarget.id);
       }
       toast.success("Registro de peso eliminado.");
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo eliminar el registro de peso.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo eliminar el registro de peso."));
     } finally {
       setDeleteTarget(null);
     }

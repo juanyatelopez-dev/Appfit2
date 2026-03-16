@@ -16,7 +16,7 @@ export const useDashboardData = () => {
   // Aggregates dashboard data in parallel so cards can render independently.
   const { user, isGuest, profile } = useAuth();
   const userId = user?.id ?? null;
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
   const dayKey = getDateKeyForTimezone(today, timeZone);
 

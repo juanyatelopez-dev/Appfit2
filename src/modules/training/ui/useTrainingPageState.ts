@@ -114,7 +114,7 @@ export function useTrainingPageState() {
   const today = todayQuery.data;
   const activeSession = today?.activeSession ?? null;
   const scheduledWorkout = today?.scheduledWorkout ?? null;
-  const exerciseLibrary = exercisesQuery.data ?? [];
+  const exerciseLibrary = useMemo(() => exercisesQuery.data ?? [], [exercisesQuery.data]);
   const trainingQueries = [workoutsQuery, templatesQuery, scheduleQuery, todayQuery, exercisesQuery, historyQuery];
   const isTrainingLoading = trainingQueries.some((query) => query.isLoading);
   const trainingError = trainingQueries.find((query) => query.error)?.error ?? null;

@@ -26,6 +26,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 const DashboardHeader = () => {
   const { language, t } = usePreferences();
   const { signOut, isGuest, exitGuest, canAccessAdmin } = useAuth();
@@ -57,8 +60,8 @@ const DashboardHeader = () => {
 
       await signOut();
       navigate("/auth", { replace: true });
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo cerrar sesion.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo cerrar sesion."));
     }
   };
 

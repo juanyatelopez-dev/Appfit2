@@ -42,6 +42,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getErrorMessage } from "@/lib/errors";
 
 const toDateKey = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -100,8 +101,7 @@ const BodyMeasurements = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; dateKey: string } | null>(null);
   const [activeMobileInfoCard, setActiveMobileInfoCard] = useState<string | null>(null);
 
-  const timeZone = (profile as { timezone?: string; weight?: number | null; height?: number | null; goal_direction?: string | null } | null)
-    ?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const selectedDate = useMemo(() => new Date(`${dateKey}T12:00:00`), [dateKey]);
 
   const { data: measurementRows = [], isLoading } = useQuery({
@@ -240,10 +240,7 @@ const BodyMeasurements = () => {
         timeZone,
         profileHeightCm: profile?.height ?? null,
         profileWeightKg: profile?.weight ?? null,
-        biologicalSex: ((profile as { biological_sex?: "male" | "female" | null } | null)?.biological_sex as
-          | "male"
-          | "female"
-          | null) ?? null,
+        biologicalSex: profile?.biological_sex ?? null,
       }),
     onSuccess: async () => {
       await Promise.all([
@@ -304,8 +301,8 @@ const BodyMeasurements = () => {
 
       toast.success(editingMeasurementId ? "Medicion actualizada." : "Medicion guardada.");
       resetForm();
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo guardar la medicion.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo guardar la medicion."));
     }
   };
 
@@ -330,8 +327,8 @@ const BodyMeasurements = () => {
       if (editingMeasurementId === deleteTarget.id) {
         resetForm();
       }
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo eliminar la medicion.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo eliminar la medicion."));
     } finally {
       setDeleteTarget(null);
     }

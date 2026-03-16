@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getErrorMessage } from "@/lib/errors";
 
 const toLiters = (ml: number) => `${(ml / 1000).toFixed(1)} L`;
 
@@ -45,7 +46,7 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
   const { user, isGuest, profile } = useAuth();
   const queryClient = useQueryClient();
 
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
   const dayKey = useMemo(() => getDateKeyForTimezone(today, timeZone), [timeZone, today]);
 
@@ -103,10 +104,10 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
       queryClient.setQueryData<number>(key, previous + consumedMl);
       return { previous };
     },
-    onError: (error: any, _consumedMl, context) => {
+    onError: (error: unknown, _consumedMl, context) => {
       const key = ["water_day_total", user?.id, dayKey] as const;
       queryClient.setQueryData<number>(key, context?.previous ?? 0);
-      toast.error(error?.message || "No se pudo agregar el registro de agua.");
+      toast.error(getErrorMessage(error, "No se pudo agregar el registro de agua."));
     },
     onSuccess: (_log) => {
       queryClient.invalidateQueries({ queryKey: ["water_day_total", user?.id, dayKey] });
@@ -146,15 +147,18 @@ const WaterCard = ({ showHistoryButton = true }: WaterCardProps) => {
   const updateGoalMutation = useMutation({
     mutationFn: (goalMl: number) => updateWaterGoal(user?.id ?? null, goalMl, { isGuest }),
     onSuccess: (goalMl) => {
-      queryClient.setQueryData(["water_goal", user?.id], (prev: any) => ({
-        water_goal_ml: goalMl,
-        water_quick_options_ml: prev?.water_quick_options_ml ?? DEFAULT_WATER_PRESETS_ML,
-      }));
+      queryClient.setQueryData<{ water_goal_ml: number; water_quick_options_ml: number[] } | undefined>(
+        ["water_goal", user?.id],
+        (prev) => ({
+          water_goal_ml: goalMl,
+          water_quick_options_ml: prev?.water_quick_options_ml ?? DEFAULT_WATER_PRESETS_ML,
+        }),
+      );
       queryClient.invalidateQueries({ queryKey: ["water_week_summary", user?.id, dayKey] });
       queryClient.invalidateQueries({ queryKey: ["dashboard_snapshot"] });
       toast.success("Meta de agua actualizada.");
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo actualizar la meta."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo actualizar la meta.")),
   });
 
   const createPresetMutation = useMutation({

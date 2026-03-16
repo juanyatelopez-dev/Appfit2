@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
 import { DEFAULT_WATER_TIMEZONE, getDateKeyForTimezone } from "@/features/water/waterUtils";
-import { getGuestBodyMetrics, listBodyMetricsByRange } from "@/services/bodyMetrics";
+import { getGuestBodyMetrics, listBodyMetricsByRange, type BodyMetricEntry } from "@/services/bodyMetrics";
 import { getBiofeedbackRange, getDailyBiofeedback } from "@/services/dailyBiofeedback";
 import { getDailyNote, listDailyNotesByRange, upsertDailyNote } from "@/services/dailyNotes";
 import { getNutritionDaySummary, getNutritionRangeSummary } from "@/modules/nutrition/services";
 import { getSleepDay, getSleepGoal, getSleepRangeTotals, type SleepLog } from "@/services/sleep";
 import { getWaterGoal, getWaterLogsByDate, getWaterRangeTotals, type WaterLog } from "@/services/waterIntake";
+import { getErrorMessage } from "@/lib/errors";
 
 export type CalendarDayData = {
   dateKey: string;
@@ -95,7 +96,7 @@ export function useCalendarPageState() {
   const [now, setNow] = useState(() => new Date());
   const timelineScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const timezone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timezone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const todayKey = getDateKeyForTimezone(new Date(), timezone);
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -132,13 +133,14 @@ export function useCalendarPageState() {
       const sleepMap = new Map(sleepTotals.map((row) => [row.date_key, Number(row.total_minutes || 0)]));
       const bioMap = new Map(bioRows.map((row) => [row.date_key, true]));
       const noteMap = new Map(noteRows.map((row) => [row.date_key, true]));
-      const nutritionMap = new Map((nutritionRange as any).days.map((row: any) => [row.date_key, Number(row.calories || 0)]));
-      const weightMap = new Map<string, number>();
+        const nutritionDays = nutritionRange?.days ?? [];
+        const nutritionMap = new Map(nutritionDays.map((row) => [row.date_key, Number(row.calories || 0)]));
+        const weightMap = new Map<string, number>();
 
-      weightEntries.forEach((entry: any) => {
-        if (entry.measured_at >= formatDateKey(gridStart) && entry.measured_at <= formatDateKey(gridEnd)) {
-          weightMap.set(entry.measured_at, Number(entry.weight_kg));
-        }
+        weightEntries.forEach((entry: BodyMetricEntry) => {
+          if (entry.measured_at >= formatDateKey(gridStart) && entry.measured_at <= formatDateKey(gridEnd)) {
+            weightMap.set(entry.measured_at, Number(entry.weight_kg));
+          }
       });
 
       const daily = new Map<string, CalendarDayData>();
@@ -199,7 +201,7 @@ export function useCalendarPageState() {
   const { data: selectedNutrition } = useQuery({
     queryKey: ["calendar_day_nutrition", user?.id, selectedDateKey, timezone, isGuest, profileKey],
     queryFn: () =>
-      getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone, profile: profile as any }).catch(() => null),
+      getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone, profile }).catch(() => null),
     enabled: queryEnabled,
   });
 
@@ -321,7 +323,7 @@ export function useCalendarPageState() {
     }
 
     if (selectedNutrition?.groups) {
-      Object.entries(selectedNutrition.groups as Record<string, Array<{ id: string; created_at: string }>>).forEach(([mealKey, entries]) => {
+      Object.entries(selectedNutrition.groups).forEach(([mealKey, entries]) => {
         if (!entries.length) return;
         const normalizedMealKey = mealKey as keyof typeof selectedNutrition.groups;
         const mealTotals = selectedNutrition.mealTotals?.[normalizedMealKey];
@@ -424,7 +426,7 @@ export function useCalendarPageState() {
       toast.success("Nota del dia guardada.");
       await refreshCalendar();
     },
-    onError: (error: any) => toast.error(error?.message || "No se pudo guardar la nota."),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo guardar la nota.")),
   });
 
   const dayCellClasses = (day: CalendarDayData | undefined, inCurrentMonth: boolean) => {

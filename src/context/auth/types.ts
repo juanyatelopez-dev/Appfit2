@@ -30,6 +30,7 @@ export interface Profile {
   theme_preference: "light" | "dark" | "system" | null;
   theme_accent_color: string | null;
   theme_background_style: string | null;
+  timezone: string | null;
 }
 
 export interface AuthContextType {

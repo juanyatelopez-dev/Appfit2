@@ -1,17 +1,29 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-type QueryResult = { data: any; error: any };
+type QueryResult = { data: unknown; error: unknown };
+type BuilderThen = (value: QueryResult) => void;
+type BuilderCatch = (reason?: unknown) => void;
+type MockBuilder = {
+  select: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  gte: ReturnType<typeof vi.fn>;
+  upsert: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  then: (resolve: BuilderThen, reject?: BuilderCatch) => Promise<void>;
+};
 
 const queuedResults: QueryResult[] = [];
-const builders: any[] = [];
+const builders: MockBuilder[] = [];
 const fromMock = vi.fn();
 
 const queueResult = (result: QueryResult) => {
   queuedResults.push(result);
 };
 
-const makeBuilder = (result: QueryResult) => {
-  const builder: any = {};
+const makeBuilder = (result: QueryResult): MockBuilder => {
+  const builder = {} as MockBuilder;
   builder.select = vi.fn(() => builder);
   builder.eq = vi.fn(() => builder);
   builder.order = vi.fn(() => builder);
@@ -19,13 +31,13 @@ const makeBuilder = (result: QueryResult) => {
   builder.upsert = vi.fn(() => builder);
   builder.delete = vi.fn(() => builder);
   builder.single = vi.fn(async () => result);
-  builder.then = (resolve: any, reject: any) => Promise.resolve(result).then(resolve, reject);
+  builder.then = (resolve: BuilderThen, reject?: BuilderCatch) => Promise.resolve(result).then(resolve, reject);
   return builder;
 };
 
 vi.mock("@/services/supabaseClient", () => ({
   supabase: {
-    from: (...args: any[]) => fromMock(...args),
+    from: (...args: unknown[]) => fromMock(...args),
   },
 }));
 

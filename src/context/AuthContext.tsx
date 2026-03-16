@@ -24,6 +24,7 @@ const GUEST_STORAGE_KEY = 'appfit_is_guest';
 const AUTH_RESOLVE_TIMEOUT_MS = 8000;
 const PROFILE_FETCH_TIMEOUT_MS = 15000;
 const AUTH_SYNC_CACHE_WINDOW_MS = 30000;
+const SUSPENDED_ACCOUNT_ERROR_MESSAGE = 'Esta cuenta esta desactivada temporalmente. Contacta al administrador.';
 
 type ProfileRow = Partial<Profile> & Record<string, unknown>;
 type ProfileUpdatePayload = Partial<Profile> & { updated_at?: string };
@@ -48,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const lastSuccessfulSyncRef = useRef<{ userId: string; at: number } | null>(null);
     const syncInFlightRef = useRef<Promise<void> | null>(null);
     const syncInFlightUserIdRef = useRef<string | null>(null);
+    const suspendedAccountNoticeRef = useRef<string | null>(null);
     const profile = isGuest ? guestProfile : authedProfile;
     const canAccessAdmin = accountRole === "admin_manager" || accountRole === "super_admin";
     const canManageAdminRoles = accountRole === "super_admin";
@@ -56,6 +58,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (import.meta.env.DEV) {
             console.log(`[AuthFlow] ${message}`);
         }
+    };
+
+    const notifySuspendedAccount = (userId: string) => {
+        if (suspendedAccountNoticeRef.current === userId) {
+            return;
+        }
+
+        suspendedAccountNoticeRef.current = userId;
+        toast.error(SUSPENDED_ACCOUNT_ERROR_MESSAGE);
     };
 
     useEffect(() => {
@@ -226,10 +237,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setIsGuest(false);
                 localStorage.removeItem(GUEST_STORAGE_KEY);
                 lastSuccessfulSyncRef.current = null;
-                toast.error("Tu cuenta esta desactivada temporalmente. Contacta al administrador.");
+                suspendedAccountNoticeRef.current = null;
+                notifySuspendedAccount(authUser.id);
                 await supabase.auth.signOut();
                 return;
             }
+
+            suspendedAccountNoticeRef.current = null;
 
             try {
                 const resolvedProfile = await withTimeout(
@@ -309,6 +323,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setAccountRole("member");
                     setAccountRoleLoading(false);
                     lastSuccessfulSyncRef.current = null;
+                    suspendedAccountNoticeRef.current = null;
                     setGuestProfile(createGuestProfile());
                     setOnboardingCompleted(isGuest ? true : false);
                 }
@@ -320,6 +335,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setAccountRole("member");
                     setAccountRoleLoading(false);
                     lastSuccessfulSyncRef.current = null;
+                    suspendedAccountNoticeRef.current = null;
                     setGuestProfile(createGuestProfile());
                     setOnboardingCompleted(isGuest ? true : false);
                 }
@@ -347,6 +363,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         setAccountRole("member");
                         setAccountRoleLoading(false);
                         lastSuccessfulSyncRef.current = null;
+                        suspendedAccountNoticeRef.current = null;
                         setOnboardingCompleted(false);
                     }
                 } catch (error) {
@@ -357,6 +374,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         setAccountRole("member");
                         setAccountRoleLoading(false);
                         lastSuccessfulSyncRef.current = null;
+                        suspendedAccountNoticeRef.current = null;
                         setOnboardingCompleted(false);
                     }
                 } finally {
@@ -372,6 +390,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setAccountRole("member");
                 setAccountRoleLoading(false);
                 lastSuccessfulSyncRef.current = null;
+                suspendedAccountNoticeRef.current = null;
                 setGuestProfile(createGuestProfile());
                 setOnboardingCompleted(false);
                 setIsGuest(false);
@@ -384,15 +403,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isMounted = false;
             subscription.unsubscribe();
         };
+    // This subscription is intentionally registered once for the app lifetime.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const signIn = async (email: string, password: string) => {
         logFlow("Signing in with password...");
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
         if (error) throw error;
+
+        if (data.user?.id) {
+            const account = await fetchUserAccount(data.user.id).catch(() => null);
+            if (account?.account_status === "suspended") {
+                setUser(null);
+                setAuthedProfile(null);
+                setAccountRole("member");
+                setAccountRoleLoading(false);
+                setOnboardingCompleted(false);
+                setIsGuest(false);
+                localStorage.removeItem(GUEST_STORAGE_KEY);
+                lastSuccessfulSyncRef.current = null;
+                suspendedAccountNoticeRef.current = null;
+                notifySuspendedAccount(data.user.id);
+                await supabase.auth.signOut();
+                throw new Error(SUSPENDED_ACCOUNT_ERROR_MESSAGE);
+            }
+        }
+
+        suspendedAccountNoticeRef.current = null;
         setIsGuest(false);
         localStorage.removeItem(GUEST_STORAGE_KEY);
     };
@@ -437,6 +478,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAccountRole("member");
         setAccountRoleLoading(false);
         lastSuccessfulSyncRef.current = null;
+        suspendedAccountNoticeRef.current = null;
         setGuestProfile(createGuestProfile());
         setOnboardingCompleted(false);
 
@@ -453,6 +495,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAccountRole("member");
         setAccountRoleLoading(false);
         lastSuccessfulSyncRef.current = null;
+        suspendedAccountNoticeRef.current = null;
         setOnboardingCompleted(true);
         setGuestProfile(createGuestProfile());
     };
@@ -464,6 +507,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAccountRole("member");
         setAccountRoleLoading(false);
         lastSuccessfulSyncRef.current = null;
+        suspendedAccountNoticeRef.current = null;
         setOnboardingCompleted(false);
     };
 

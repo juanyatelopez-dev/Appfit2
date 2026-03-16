@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/errors";
 
 type Range = "7d" | "30d" | "month";
 
@@ -31,7 +32,7 @@ const Sleep = () => {
   const [sleepStart, setSleepStart] = useState("");
   const [sleepEnd, setSleepEnd] = useState("");
 
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
   const rangeDates = useMemo(() => {
     const to = new Date();
@@ -102,7 +103,7 @@ const Sleep = () => {
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
       ]);
     },
-    onError: (error: any) => toast.error(error?.message || t("sleep.page.saveError")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, t("sleep.page.saveError"))),
   });
 
   return (
@@ -175,7 +176,12 @@ const Sleep = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
                   <YAxis />
-                  <Tooltip formatter={(value: any, _n, payload: any) => [`${payload?.payload?.total_minutes ?? 0} min`, "Total"]} />
+                  <Tooltip
+                    formatter={(value: number | string) => {
+                      const hoursValue = typeof value === "number" ? value : Number(value);
+                      return [`${Math.round(hoursValue * 60)} min`, "Total"];
+                    }}
+                  />
                   <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

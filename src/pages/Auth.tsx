@@ -10,6 +10,9 @@ import { Loader2, Mail, Lock, UserPlus, LogIn, AlertTriangle } from "lucide-reac
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 const Auth = () => {
     const [mode, setMode] = useState<"login" | "register">("login");
     const [email, setEmail] = useState("");
@@ -18,6 +21,7 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const [resendingEmail, setResendingEmail] = useState(false);
     const [pendingEmailConfirmation, setPendingEmailConfirmation] = useState(false);
+    const [authErrorMessage, setAuthErrorMessage] = useState("");
 
     const { user, isGuest, signIn, signUp, resendConfirmationEmail, continueAsGuest } = useAuth();
     const navigate = useNavigate();
@@ -33,6 +37,7 @@ const Auth = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setPendingEmailConfirmation(false);
+        setAuthErrorMessage("");
 
         if (mode === "register" && password !== confirmPassword) {
             toast.error("Passwords do not match.");
@@ -55,9 +60,13 @@ const Auth = () => {
                 toast.success("Account created successfully!");
                 navigate("/today", { replace: true });
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Auth error:", error);
-            toast.error(error.message || "Authentication failed.");
+            const nextMessage = getErrorMessage(error, "Authentication failed.");
+            setAuthErrorMessage(nextMessage);
+            if (!nextMessage.toLowerCase().includes("desactivada")) {
+                toast.error(nextMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -73,9 +82,9 @@ const Auth = () => {
         try {
             await resendConfirmationEmail(email);
             toast.success("We sent a new confirmation email.");
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Resend confirmation error:", error);
-            toast.error(error.message || "We could not resend the confirmation email.");
+            toast.error(getErrorMessage(error, "We could not resend the confirmation email."));
         } finally {
             setResendingEmail(false);
         }
@@ -90,8 +99,18 @@ const Auth = () => {
                     </div>
                     <Tabs value={mode} onValueChange={(value) => setMode(value as "login" | "register")} className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="login">Login</TabsTrigger>
-                            <TabsTrigger value="register">Register</TabsTrigger>
+                            <TabsTrigger
+                                value="login"
+                                onClick={() => setAuthErrorMessage("")}
+                            >
+                                Login
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="register"
+                                onClick={() => setAuthErrorMessage("")}
+                            >
+                                Register
+                            </TabsTrigger>
                         </TabsList>
                     </Tabs>
                     <CardTitle className="text-2xl font-bold">
@@ -105,6 +124,13 @@ const Auth = () => {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
+                        {authErrorMessage && (
+                            <Alert variant="destructive">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Acceso no disponible</AlertTitle>
+                                <AlertDescription>{authErrorMessage}</AlertDescription>
+                            </Alert>
+                        )}
                         {pendingEmailConfirmation && (
                             <Alert variant="destructive">
                                 <AlertTriangle className="h-4 w-4" />

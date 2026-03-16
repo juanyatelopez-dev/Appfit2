@@ -2,6 +2,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { GoalDirection } from "@/features/goals/goalProgress";
+
+type MockStatsProfile = {
+  weight: number | null;
+  target_weight_kg: number | null;
+  target_date: string | null;
+  start_weight_kg: number | null;
+  goal_direction: GoalDirection | null;
+};
+
+type MockStatsAuthState = {
+  user: { id: string } | null;
+  isGuest: boolean;
+  profile: MockStatsProfile;
+};
 
 const mockListBodyMetricsByRange = vi.fn();
 const mockGetGuestBodyMetrics = vi.fn(() => []);
@@ -53,28 +68,28 @@ const mockGetWeeklyReviewSummary = vi.fn(() =>
 const mockUseAuth = vi.fn();
 
 vi.mock("@/services/bodyMetrics", () => ({
-  listBodyMetricsByRange: (...args: any[]) => mockListBodyMetricsByRange(...args),
+  listBodyMetricsByRange: (...args: unknown[]) => mockListBodyMetricsByRange(...args),
   getGuestBodyMetrics: () => mockGetGuestBodyMetrics(),
   getGuestWeightGoal: () => mockGetGuestWeightGoal(),
-  getWeightTrendAnalysis: (...args: any[]) => mockGetWeightTrendAnalysis(...args),
+  getWeightTrendAnalysis: (...args: unknown[]) => mockGetWeightTrendAnalysis(...args),
 }));
 
 vi.mock("@/services/sleep", () => ({
-  getSleepGoal: (...args: any[]) => mockGetSleepGoal(...args),
-  getSleepRangeTotals: (...args: any[]) => mockGetSleepRangeTotals(...args),
+  getSleepGoal: (...args: unknown[]) => mockGetSleepGoal(...args),
+  getSleepRangeTotals: (...args: unknown[]) => mockGetSleepRangeTotals(...args),
 }));
 
 vi.mock("@/services/dailyBiofeedback", () => ({
-  getBiofeedbackWeeklyAverages: (...args: any[]) => mockGetBiofeedbackWeeklyAverages(...args),
-  getBiofeedbackRange: (...args: any[]) => mockGetBiofeedbackRange(...args),
+  getBiofeedbackWeeklyAverages: (...args: unknown[]) => mockGetBiofeedbackWeeklyAverages(...args),
+  getBiofeedbackRange: (...args: unknown[]) => mockGetBiofeedbackRange(...args),
 }));
 
 vi.mock("@/services/bodyMeasurements", () => ({
-  listBodyMeasurements: (...args: any[]) => mockListBodyMeasurements(...args),
+  listBodyMeasurements: (...args: unknown[]) => mockListBodyMeasurements(...args),
 }));
 
 vi.mock("@/services/weeklyReview", () => ({
-  getWeeklyReviewSummary: (...args: any[]) => mockGetWeeklyReviewSummary(...args),
+  getWeeklyReviewSummary: (...args: unknown[]) => mockGetWeeklyReviewSummary(...args),
 }));
 
 vi.mock("@/context/AuthContext", () => ({
@@ -105,6 +120,27 @@ const renderStats = () => {
   );
 };
 
+const createMockAuthState = (overrides?: Partial<MockStatsAuthState>): MockStatsAuthState => ({
+  user: { id: "user-1" },
+  isGuest: false,
+  profile: {
+    weight: 81.5,
+    target_weight_kg: 75,
+    target_date: "2026-07-01",
+    start_weight_kg: 84,
+    goal_direction: "lose",
+  },
+  ...overrides,
+  profile: {
+    weight: 81.5,
+    target_weight_kg: 75,
+    target_date: "2026-07-01",
+    start_weight_kg: 84,
+    goal_direction: "lose",
+    ...overrides?.profile,
+  },
+});
+
 describe("Stats page", () => {
   beforeEach(() => {
     mockListBodyMetricsByRange.mockReset();
@@ -126,17 +162,7 @@ describe("Stats page", () => {
     mockGetWeeklyReviewSummary.mockClear();
 
     mockUseAuth.mockReset();
-    mockUseAuth.mockReturnValue({
-      user: { id: "user-1" },
-      isGuest: false,
-      profile: {
-        weight: 81.5,
-        target_weight_kg: 75,
-        target_date: "2026-07-01",
-        start_weight_kg: 84,
-        goal_direction: "lose",
-      },
-    });
+    mockUseAuth.mockReturnValue(createMockAuthState());
   });
 
   it("renders current, initial and target weights", async () => {
@@ -170,17 +196,17 @@ describe("Stats page", () => {
   it("shows fallback and CTA when initial weight is missing", async () => {
     mockListBodyMetricsByRange.mockResolvedValue([]);
     mockListBodyMeasurements.mockResolvedValue([]);
-    mockUseAuth.mockReturnValue({
-      user: { id: "user-1" },
-      isGuest: false,
-      profile: {
-        weight: null,
-        target_weight_kg: null,
-        target_date: null,
-        start_weight_kg: null,
-        goal_direction: null,
-      },
-    });
+    mockUseAuth.mockReturnValue(
+      createMockAuthState({
+        profile: {
+          weight: null,
+          target_weight_kg: null,
+          target_date: null,
+          start_weight_kg: null,
+          goal_direction: null,
+        },
+      }),
+    );
 
     renderStats();
 

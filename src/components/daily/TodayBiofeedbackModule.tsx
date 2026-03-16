@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/errors";
 
 type BiofeedbackValues = {
   sleep_quality: number;
@@ -61,7 +62,7 @@ const TodayBiofeedbackModule = () => {
 
   const today = useMemo(() => new Date(), []);
   const todayKey = useMemo(() => today.toISOString().slice(0, 10), [today]);
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
   const { data: todayData } = useQuery({
     queryKey: ["daily_biofeedback", user?.id, todayKey, isGuest, timeZone],
@@ -117,8 +118,8 @@ const TodayBiofeedbackModule = () => {
       ]);
       toast.success(todayData ? "Check-in fisiologico actualizado." : "Check-in fisiologico guardado.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar el check-in.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar el check-in."));
     },
   });
 

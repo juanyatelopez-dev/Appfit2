@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/errors";
 
 type BiofeedbackValues = {
   sleep_quality: number;
@@ -90,7 +91,7 @@ const DailyBiofeedback = () => {
   const [values, setValues] = useState<BiofeedbackValues>(() => defaultValues());
   const [notes, setNotes] = useState("");
 
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const selectedDate = useMemo(() => new Date(`${selectedDateKey}T12:00:00`), [selectedDateKey]);
 
   useEffect(() => {
@@ -157,8 +158,8 @@ const DailyBiofeedback = () => {
         queryClient.invalidateQueries({ queryKey: ["weekly_review_summary"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar el check-in.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar el check-in."));
     },
   });
 

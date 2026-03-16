@@ -8,6 +8,7 @@ import { deriveMeasurementSummary, filterMeasurementsByRangePreset } from "@/fea
 import { calculateGoalProgress, resolveInitialWeight, type GoalDirection } from "@/features/goals/goalProgress";
 import { DEFAULT_WATER_TIMEZONE } from "@/features/water/waterUtils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getErrorMessage } from "@/lib/errors";
 import { getBiofeedbackRange, getBiofeedbackWeeklyAverages } from "@/services/dailyBiofeedback";
 import {
   getGuestBodyMetrics,
@@ -54,7 +55,7 @@ export function useStatsPageState() {
   const { user, isGuest, profile } = useAuth();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const metabolicProfileKey = [
     profile?.weight ?? "",
     profile?.height ?? "",
@@ -233,7 +234,7 @@ export function useStatsPageState() {
   const { data: nutritionGoals } = useQuery({
     queryKey: ["stats_nutrition_goals", user?.id, isGuest, metabolicProfileKey],
     queryFn: () =>
-      getNutritionGoals(user?.id ?? null, { isGuest, profile: profile as any }).catch(() => ({
+      getNutritionGoals(user?.id ?? null, { isGuest, profile }).catch(() => ({
         calorie_goal: 2000,
         protein_goal_g: 150,
         carb_goal_g: 250,
@@ -350,8 +351,8 @@ export function useStatsPageState() {
         queryClient.invalidateQueries({ queryKey: ["stats"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar la revision semanal.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar la revision semanal."));
     },
   });
 

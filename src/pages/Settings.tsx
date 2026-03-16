@@ -27,8 +27,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
 
 const getTodayDateKey = () => new Date().toISOString().slice(0, 10);
+type ThemePreference = "light" | "dark" | "system";
+type BackgroundStyleId = (typeof APP_BACKGROUND_STYLES)[number]["id"];
 
 const Settings = () => {
   const { user, profile, refreshProfile, isGuest, loading, signOut, exitGuest, updateProfile } = useAuth();
@@ -110,35 +113,35 @@ const Settings = () => {
     try {
       await setLanguagePreference(next);
       toast.success(t("settings.success"));
-    } catch (error: any) {
-      toast.error(error?.message || t("settings.fail"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("settings.fail")));
     }
   };
 
   const handleThemeChange = async (value: string) => {
-    const next: "light" | "dark" | "system" =
+    const next: ThemePreference =
       value === "light" || value === "dark" || value === "system" ? value : "system";
     try {
       await setThemePreference(next);
       toast.success(t("settings.success"));
-    } catch (error: any) {
-      toast.error(error?.message || t("settings.fail"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("settings.fail")));
     }
   };
 
   const handleAccentColorChange = async (colorId: (typeof MINECRAFT_WOOL_COLORS)[number]["id"]) => {
     try {
       await setAccentColorPreference(colorId);
-    } catch (error: any) {
-      toast.error(error?.message || t("settings.fail"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("settings.fail")));
     }
   };
 
   const handleBackgroundStyleChange = async (styleId: (typeof APP_BACKGROUND_STYLES)[number]["id"]) => {
     try {
       await setBackgroundStylePreference(styleId);
-    } catch (error: any) {
-      toast.error(error?.message || t("settings.fail"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("settings.fail")));
     }
   };
 
@@ -153,8 +156,8 @@ const Settings = () => {
 
       await signOut();
       navigate("/auth", { replace: true });
-    } catch (error: any) {
-      toast.error(error?.message || t("settings.switchUserError"));
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, t("settings.switchUserError")));
     } finally {
       setIsSwitchingAccount(false);
     }
@@ -183,8 +186,8 @@ const Settings = () => {
       });
       await invalidateDataQueries();
       toast.success(`Se limpiaron los datos seleccionados del ${resetDate}.`);
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo limpiar la fecha seleccionada.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo limpiar la fecha seleccionada."));
     } finally {
       setIsClearingDay(false);
     }
@@ -196,8 +199,8 @@ const Settings = () => {
       await clearUserHistory({ userId: user?.id ?? null, isGuest });
       await invalidateDataQueries();
       toast.success("Se limpio el historial del usuario.");
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo limpiar el historial.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo limpiar el historial."));
     } finally {
       setIsClearingHistory(false);
     }
@@ -227,8 +230,8 @@ const Settings = () => {
       if (!isGuest) {
         navigate("/onboarding", { replace: true });
       }
-    } catch (error: any) {
-      toast.error(error?.message || "No se pudo reiniciar la cuenta.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "No se pudo reiniciar la cuenta."));
     } finally {
       setIsResettingAccount(false);
     }
@@ -347,7 +350,7 @@ const Settings = () => {
             <p className="text-xs text-muted-foreground">
               Ajusta el ambiente visual general sin cambiar tu color primario.
             </p>
-            <Select value={backgroundStyleId} onValueChange={(value) => handleBackgroundStyleChange(value as (typeof APP_BACKGROUND_STYLES)[number]["id"])}>
+            <Select value={backgroundStyleId} onValueChange={(value: BackgroundStyleId) => handleBackgroundStyleChange(value)}>
               <SelectTrigger id="background-style" className="bg-background/50">
                 <SelectValue />
               </SelectTrigger>

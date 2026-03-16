@@ -32,6 +32,29 @@ import type {
 const readGuestState = readGuestTrainingState;
 const saveGuestState = saveGuestTrainingState;
 
+type WorkoutTemplateRow = {
+  id: string;
+  name: string;
+  name_i18n: unknown;
+  description: string | null;
+  description_i18n: unknown;
+  focus_tags: unknown;
+  is_system: boolean;
+  created_at: string | null;
+};
+
+type WorkoutTemplateExerciseRow = {
+  id: string;
+  template_id: string;
+  exercise_id: string;
+  order_index: number | null;
+  target_sets: number | null;
+  target_reps: string | null;
+  rest_seconds: number | null;
+  notes: string | null;
+  created_at: string | null;
+};
+
 const getExerciseSearchText = (row: ExerciseRecord) => [
   row.name,
   row.name_i18n?.en,
@@ -177,10 +200,12 @@ export const listWorkoutTemplates = async (options?: TrainingOptions): Promise<W
     if (templateError) throw templateError;
     if (templateExercisesError) throw templateExercisesError;
 
-    const exerciseIds = Array.from(new Set((templateExercisesData || []).map((row: any) => String(row.exercise_id))));
+    const templateRows = (templatesData || []) as WorkoutTemplateRow[];
+    const templateExerciseRows = (templateExercisesData || []) as WorkoutTemplateExerciseRow[];
+    const exerciseIds = Array.from(new Set(templateExerciseRows.map((row) => String(row.exercise_id))));
     const exerciseMap = await loadExercisesByIds(null, exerciseIds, options);
 
-    return (templatesData || []).map((template: any) => ({
+    return templateRows.map((template) => ({
       id: String(template.id),
       name: String(template.name),
       name_i18n: normalizeLocalizedText(template.name_i18n),
@@ -189,9 +214,9 @@ export const listWorkoutTemplates = async (options?: TrainingOptions): Promise<W
       focus_tags: Array.isArray(template.focus_tags) ? template.focus_tags.map(String) : [],
       is_system: Boolean(template.is_system),
       created_at: String(template.created_at ?? new Date().toISOString()),
-      exercises: (templateExercisesData || [])
-        .filter((row: any) => String(row.template_id) === String(template.id))
-        .map((row: any) => ({
+      exercises: templateExerciseRows
+        .filter((row) => String(row.template_id) === String(template.id))
+        .map((row) => ({
           id: String(row.id),
           template_id: String(row.template_id),
           exercise_id: String(row.exercise_id),

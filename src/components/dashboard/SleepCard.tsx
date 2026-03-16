@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/errors";
 
 const SleepCard = () => {
   const { user, isGuest, profile } = useAuth();
@@ -29,7 +30,7 @@ const SleepCard = () => {
   const [sleepStart, setSleepStart] = useState("");
   const [sleepEnd, setSleepEnd] = useState("");
 
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
   const dayKey = getDateKeyForTimezone(today, timeZone);
 
@@ -84,8 +85,8 @@ const SleepCard = () => {
         queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error?.message || t("sleep.page.saveError"));
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, t("sleep.page.saveError")));
     },
   });
 

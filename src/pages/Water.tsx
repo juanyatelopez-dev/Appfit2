@@ -15,7 +15,7 @@ const Water = () => {
   const { user, isGuest, profile } = useAuth();
   const [range, setRange] = useState<Range>("7d");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const tz = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const tz = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const today = useMemo(() => new Date(), []);
   const dayKey = getDateKeyForTimezone(today, tz);
 
@@ -107,7 +107,13 @@ const Water = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
                   <YAxis />
-                  <Tooltip labelFormatter={(v) => new Date(String(v)).toLocaleDateString()} formatter={(value: any, _n, payload: any) => [`${payload?.payload?.total_ml ?? 0} ml`, "Total"]} />
+                  <Tooltip
+                    labelFormatter={(v) => new Date(String(v)).toLocaleDateString()}
+                    formatter={(value: number | string) => {
+                      const liters = typeof value === "number" ? value : Number(value);
+                      return [`${Math.round(liters * 1000)} ml`, "Total"];
+                    }}
+                  />
                   <Bar dataKey="liters" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

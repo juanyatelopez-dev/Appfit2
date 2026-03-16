@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/errors";
 
 type AddMode = "manual" | "favorite" | "recent";
 
@@ -60,7 +61,7 @@ const TodayMealsModule = () => {
   });
 
   const selectedDate = useMemo(() => new Date(), []);
-  const timeZone = (profile as any)?.timezone || DEFAULT_WATER_TIMEZONE;
+  const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
   const userId = user?.id ?? null;
   const metabolicProfileKey = [
     profile?.birth_date ?? "",
@@ -76,7 +77,7 @@ const TodayMealsModule = () => {
 
   const summaryQuery = useQuery({
     queryKey: ["nutrition_day_summary", userId, todayKey, isGuest, timeZone, metabolicProfileKey],
-    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile: profile as any }),
+    queryFn: () => getNutritionDaySummary(userId, selectedDate, { isGuest, timeZone, profile }),
     enabled: Boolean(userId) || isGuest,
   });
 
@@ -114,8 +115,8 @@ const TodayMealsModule = () => {
       await invalidateNutritionQueries();
       toast.success("Comida registrada.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo guardar la comida.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo guardar la comida."));
     },
   });
 
@@ -125,8 +126,8 @@ const TodayMealsModule = () => {
       await invalidateNutritionQueries();
       toast.success("Registro eliminado.");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "No se pudo eliminar el registro.");
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "No se pudo eliminar el registro."));
     },
   });
 
