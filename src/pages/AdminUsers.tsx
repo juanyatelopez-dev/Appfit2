@@ -260,6 +260,11 @@ const AdminUsers = () => {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
+          ) : usersQuery.isError ? (
+            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+              No se pudo cargar el directorio de usuarios. Revisa que `get_admin_user_directory_detailed()` o la version legacy
+              `get_admin_user_directory()` existan en Supabase y que el schema cache este recargado.
+            </div>
           ) : (
             <div className="rounded-2xl border border-border/60">
               <Table>
@@ -381,6 +386,10 @@ const AdminUsers = () => {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
+          ) : notificationAuditQuery.isError ? (
+            <div className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
+              La auditoria de recordatorios aun no esta disponible o no pudo cargarse.
+            </div>
           ) : notificationAuditQuery.data && notificationAuditQuery.data.length > 0 ? (
             <div className="rounded-2xl border border-border/60">
               <Table>
@@ -424,6 +433,10 @@ const AdminUsers = () => {
             <div className="space-y-3">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
+            </div>
+          ) : auditQuery.isError ? (
+            <div className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
+              La auditoria de roles no pudo cargarse.
             </div>
           ) : auditQuery.data && auditQuery.data.length > 0 ? (
             <div className="rounded-2xl border border-border/60">

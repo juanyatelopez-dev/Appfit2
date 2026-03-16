@@ -146,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAccountRoleLoading(true);
 
         const cachedAccountRole = getCachedAccountRole(authUser.id);
-        setAccountRole(cachedAccountRole ?? "member");
+        setAccountRole(cachedAccountRole ?? (user?.id === authUser.id ? accountRole : "member"));
 
         let resolvedAccount: UserAccountRow | null = null;
         try {

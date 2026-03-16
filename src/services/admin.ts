@@ -53,6 +53,16 @@ export type AdminUsageDailyRow = {
   unique_users: number;
 };
 
+const shouldFallbackToLegacyRpc = (error: { message?: string } | null | undefined, functionName: string) => {
+  const message = error?.message?.toLowerCase() ?? "";
+
+  return (
+    message.includes("schema cache") ||
+    message.includes("could not find the function") ||
+    message.includes(functionName.toLowerCase())
+  );
+};
+
 const normalizeMetrics = (row: Partial<AdminDashboardMetrics> | null | undefined): AdminDashboardMetrics => ({
   total_users: Number(row?.total_users ?? 0),
   completed_onboarding_users: Number(row?.completed_onboarding_users ?? 0),
@@ -75,7 +85,13 @@ export async function getAdminDashboardMetrics() {
 }
 
 export async function getAdminUserDirectory() {
-  const { data, error } = await supabase.rpc("get_admin_user_directory_detailed");
+  let { data, error } = await supabase.rpc("get_admin_user_directory_detailed");
+
+  if (error && shouldFallbackToLegacyRpc(error, "get_admin_user_directory_detailed")) {
+    const legacyResult = await supabase.rpc("get_admin_user_directory");
+    data = legacyResult.data;
+    error = legacyResult.error;
+  }
 
   if (error) throw error;
 
