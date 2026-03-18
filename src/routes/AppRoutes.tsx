@@ -8,6 +8,9 @@ import RequireAccountRole from "@/routes/RequireAccountRole";
 import RequireOnboarding from "@/routes/RequireOnboarding";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminUsers from "@/pages/AdminUsers";
+import AdminUsage from "@/pages/AdminUsage";
 
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
@@ -38,9 +41,6 @@ const lazyWithChunkRecovery = <T extends { default: React.ComponentType }>(
     }
   });
 
-const AdminDashboard = lazyWithChunkRecovery(() => import("@/pages/AdminDashboard"));
-const AdminUsers = lazyWithChunkRecovery(() => import("@/pages/AdminUsers"));
-const AdminUsage = lazyWithChunkRecovery(() => import("@/pages/AdminUsage"));
 const Dashboard = lazyWithChunkRecovery(() => import("@/pages/Dashboard"));
 const Profile = lazyWithChunkRecovery(() => import("@/pages/Profile"));
 const Stats = lazyWithChunkRecovery(() => import("@/pages/Stats"));

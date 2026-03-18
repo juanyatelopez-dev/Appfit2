@@ -21,8 +21,8 @@ import { toast } from 'sonner';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const GUEST_STORAGE_KEY = 'appfit_is_guest';
-const AUTH_RESOLVE_TIMEOUT_MS = 8000;
-const PROFILE_FETCH_TIMEOUT_MS = 15000;
+const AUTH_RESOLVE_TIMEOUT_MS = 15000;
+const PROFILE_FETCH_TIMEOUT_MS = 25000;
 const AUTH_SYNC_CACHE_WINDOW_MS = 30000;
 const SUSPENDED_ACCOUNT_ERROR_MESSAGE = 'Esta cuenta esta desactivada temporalmente. Contacta al administrador.';
 
@@ -223,7 +223,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 console.warn("Falling back to default member role while account metadata is unavailable.", error);
             }
 
-            const nextAccountRole = resolvedAccount?.account_role ?? cachedAccountRole ?? "member";
+            const nextAccountRole =
+                resolvedAccount?.account_role ??
+                cachedAccountRole ??
+                (currentUserIdRef.current === authUser.id ? currentAccountRoleRef.current : "member");
             setAccountRole(nextAccountRole);
             setCachedAccountRole(authUser.id, nextAccountRole);
 
@@ -272,6 +275,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     )
                     : cachedCompleted === true;
                 setOnboardingCompleted(prev => prev ?? resolvedFallbackCompleted);
+                // Prevent repeated re-sync storms when Supabase is temporarily slow.
+                if (cachedProfile || nextAccountRole !== "member") {
+                    lastSuccessfulSyncRef.current = { userId: authUser.id, at: Date.now() };
+                }
                 if (error instanceof Error && error.message === 'Profile fetch timed out.') {
                     console.warn('Profile fetch timed out. Using cached profile fallback when available.');
                 } else {
