@@ -457,7 +457,9 @@ const Dashboard = () => {
           eyebrow="Panel diario"
           icon={<Crosshair className="h-3.5 w-3.5" />}
           title="Centro operativo"
-          description="Registra peso, hidratación, sueño, medidas, biofeedback y comidas desde una sola pantalla."
+          description="Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla."
+          titleClassName="text-2xl sm:text-3xl"
+          descriptionClassName="max-w-2xl"
           actions={<Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="app-outline-button rounded-2xl">
@@ -468,7 +470,7 @@ const Dashboard = () => {
           <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
             <div className="space-y-2">
               <p className="text-sm font-medium">Centro operativo</p>
-              <p className="text-xs text-muted-foreground">Controla que cards aparecen en la pestaña Centro operativo.</p>
+              <p className="text-xs text-muted-foreground">Controla que tarjetas aparecen en la pestana Centro operativo.</p>
               <div className="grid max-h-72 gap-2 overflow-auto pr-1">
                 {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
                   const checked = selectedWidgetKeys.includes(widget.key);
@@ -493,24 +495,24 @@ const Dashboard = () => {
         />
 
         <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
-        <CardContent className={cn("grid gap-4 p-4 md:gap-6 md:p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
+        <CardContent className={cn("grid gap-3 p-3 sm:gap-4 sm:p-4 md:gap-6 md:p-6", visibleRightCards && "xl:grid-cols-[1.5fr_0.9fr]")}>
           <div className="space-y-4">
             {isWidgetVisible("hero_routine") ? (
             <div className="app-surface-tile rounded-2xl p-3 md:p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.22em]">
+                  <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.14em]">
                     <Dumbbell className="h-3.5 w-3.5" />
                     Rutina de hoy
                   </div>
                   <div className="app-surface-heading mt-2 text-base font-semibold md:text-lg">{trainingTodayQuery.isLoading ? "Cargando..." : workoutCardTitle}</div>
                   <p className="app-surface-muted mt-1 text-sm">{workoutCardSubtitle}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="outline" className="app-outline-button">
+                <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
+                  <Button asChild variant="outline" className="app-outline-button w-full sm:w-auto">
                     <Link to="/training?tab=today">Ver rutina</Link>
                   </Button>
-                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto">
                     <Link to="/training?tab=library">Ir a ejercicios</Link>
                   </Button>
                 </div>
@@ -520,13 +522,13 @@ const Dashboard = () => {
             <div className="grid gap-2 md:gap-3 md:grid-cols-[1fr_1.25fr_1fr]">
               {isWidgetVisible("hero_date") ? (
               <div className="app-surface-tile rounded-2xl p-3 md:p-4">
-                <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Fecha</div>
+                <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Fecha</div>
                 <div className="app-surface-heading mt-2 text-base font-semibold md:text-lg">{core?.todayLabel ?? "Cargando..."}</div>
               </div>
               ) : null}
               <div className="app-surface-tile rounded-2xl p-3 md:p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Modulos completos</div>
+                  <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Modulos completos</div>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="ghost" size="icon" className="app-surface-muted h-7 w-7 rounded-full hover:bg-background/60 hover:text-foreground">
@@ -558,7 +560,7 @@ const Dashboard = () => {
                       </div>
                       <div className="hidden space-y-2 border-t pt-4">
                         <p className="hidden text-sm font-medium">Widgets visibles</p>
-                        <p className="text-xs text-muted-foreground">Controla que cards aparecen en la pestaña Hoy.</p>
+                        <p className="text-xs text-muted-foreground">Controla que tarjetas aparecen en la pestana Hoy.</p>
                         <div className="grid max-h-60 gap-2 overflow-auto pr-1">
                           {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
                             const checked = selectedWidgetKeys.includes(widget.key);
@@ -606,7 +608,7 @@ const Dashboard = () => {
                         </div>
                       ) : null}
                       <p className="app-surface-muted text-xs">
-                        {remainingModuleCount > 0 ? `${remainingModuleCount} logs restantes...` : "Ultimo log pendiente."}
+                        {remainingModuleCount > 0 ? `${remainingModuleCount} registros restantes...` : "Ultimo registro pendiente."}
                       </p>
                     </>
                   )}
@@ -614,7 +616,7 @@ const Dashboard = () => {
               </div>
               {isWidgetVisible("hero_consistency") ? (
               <div className="app-surface-tile rounded-2xl p-3 md:p-4">
-                <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Consistencia 7d</div>
+                <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Consistencia 7d</div>
                 <div className="app-surface-heading mt-2 flex items-center gap-2 text-base font-semibold md:text-lg">
                   <TimerReset className="h-4 w-4 text-primary" />
                   {core?.activeDays7 ?? 0} dias activos
@@ -628,14 +630,14 @@ const Dashboard = () => {
           <div className="grid gap-2 md:gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {isWidgetVisible("hero_recovery") ? (
             <div className="app-surface-tile rounded-2xl p-3 md:p-4">
-              <div className="app-surface-caption text-[11px] uppercase tracking-[0.22em]">Recuperacion</div>
+              <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Recuperacion</div>
               <div className="app-surface-heading mt-2 text-3xl font-black md:text-4xl">{core?.recovery.score ?? 0}</div>
               <p className="app-surface-muted mt-2 text-sm">{core?.recovery.status ?? "Analizando..."}</p>
             </div>
             ) : null}
             {isWidgetVisible("hero_focus") ? (
             <div className="app-surface-tile rounded-2xl p-3 md:p-4">
-              <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.22em]">
+              <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.14em]">
                 <CalendarDays className="h-3.5 w-3.5" />
                 Enfoque
               </div>

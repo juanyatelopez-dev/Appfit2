@@ -24,18 +24,18 @@ export function AppPageIntro({
   descriptionClassName,
 }: AppPageIntroProps) {
   return (
-    <div className={cn("flex flex-col gap-4 px-1 xl:flex-row xl:items-start xl:justify-between", className)}>
+    <div className={cn("flex flex-col gap-3 px-1 xl:flex-row xl:items-start xl:justify-between", className)}>
       <div className="space-y-2">
         {eyebrow ? (
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/80">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
             {icon}
             <span>{eyebrow}</span>
           </div>
         ) : null}
-        <h1 className={cn("app-surface-heading text-3xl font-black uppercase tracking-tight md:text-4xl", titleClassName)}>
+        <h1 className={cn("app-surface-heading text-2xl font-black tracking-tight sm:text-3xl md:text-4xl", titleClassName)}>
           {title}
         </h1>
-        <p className={cn("app-surface-caption max-w-3xl text-sm uppercase tracking-[0.24em]", descriptionClassName)}>
+        <p className={cn("app-surface-caption max-w-3xl text-sm leading-relaxed tracking-[0.02em] text-muted-foreground", descriptionClassName)}>
           {description}
         </p>
       </div>

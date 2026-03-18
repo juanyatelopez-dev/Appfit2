@@ -79,6 +79,13 @@ type ManualNotificationDraft = {
 
 const availableSignalFilters = ["all", "with_any_signal", "missing_profile", "onboarding_inconsistent", "without_activity"] as const;
 type SignalFilter = (typeof availableSignalFilters)[number];
+const signalFilterMeta: Record<SignalFilter, string> = {
+  all: "Todas las cuentas",
+  with_any_signal: "Con alguna senal",
+  missing_profile: "Sin perfil",
+  onboarding_inconsistent: "Onboarding inconsistente",
+  without_activity: "Sin actividad",
+};
 
 const resolveSignalFilter = (value: string | null): SignalFilter =>
   availableSignalFilters.includes((value ?? "") as SignalFilter) ? (value as SignalFilter) : "all";
@@ -340,10 +347,10 @@ const AdminUsers = () => {
 
       <Card className="rounded-3xl border-border/60">
         <CardHeader>
-          <CardTitle>Politica de roles del prototipo</CardTitle>
+          <CardTitle>Politica de roles</CardTitle>
           <CardDescription>Separamos operacion y gobierno en tres niveles para validar el modelo antes de pasar a produccion.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
+        <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
             <div className="flex items-center gap-2 text-sm font-medium"><Shield className="h-4 w-4 text-primary" /> Usuario regular</div>
             <p className="mt-2 text-sm text-muted-foreground">Usa la app, registra datos y solo accede a su propia informacion.</p>
@@ -369,13 +376,13 @@ const AdminUsers = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <button
               type="button"
               className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-left transition-transform hover:-translate-y-0.5"
               onClick={() => handleSignalFilterChange("missing_profile")}
             >
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Usuarios sin perfil</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Usuarios sin perfil</p>
               <p className="mt-3 text-3xl font-black">{signalSummary.missingProfile}</p>
               <p className="mt-2 text-sm text-muted-foreground">Cuentas creadas que no tienen fila en perfiles.</p>
             </button>
@@ -384,7 +391,7 @@ const AdminUsers = () => {
               className="rounded-2xl border border-teal-500/30 bg-teal-500/5 p-4 text-left transition-transform hover:-translate-y-0.5"
               onClick={() => handleSignalFilterChange("onboarding_inconsistent")}
             >
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Onboarding inconsistente</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Onboarding inconsistente</p>
               <p className="mt-3 text-3xl font-black">{signalSummary.onboardingInconsistent}</p>
               <p className="mt-2 text-sm text-muted-foreground">Diferencias entre el estado de usuarios y perfiles.</p>
             </button>
@@ -393,7 +400,7 @@ const AdminUsers = () => {
               className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-left transition-transform hover:-translate-y-0.5"
               onClick={() => handleSignalFilterChange("without_activity")}
             >
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Usuarios sin actividad</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Usuarios sin actividad</p>
               <p className="mt-3 text-3xl font-black">{signalSummary.withoutActivity}</p>
               <p className="mt-2 text-sm text-muted-foreground">Cuentas sin nutricion, peso ni medidas registradas.</p>
             </button>
@@ -401,7 +408,7 @@ const AdminUsers = () => {
 
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_240px]">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Buscar cuenta</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Buscar cuenta</p>
               <Input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
@@ -409,7 +416,7 @@ const AdminUsers = () => {
               />
             </div>
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Filtrar por senal</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Filtrar por senal</p>
               <Select value={signalFilter} onValueChange={(value) => handleSignalFilterChange(value as SignalFilter)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -424,6 +431,15 @@ const AdminUsers = () => {
               </Select>
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">Filtro activo: {signalFilterMeta[signalFilter]}</Badge>
+            <Badge variant="secondary">{filteredUsers.length} cuentas</Badge>
+            {signalFilter !== "all" ? (
+              <Button type="button" variant="ghost" size="sm" onClick={() => handleSignalFilterChange("all")}>
+                Limpiar filtro
+              </Button>
+            ) : null}
+          </div>
 
           {usersQuery.isLoading ? (
             <div className="space-y-3">
@@ -437,17 +453,17 @@ const AdminUsers = () => {
               o la version legacy `get_admin_user_directory()` existan en Supabase y que el schema cache este recargado.
             </div>
           ) : (
-            <div className="rounded-2xl border border-border/60">
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Email</TableHead>
-                    <TableHead>Nombre</TableHead>
+                    <TableHead className="hidden lg:table-cell">Nombre</TableHead>
                     <TableHead>Rol</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead>Onboarding</TableHead>
-                    <TableHead>Senales</TableHead>
-                    <TableHead>Alta</TableHead>
+                    <TableHead className="hidden md:table-cell">Onboarding</TableHead>
+                    <TableHead className="hidden xl:table-cell">Senales</TableHead>
+                    <TableHead className="hidden lg:table-cell">Alta</TableHead>
                     <TableHead className="text-right">Accion</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -458,7 +474,7 @@ const AdminUsers = () => {
                     return (
                       <TableRow key={row.user_id}>
                         <TableCell className="font-medium">{row.email ?? "Sin email"}</TableCell>
-                        <TableCell>{row.full_name ?? "Sin nombre"}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{row.full_name ?? "Sin nombre"}</TableCell>
                         <TableCell>
                           <Badge variant={roleMeta[row.account_role].variant}>{roleMeta[row.account_role].label}</Badge>
                         </TableCell>
@@ -467,8 +483,8 @@ const AdminUsers = () => {
                             {accountStatusMeta[row.account_status].label}
                           </span>
                         </TableCell>
-                        <TableCell>{row.onboarding_completed ? "Completo" : "Pendiente"}</TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">{row.onboarding_completed ? "Completo" : "Pendiente"}</TableCell>
+                        <TableCell className="hidden xl:table-cell">
                           <div className="flex flex-wrap gap-2">
                             {row.missing_profile ? <Badge variant="outline">Sin perfil</Badge> : null}
                             {row.onboarding_inconsistent ? <Badge variant="outline">Onboarding inconsistente</Badge> : null}
@@ -481,9 +497,9 @@ const AdminUsers = () => {
                             ) : null}
                           </div>
                         </TableCell>
-                        <TableCell>{row.created_at ? format(new Date(row.created_at), "yyyy-MM-dd") : "--"}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{row.created_at ? format(new Date(row.created_at), "yyyy-MM-dd") : "--"}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center">
                             {row.user_id !== user?.id ? (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -500,7 +516,7 @@ const AdminUsers = () => {
                                     Acciones
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-72">
+                                  <DropdownMenuContent align="end" className="w-72">
                                   <DropdownMenuLabel>Comunicacion</DropdownMenuLabel>
                                   <DropdownMenuItem onSelect={() => openManualNotificationDialog(row)}>
                                     Notificacion manual
@@ -548,7 +564,7 @@ const AdminUsers = () => {
                                 }
                                 disabled={updateRoleMutation.isPending && updatingUserId === row.user_id}
                               >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-full sm:w-[180px]">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -593,15 +609,15 @@ const AdminUsers = () => {
               La auditoria de recordatorios aun no esta disponible o no pudo cargarse.
             </div>
           ) : notificationAuditQuery.data && notificationAuditQuery.data.length > 0 ? (
-            <div className="rounded-2xl border border-border/60">
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>
                     <TableHead>Destino</TableHead>
-                    <TableHead>Tipo</TableHead>
+                    <TableHead className="hidden lg:table-cell">Tipo</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead>Emisor</TableHead>
+                    <TableHead className="hidden md:table-cell">Emisor</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -609,9 +625,9 @@ const AdminUsers = () => {
                     <TableRow key={row.id}>
                       <TableCell>{row.created_at ? format(new Date(row.created_at), "yyyy-MM-dd HH:mm") : "--"}</TableCell>
                       <TableCell>{row.target_email ?? row.target_user_id}</TableCell>
-                      <TableCell>{row.title}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{row.title}</TableCell>
                       <TableCell>{row.read_at ? "Leida" : "Pendiente"}</TableCell>
-                      <TableCell>{row.sender_email ?? "Sistema"}</TableCell>
+                      <TableCell className="hidden md:table-cell">{row.sender_email ?? "Sistema"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -641,12 +657,12 @@ const AdminUsers = () => {
               La auditoria de roles no pudo cargarse.
             </div>
           ) : auditQuery.data && auditQuery.data.length > 0 ? (
-            <div className="rounded-2xl border border-border/60">
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>
-                    <TableHead>Actor</TableHead>
+                    <TableHead className="hidden md:table-cell">Actor</TableHead>
                     <TableHead>Cuenta afectada</TableHead>
                     <TableHead>Cambio</TableHead>
                   </TableRow>
@@ -655,7 +671,7 @@ const AdminUsers = () => {
                   {auditQuery.data.map((row) => (
                     <TableRow key={row.id}>
                       <TableCell>{row.created_at ? format(new Date(row.created_at), "yyyy-MM-dd HH:mm") : "--"}</TableCell>
-                      <TableCell>{row.actor_email ?? "Sistema / desconocido"}</TableCell>
+                      <TableCell className="hidden md:table-cell">{row.actor_email ?? "Sistema / desconocido"}</TableCell>
                       <TableCell>{row.target_email ?? row.target_user_id}</TableCell>
                       <TableCell>
                         <span className="text-sm">

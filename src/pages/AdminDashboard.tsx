@@ -55,13 +55,13 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       <AppPageIntro
-        eyebrow="Control Tower"
+        eyebrow="Control admin"
         icon={<ShieldCheck className="h-3.5 w-3.5" />}
-        title="Resumen de administracion"
+        title="Resumen administrativo"
         description="Visibilidad centralizada del uso de la app, avance de onboarding y volumen de datos recolectados."
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((card) => {
           const Icon = card.icon;
           const value = metricsQuery.data?.[card.key as keyof NonNullable<typeof metricsQuery.data>] ?? 0;
@@ -73,11 +73,11 @@ const AdminDashboard = () => {
                   <div className="rounded-2xl bg-primary/10 p-2 text-primary">
                     <Icon className="h-4 w-4" />
                   </div>
-                  {metricsQuery.isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-black">{value}</div>}
+                  {metricsQuery.isLoading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-black leading-none">{value}</div>}
                 </div>
                 <div>
                   <CardTitle className="text-sm">{card.title}</CardTitle>
-                  <CardDescription>{card.description}</CardDescription>
+                  <CardDescription className="text-xs leading-relaxed">{card.description}</CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -120,17 +120,10 @@ const AdminDashboard = () => {
             const isHealthy = value === 0;
 
             return (
-              <div
+              <button
                 key={signal.key}
-                role="button"
-                tabIndex={0}
                 onClick={() => navigate(`/admin/users?signal=${signal.filter}`)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    navigate(`/admin/users?signal=${signal.filter}`);
-                  }
-                }}
+                type="button"
                 className={`cursor-pointer rounded-2xl border p-4 transition-transform hover:-translate-y-0.5 ${
                   isHealthy ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"
                 }`}
@@ -145,7 +138,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">{signal.description}</p>
-              </div>
+              </button>
             );
           })}
         </CardContent>
