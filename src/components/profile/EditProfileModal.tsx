@@ -34,6 +34,20 @@ interface EditProfileModalProps {
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange }) => {
   const { profile, updateProfile, updateAvatar, isGuest } = useAuth();
   const queryClient = useQueryClient();
+  const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
+  const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
+  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
+  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const selectedGoal = useMemo(() => GOAL_OPTIONS.find((option) => option.value === nutritionGoalType), [nutritionGoalType]);
+  const selectedActivity = useMemo(() => ACTIVITY_OPTIONS.find((option) => option.value === activityLevel), [activityLevel]);
   const updateProfilePayload = useMemo<Parameters<typeof updateProfile>[0]>(
     () => ({
       full_name: fullName,
@@ -58,20 +72,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ open, onOpenChange 
       weight,
     ],
   );
-  const [fullName, setFullName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-  const [biologicalSex, setBiologicalSex] = useState<"male" | "female">("male");
-  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high" | "very_high" | "hyperactive">("moderate");
-  const [nutritionGoalType, setNutritionGoalType] = useState<"lose" | "lose_slow" | "maintain" | "gain_slow" | "gain">("maintain");
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [removeAvatar, setRemoveAvatar] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const selectedGoal = useMemo(() => GOAL_OPTIONS.find((option) => option.value === nutritionGoalType), [nutritionGoalType]);
-  const selectedActivity = useMemo(() => ACTIVITY_OPTIONS.find((option) => option.value === activityLevel), [activityLevel]);
 
   useEffect(() => {
     if (open && profile) {
