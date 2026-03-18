@@ -12,22 +12,48 @@ import NotFound from "@/pages/NotFound";
 import Auth from "@/pages/Auth";
 import AuthCallback from "@/pages/AuthCallback";
 
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
-const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
-const AdminUsage = lazy(() => import("@/pages/AdminUsage"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Profile = lazy(() => import("@/pages/Profile"));
-const Stats = lazy(() => import("@/pages/Stats"));
-const Water = lazy(() => import("@/pages/Water"));
-const Sleep = lazy(() => import("@/pages/Sleep"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const BodyWeight = lazy(() => import("@/pages/BodyWeight"));
-const Calendar = lazy(() => import("@/pages/Calendar"));
-const DailyBiofeedback = lazy(() => import("@/pages/DailyBiofeedback"));
-const BodyMeasurements = lazy(() => import("@/pages/BodyMeasurements"));
-const Nutrition = lazy(() => import("@/pages/Nutrition"));
-const Training = lazy(() => import("@/pages/Training"));
-const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const CHUNK_RELOAD_KEY = "appfit.chunk-reload";
+
+const lazyWithChunkRecovery = <T extends { default: React.ComponentType }>(
+  importer: () => Promise<T>,
+) =>
+  lazy(async () => {
+    try {
+      const mod = await importer();
+      sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+      return mod;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const chunkFailed =
+        message.includes("Failed to fetch dynamically imported module") ||
+        message.includes("Importing a module script failed");
+      const alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY) === "1";
+
+      if (chunkFailed && !alreadyReloaded) {
+        sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
+        window.location.reload();
+      }
+
+      throw error;
+    }
+  });
+
+const AdminDashboard = lazyWithChunkRecovery(() => import("@/pages/AdminDashboard"));
+const AdminUsers = lazyWithChunkRecovery(() => import("@/pages/AdminUsers"));
+const AdminUsage = lazyWithChunkRecovery(() => import("@/pages/AdminUsage"));
+const Dashboard = lazyWithChunkRecovery(() => import("@/pages/Dashboard"));
+const Profile = lazyWithChunkRecovery(() => import("@/pages/Profile"));
+const Stats = lazyWithChunkRecovery(() => import("@/pages/Stats"));
+const Water = lazyWithChunkRecovery(() => import("@/pages/Water"));
+const Sleep = lazyWithChunkRecovery(() => import("@/pages/Sleep"));
+const Settings = lazyWithChunkRecovery(() => import("@/pages/Settings"));
+const BodyWeight = lazyWithChunkRecovery(() => import("@/pages/BodyWeight"));
+const Calendar = lazyWithChunkRecovery(() => import("@/pages/Calendar"));
+const DailyBiofeedback = lazyWithChunkRecovery(() => import("@/pages/DailyBiofeedback"));
+const BodyMeasurements = lazyWithChunkRecovery(() => import("@/pages/BodyMeasurements"));
+const Nutrition = lazyWithChunkRecovery(() => import("@/pages/Nutrition"));
+const Training = lazyWithChunkRecovery(() => import("@/pages/Training"));
+const Onboarding = lazyWithChunkRecovery(() => import("@/pages/Onboarding"));
 
 const RouteLoadingState = () => (
   <div className="flex min-h-[40vh] items-center justify-center bg-background">

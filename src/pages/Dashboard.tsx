@@ -230,19 +230,21 @@ const Dashboard = () => {
   };
 
   const nutritionSummary = useMemo(
-    () =>
-      core?.nutritionToday
-        ? {
-            profileName:
-              core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
-            archetypeLabel: NUTRITION_ARCHETYPE_META[core.nutritionToday.targetBreakdown.dayArchetype].label,
-            targetCalories: core.nutritionToday.goals.calorie_goal,
-            consumedCalories: core.nutritionToday.totals.calories,
-            proteinGoal: core.nutritionToday.goals.protein_goal_g,
-            carbsGoal: core.nutritionToday.goals.carb_goal_g,
-            fatGoal: core.nutritionToday.goals.fat_goal_g,
-          }
-        : null,
+    () => {
+      if (!core?.nutritionToday) return null;
+      const archetypeKey = core.nutritionToday.targetBreakdown?.dayArchetype ?? "base";
+      const archetypeMeta = NUTRITION_ARCHETYPE_META[archetypeKey] ?? NUTRITION_ARCHETYPE_META.base;
+      return {
+        profileName:
+          core.nutritionToday.selectedProfile?.name ?? core.nutritionToday.dailyLog?.profile_name_snapshot ?? "Sin perfil",
+        archetypeLabel: archetypeMeta.label,
+        targetCalories: core.nutritionToday.goals.calorie_goal,
+        consumedCalories: core.nutritionToday.totals.calories,
+        proteinGoal: core.nutritionToday.goals.protein_goal_g,
+        carbsGoal: core.nutritionToday.goals.carb_goal_g,
+        fatGoal: core.nutritionToday.goals.fat_goal_g,
+      };
+    },
     [core?.nutritionToday],
   );
   const visibleRightCards = useMemo(
