@@ -556,6 +556,28 @@ const Dashboard = () => {
       return `${x},${Math.max(6, Math.min(94, y))}`;
     })
     .join(" ");
+  const weightGoalProgress = core?.goalProgress ?? null;
+  const weightGoalProgressSafe = weightGoalProgress !== null ? Math.max(0, Math.min(100, Math.round(weightGoalProgress))) : null;
+  const weightDelta = core?.latestWeightDeltaKg ?? null;
+  const weightTrendLabel =
+    core?.weightTrend?.trend === "up" ? "Subiendo" : core?.weightTrend?.trend === "down" ? "Bajando" : core?.weightTrend?.trend === "stable" ? "Estable" : "Sin tendencia";
+  const weightStatus =
+    core?.latestMeasurementWeight === null || core?.latestMeasurementWeight === undefined || weightGoalProgressSafe === null
+      ? { label: "Sin datos", className: "border-border/60 bg-muted/40 text-muted-foreground" }
+      : weightGoalProgressSafe >= 70
+        ? { label: "En ritmo", className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-500 dark:text-emerald-300" }
+        : weightGoalProgressSafe >= 35
+          ? { label: "Progreso", className: "border-sky-500/40 bg-sky-500/10 text-sky-600 dark:text-sky-300" }
+          : { label: "Atencion", className: "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300" };
+  const weightDeltaLabel = weightDelta !== null ? `${weightDelta > 0 ? "+" : ""}${weightDelta.toFixed(1)} kg` : "--";
+  const weightDeltaToneClass =
+    weightDelta === null
+      ? "text-muted-foreground"
+      : weightDelta > 0
+        ? "text-amber-600 dark:text-amber-300"
+        : weightDelta < 0
+          ? "text-emerald-600 dark:text-emerald-300"
+          : "text-muted-foreground";
 
   const quickActions = [
     { label: "+ Agua", href: "/water" },
@@ -814,13 +836,15 @@ const Dashboard = () => {
             <DashboardCardShell title="Peso y progreso" contentClassName={denseCardContentClass}>
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm text-muted-foreground">Peso actual</p>
-                <p className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-300">
-                  {core?.latestWeightDeltaKg !== null && core?.latestWeightDeltaKg !== undefined
-                    ? `${core.latestWeightDeltaKg > 0 ? "+" : ""}${core.latestWeightDeltaKg.toFixed(1)} kg`
-                    : "Sin delta"}
+                <p className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", weightStatus.className)}>
+                  {weightStatus.label}
                 </p>
               </div>
               <p className="text-4xl font-black leading-none">{core?.latestMeasurementWeight ? `${core.latestMeasurementWeight.toFixed(1)} kg` : "--"}</p>
+              <div className="space-y-1">
+                <p className={cn("text-sm font-semibold", weightDeltaToneClass)}>Cambio 7d: {weightDeltaLabel}</p>
+                <p className="text-xs text-muted-foreground">{weightTrendLabel}</p>
+              </div>
               <div className="h-24 rounded-xl border border-border/60 bg-muted/10 p-2">
                 {weightPath ? (
                   <svg viewBox="0 0 100 100" className="h-full w-full">
@@ -830,6 +854,18 @@ const Dashboard = () => {
                   <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin datos de tendencia</div>
                 )}
               </div>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Meta</span>
+                  <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
+                </div>
+              </div>
+              <Button asChild variant="outline" className="h-9 rounded-xl px-3 text-xs font-semibold">
+                <a href="#weight">Registrar peso</a>
+              </Button>
             </DashboardCardShell>
           </div>
         </section>

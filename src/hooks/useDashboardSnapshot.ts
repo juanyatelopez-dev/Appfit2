@@ -114,6 +114,12 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
       const goal = getUserGoal(profile, isGuest);
       const latestWeight = weightSnapshot.latest ? Number(weightSnapshot.latest.weight_kg) : null;
       const initialWeight = weightSnapshot.first ? Number(weightSnapshot.first.weight_kg) : profile?.weight ?? null;
+      const fallbackDelta =
+        weightSnapshot.entries.length >= 2
+          ? Number(weightSnapshot.entries[weightSnapshot.entries.length - 1].weight_kg) -
+            Number(weightSnapshot.entries[weightSnapshot.entries.length - 2].weight_kg)
+          : null;
+      const latestWeightDeltaKg = weightTrend.weeklyChange ?? fallbackDelta;
       const goalProgress = getGoalProgress({
         current: latestWeight,
         initial: initialWeight,
@@ -165,6 +171,7 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
         goal,
         goalProgress,
         latestWeight,
+        latestWeightDeltaKg,
         initialWeight,
         weightSnapshot,
         weightTrend,
