@@ -762,61 +762,59 @@ const Dashboard = () => {
               contentClassName={denseActionContentClass}
               className="xl:col-span-2"
             >
-              <div className={cn("grid gap-4", isWidgetVisible("quick_actions") && "xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]")}>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-[1.05rem] font-bold">Hoy estas al {todayCompletionPct}% completado</p>
-                    <div className="h-2.5 rounded-full bg-muted">
-                      <div className="h-2.5 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
-                    </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-[1.05rem] font-bold">Hoy estas al {todayCompletionPct}% completado</p>
+                  <div className="h-2.5 rounded-full bg-muted">
+                    <div className="h-2.5 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
                   </div>
+                </div>
 
-                  <div className="space-y-3 rounded-xl border border-border/60 bg-muted/10 p-3 md:p-4">
-                    <p className="text-sm text-muted-foreground">
-                      Te falta {remainingActionsCount} {remainingActionsCount === 1 ? "accion" : "acciones"} para completar el dia
-                    </p>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      {nextRequiredActionHref.startsWith("#") ? (
-                        <>
-                          <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
-                            <a href={nextRequiredActionHref}>Ir al registro</a>
-                          </Button>
-                          <Button asChild className="h-12 rounded-xl text-base font-semibold">
-                            <a href={nextRequiredActionHref}>{nextRequiredActionLabel}</a>
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
-                            <Link to={nextRequiredActionHref}>Ir al registro</Link>
-                          </Button>
-                          <Button asChild className="h-12 rounded-xl text-base font-semibold">
-                            <Link to={nextRequiredActionHref}>{nextRequiredActionLabel}</Link>
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                <div className="space-y-3 rounded-xl border border-border/60 bg-muted/10 p-3 md:p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Te falta {remainingActionsCount} {remainingActionsCount === 1 ? "accion" : "acciones"} para completar el dia
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {nextRequiredActionHref.startsWith("#") ? (
+                      <>
+                        <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
+                          <a href={nextRequiredActionHref}>Ir al registro</a>
+                        </Button>
+                        <Button asChild className="h-12 rounded-xl text-base font-semibold">
+                          <a href={nextRequiredActionHref}>{nextRequiredActionLabel}</a>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
+                          <Link to={nextRequiredActionHref}>Ir al registro</Link>
+                        </Button>
+                        <Button asChild className="h-12 rounded-xl text-base font-semibold">
+                          <Link to={nextRequiredActionHref}>{nextRequiredActionLabel}</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Semana</p>
-                    <div className="grid grid-cols-7 gap-2">
-                      {weeklyConsistency.days.map((day) => (
-                        <div
-                          key={day.dateKey}
-                          className={cn(
-                            "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
-                            day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
-                            !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
-                            day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
-                          )}
-                        >
-                          {day.label}
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Semana</p>
+                  <div className="grid grid-cols-7 gap-2">
+                    {weeklyConsistency.days.map((day) => (
+                      <div
+                        key={day.dateKey}
+                        className={cn(
+                          "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
+                          day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
+                          !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
+                          day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
+                        )}
+                      >
+                        {day.label}
+                      </div>
+                    ))}
                   </div>
+                  <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
                 </div>
 
                 {isWidgetVisible("quick_actions") ? (

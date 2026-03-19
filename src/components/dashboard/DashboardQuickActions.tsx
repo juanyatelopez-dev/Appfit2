@@ -66,14 +66,17 @@ const DashboardQuickActions = ({ embedded = false, nextActionLabel }: Props) => 
         </div>
       </div>
 
-      <div className="grid gap-2 md:gap-3 sm:grid-cols-2">
+      <div className={cn("grid gap-2 md:gap-3 sm:grid-cols-2", embedded && "xl:grid-cols-4")}>
         {QUICK_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
             <Link
               key={action.label}
               to={action.to}
-              className="group rounded-2xl border border-border/60 bg-background/50 p-3 transition hover:border-primary/40 hover:bg-primary/5 md:p-4"
+              className={cn(
+                "group rounded-2xl border border-border/60 bg-background/50 p-3 transition hover:border-primary/40 hover:bg-primary/5 md:p-4",
+                embedded && "rounded-xl",
+              )}
             >
               <div className="flex items-center justify-between">
                 <div className="rounded-xl border border-border/60 bg-card p-2">
