@@ -45,7 +45,7 @@ const QUICK_ACTIONS: QuickAction[] = [
 
 const DashboardQuickActions = ({ embedded = false }: Props) => {
   const content = (
-    <div className={cn("space-y-3", embedded && "rounded-xl border border-border/60 bg-muted/10 p-3")}>
+    <div className={cn("min-w-0 space-y-3", embedded && "overflow-hidden rounded-xl border border-border/60 bg-muted/10 p-3")}>
       {embedded ? (
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Acciones rapidas</p>
@@ -53,13 +53,7 @@ const DashboardQuickActions = ({ embedded = false }: Props) => {
         </div>
       ) : null}
 
-      <div
-        className={cn(
-          "grid gap-2 md:gap-3 sm:grid-cols-2",
-          embedded &&
-            "grid-flow-col auto-cols-[minmax(185px,1fr)] overflow-x-auto pb-1 sm:grid-flow-row sm:auto-cols-auto sm:overflow-visible xl:grid-cols-4",
-        )}
-      >
+      <div className={cn("grid gap-2 md:gap-3 sm:grid-cols-2", embedded && "grid-cols-2 xl:grid-cols-4")}>
         {QUICK_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
