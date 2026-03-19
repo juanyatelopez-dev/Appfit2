@@ -674,8 +674,8 @@ const Dashboard = () => {
               </div>
               <div className={cn("grid items-stretch", denseSectionGapClass)}>
                 <Card className="rounded-2xl border-border/60 bg-background/40">
-                  <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr] md:p-5">
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/70 p-4 text-center">
+                  <CardContent className="grid gap-4 p-4 md:grid-cols-[180px_1fr] md:p-5">
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/70 p-3 text-center">
                       <div className="mb-2 flex w-full items-center justify-between">
                         <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
                         <Popover>
@@ -699,9 +699,9 @@ const Dashboard = () => {
                           </PopoverContent>
                         </Popover>
                       </div>
-                      <p className="text-5xl font-black leading-none">{recoveryScore}</p>
-                      <p className="mt-1 text-lg font-semibold text-muted-foreground">/100</p>
-                      <p className={cn("mt-3 text-sm font-bold tracking-[0.2em]", recoveryAccentClass)}>{recoveryBand}</p>
+                      <p className="text-4xl font-black leading-none">{recoveryScore}</p>
+                      <p className="mt-1 text-base font-semibold text-muted-foreground">/100</p>
+                      <p className={cn("mt-2 text-xs font-bold tracking-[0.2em]", recoveryAccentClass)}>{recoveryBand}</p>
                     </div>
 
                     <div className="space-y-4">
