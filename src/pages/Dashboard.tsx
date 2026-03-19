@@ -28,7 +28,6 @@ import DashboardEmptyState from "@/components/dashboard/DashboardEmptyState";
 import DashboardLoadingState from "@/components/dashboard/DashboardLoadingState";
 import CalendarMiniWidget from "@/components/dashboard/CalendarMiniWidget";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
-import DashboardSectionTitle from "@/components/dashboard/DashboardSectionTitle";
 import PhysicalProgressHub from "@/components/dashboard/PhysicalProgressHub";
 import RecoveryCard from "@/components/dashboard/RecoveryCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
@@ -46,6 +45,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { useAuth } from "@/context/AuthContext";
 import { useDashboardSnapshot } from "@/hooks/useDashboardSnapshot";
 import {
@@ -593,100 +593,101 @@ const Dashboard = () => {
   return (
     <div className="app-shell min-h-0 w-full px-4 pb-5 pt-1 text-foreground sm:px-6 sm:pb-8 sm:pt-2">
       <div className="mx-auto max-w-[1540px] space-y-5">
+        <AppPageIntro
+          eyebrow="Dashboard / Centro operativo"
+          title={
+            <>
+              {greetingLabel}, <span className="text-primary">{profileDisplayName}</span>
+            </>
+          }
+          description={core?.todayLabel ?? "Cargando fecha..."}
+          actions={
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="h-10 rounded-xl px-4">
+                Dia
+              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-10 rounded-xl px-3">
+                    <Settings2 className="mr-2 h-4 w-4" />
+                    Widgets y densidad
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 space-y-4">
+                  <div className="space-y-2 border-b pb-4">
+                    <p className="text-sm font-medium">Densidad visual</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["comfortable", "compact"] as const).map((densityOption) => (
+                        <Button
+                          key={densityOption}
+                          type="button"
+                          size="sm"
+                          variant={cardDensity === densityOption ? "default" : "outline"}
+                          className="justify-center"
+                          onClick={() => setCardDensity(densityOption)}
+                        >
+                          {densityOption === "comfortable" ? "Comodo" : "Compacto"}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2 border-b pb-4">
+                    <p className="text-sm font-medium">Modulos de check-in</p>
+                    <div className="grid max-h-56 gap-2 overflow-auto pr-1">
+                      {DASHBOARD_CHECKIN_MODULE_DEFINITIONS.map((module) => {
+                        const checked = selectedModuleKeys.includes(module.key);
+                        return (
+                          <div key={module.key} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`dashboard-module-${module.key}`}
+                              checked={checked}
+                              onCheckedChange={(value) => handleToggleModule(module.key, Boolean(value))}
+                              disabled={saveModulePreferencesMutation.isPending}
+                            />
+                            <Label htmlFor={`dashboard-module-${module.key}`} className="text-sm font-normal">
+                              {module.label}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Widgets visibles</p>
+                    <div className="grid max-h-56 gap-2 overflow-auto pr-1">
+                      {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
+                        const checked = selectedWidgetKeys.includes(widget.key);
+                        return (
+                          <div key={widget.key} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`dashboard-widget-${widget.key}`}
+                              checked={checked}
+                              onCheckedChange={(value) => handleToggleWidget(widget.key, Boolean(value))}
+                              disabled={saveWidgetPreferencesMutation.isPending}
+                            />
+                            <Label htmlFor={`dashboard-widget-${widget.key}`} className="text-sm font-normal">
+                              {widget.label}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Button onClick={handleSyncDashboard} className="h-10 rounded-xl bg-primary px-4 text-primary-foreground hover:bg-primary/90">
+                <RefreshCcw className="mr-2 h-4 w-4" />
+                Sincronizar
+              </Button>
+            </div>
+          }
+        />
+
         <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
           <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
           <Card className="rounded-3xl border-border/60 bg-card/80">
             <CardContent className={denseHeroContentClass}>
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Dashboard / Centro operativo</p>
-                  <h1 className="text-2xl font-black tracking-tight md:text-3xl">
-                    {greetingLabel}, <span className="text-primary">{profileDisplayName}</span>
-                  </h1>
-                  <p className="text-sm text-muted-foreground">{core?.todayLabel ?? "Cargando fecha..."}</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="h-10 rounded-xl px-4">
-                    Dia
-                  </Button>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-10 rounded-xl px-3">
-                        <Settings2 className="mr-2 h-4 w-4" />
-                        Widgets y densidad
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent align="end" className="w-80 space-y-4">
-                      <div className="space-y-2 border-b pb-4">
-                        <p className="text-sm font-medium">Densidad visual</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {(["comfortable", "compact"] as const).map((densityOption) => (
-                            <Button
-                              key={densityOption}
-                              type="button"
-                              size="sm"
-                              variant={cardDensity === densityOption ? "default" : "outline"}
-                              className="justify-center"
-                              onClick={() => setCardDensity(densityOption)}
-                            >
-                              {densityOption === "comfortable" ? "Comodo" : "Compacto"}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="space-y-2 border-b pb-4">
-                        <p className="text-sm font-medium">Modulos de check-in</p>
-                        <div className="grid max-h-56 gap-2 overflow-auto pr-1">
-                          {DASHBOARD_CHECKIN_MODULE_DEFINITIONS.map((module) => {
-                            const checked = selectedModuleKeys.includes(module.key);
-                            return (
-                              <div key={module.key} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`dashboard-module-${module.key}`}
-                                  checked={checked}
-                                  onCheckedChange={(value) => handleToggleModule(module.key, Boolean(value))}
-                                  disabled={saveModulePreferencesMutation.isPending}
-                                />
-                                <Label htmlFor={`dashboard-module-${module.key}`} className="text-sm font-normal">
-                                  {module.label}
-                                </Label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium">Widgets visibles</p>
-                        <div className="grid max-h-56 gap-2 overflow-auto pr-1">
-                          {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
-                            const checked = selectedWidgetKeys.includes(widget.key);
-                            return (
-                              <div key={widget.key} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`dashboard-widget-${widget.key}`}
-                                  checked={checked}
-                                  onCheckedChange={(value) => handleToggleWidget(widget.key, Boolean(value))}
-                                  disabled={saveWidgetPreferencesMutation.isPending}
-                                />
-                                <Label htmlFor={`dashboard-widget-${widget.key}`} className="text-sm font-normal">
-                                  {widget.label}
-                                </Label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
-                  <Button onClick={handleSyncDashboard} className="h-10 rounded-xl bg-primary px-4 text-primary-foreground hover:bg-primary/90">
-                    <RefreshCcw className="mr-2 h-4 w-4" />
-                    Sincronizar
-                  </Button>
-                </div>
-              </div>
-
               <div className={cn("grid items-stretch", denseSectionGapClass)}>
                 <Card className="rounded-2xl border-border/60 bg-background/40">
                   <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr] md:p-5">

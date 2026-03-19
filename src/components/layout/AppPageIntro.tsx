@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 type AppPageIntroProps = {
   eyebrow?: string;
-  title: string;
+  title: ReactNode;
   description: string;
   icon?: ReactNode;
   actions?: ReactNode;
