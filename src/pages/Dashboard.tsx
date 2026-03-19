@@ -461,6 +461,22 @@ const Dashboard = () => {
     const [firstName] = fullName.split(/\s+/);
     return firstName || "atleta";
   }, [profile]);
+  const todayDateLabel = useMemo(() => {
+    const rawLabel = core?.todayLabel?.trim();
+    if (rawLabel) {
+      const parts = rawLabel.split(",");
+      if (parts.length > 1) {
+        return parts.slice(1).join(",").trim();
+      }
+      return rawLabel;
+    }
+
+    return new Date().toLocaleDateString("es-PE", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }, [core?.todayLabel]);
 
   const handleSyncDashboard = async () => {
     await Promise.all([
@@ -594,7 +610,7 @@ const Dashboard = () => {
               {greetingLabel}, <span className="text-primary">{profileDisplayName}</span>
             </>
           }
-          description={core?.todayLabel ?? "Cargando fecha..."}
+          description={todayDateLabel}
           actions={
             <div className="hidden items-center gap-2 md:flex">
               <Button variant="outline" size="sm" className="h-10 rounded-xl px-4">
@@ -677,6 +693,25 @@ const Dashboard = () => {
             </div>
           }
         />
+        <section aria-label="Dia de la semana" className="order-[-3] space-y-2 px-1 md:hidden">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Dia de la semana</p>
+          <div className="grid grid-cols-7 gap-2">
+            {weeklyConsistency.days.map((day) => (
+              <div
+                key={day.dateKey}
+                className={cn(
+                  "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
+                  day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
+                  !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
+                  day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
+                )}
+              >
+                {day.label}
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
+        </section>
 
         <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
           <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
@@ -818,33 +853,13 @@ const Dashboard = () => {
                     className="h-9 w-full justify-between rounded-xl px-3 text-xs"
                     onClick={() => setIsTodayDetailsExpanded((prev) => !prev)}
                   >
-                    <span>{isTodayDetailsExpanded ? "Ocultar semana y acciones" : "Ver semana y acciones rapidas"}</span>
+                    <span>{isTodayDetailsExpanded ? "Ocultar acciones rapidas" : "Ver acciones rapidas"}</span>
                     <ChevronDown className={cn("h-4 w-4 transition-transform", isTodayDetailsExpanded && "rotate-180")} />
                   </Button>
                 ) : null}
 
                 {!isMobile || isTodayDetailsExpanded ? (
                   <div className="space-y-3">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Semana</p>
-                      <div className="grid grid-cols-7 gap-2">
-                        {weeklyConsistency.days.map((day) => (
-                          <div
-                            key={day.dateKey}
-                            className={cn(
-                              "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
-                              day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
-                              !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
-                              day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
-                            )}
-                          >
-                            {day.label}
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
-                    </div>
-
                     {isWidgetVisible("quick_actions") ? (
                       <DashboardQuickActions
                         embedded
