@@ -94,7 +94,7 @@ const buildPrimaryAction = (
   };
 };
 
-const buildWeeklyConsistency = (
+export const buildWeeklyConsistency = (
   monthActivity: Map<string, DashboardMonthActivityDay> | undefined,
   todayKey: string,
 ) => {

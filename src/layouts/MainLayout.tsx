@@ -51,7 +51,7 @@ const MainLayout = () => {
           {isGuest && <GuestWarningBanner />}
           {!isGuest && <NotificationBanner />}
 
-          <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[10px] pt-5 pb-28 md:p-8 md:pb-8">
+          <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-[10px] pt-2 pb-28 md:px-8 md:pt-3 md:pb-8">
           <Outlet />
         </main>
         <MobileBottomNav />

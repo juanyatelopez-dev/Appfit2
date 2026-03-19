@@ -9,8 +9,10 @@ import {
   ShieldCheck,
   Target,
 } from "lucide-react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { startOfMonth } from "date-fns";
 
 import { usePreferences } from "@/context/PreferencesContext";
 import { useAuth } from "@/context/AuthContext";
@@ -25,6 +27,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDashboardSnapshot } from "@/hooks/useDashboardSnapshot";
+import { buildWeeklyConsistency } from "@/features/dashboard/dashboardViewModel";
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
@@ -33,11 +37,11 @@ const DashboardHeader = () => {
   const { language, t } = usePreferences();
   const { signOut, isGuest, exitGuest, canAccessAdmin } = useAuth();
   const navigate = useNavigate();
-  const today = new Date();
-
-  const days = language === "es" ? ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const currentDay = today.getDay();
-  const activeDayIndex = currentDay === 0 ? 6 : currentDay - 1;
+  const snapshot = useDashboardSnapshot(startOfMonth(new Date()));
+  const weeklyConsistency = useMemo(
+    () => buildWeeklyConsistency(snapshot.monthActivity, snapshot.todayKey),
+    [snapshot.monthActivity, snapshot.todayKey],
+  );
   const mobileNavItems = [
     { label: t("nav.progress"), path: "/progress", icon: BarChart3 },
     { label: t("nav.body"), path: "/body", icon: Ruler },
@@ -116,21 +120,24 @@ const DashboardHeader = () => {
             THE <span className="text-primary">PRIME</span> PROTOCOL
           </p>
         </div>
-        <div className="ml-4 hidden items-center gap-1 md:flex">
-          {days.map((day, i) => (
+        <div className="ml-4 hidden items-center gap-2 md:flex">
+          <div className="flex items-center gap-1">
+            {weeklyConsistency.days.map((day) => (
             <span
-              key={day}
+              key={day.dateKey}
               className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition-colors ${
-                i === activeDayIndex
+                day.isToday
                   ? "bg-primary text-primary-foreground"
-                  : i < activeDayIndex
+                  : day.completed
                     ? "bg-accent text-accent-foreground"
                     : "bg-secondary text-muted-foreground"
               }`}
             >
-              {day.charAt(0)}
+              {day.label}
             </span>
-          ))}
+            ))}
+          </div>
+          <span className="text-sm font-semibold text-muted-foreground">{weeklyConsistency.completedCount}/7</span>
         </div>
       </div>
 

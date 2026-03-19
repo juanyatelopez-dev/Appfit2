@@ -541,7 +541,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
+    <div className="app-shell min-h-screen px-4 pb-5 pt-1 text-foreground sm:px-6 sm:pb-8 sm:pt-2">
       <div className="mx-auto max-w-[1540px] space-y-5">
         <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
           <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
@@ -912,30 +912,8 @@ const Dashboard = () => {
           </div>
         </section>
 
-        <section aria-labelledby="dashboard-zone-actions" className={cn("grid xl:grid-cols-[1.3fr_1fr]", denseSectionGapClass)}>
+        <section aria-labelledby="dashboard-zone-actions" className={cn("grid", denseSectionGapClass)}>
           <h2 id="dashboard-zone-actions" className="sr-only">Zona de accion inmediata</h2>
-
-          <DashboardCardShell
-            title="Consistencia semanal"
-            titleRight={<p className="text-sm font-semibold">{weeklyConsistency.completedCount}/7</p>}
-            contentClassName={denseActionContentClass}
-          >
-            <div className="grid grid-cols-7 gap-2">
-              {weeklyConsistency.days.map((day) => (
-                <div
-                  key={day.dateKey}
-                  className={cn(
-                    "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
-                    day.completed ? "border-primary/40 bg-primary/10 text-foreground" : "border-border/60 text-muted-foreground",
-                    day.isToday && "ring-1 ring-primary/40",
-                  )}
-                >
-                  {day.label}
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">Se marca como completo cuando registras al menos dos controles del dia.</p>
-          </DashboardCardShell>
 
           <DashboardCardShell title="Acciones rapidas" contentClassName={denseActionContentClass}>
             <div className="flex flex-wrap gap-2">
@@ -945,7 +923,15 @@ const Dashboard = () => {
                 </Button>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">Avance operativo: {todayCompletionPct}%</p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Avance operativo del dia</span>
+                <span>{todayCompletionPct}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-muted">
+                <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
+              </div>
+            </div>
           </DashboardCardShell>
         </section>
 
