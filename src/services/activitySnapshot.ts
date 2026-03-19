@@ -53,14 +53,33 @@ const getActivityRangeSnapshotFallback = async (
   const isGuest = options?.isGuest || false;
   const timeZone = options?.timeZone || DEFAULT_WATER_TIMEZONE;
 
-  const [waterTotals, sleepTotals, bioRows, noteRows, nutritionRange, weightRows] = await Promise.all([
+  const [
+    waterTotalsResult,
+    sleepTotalsResult,
+    bioRowsResult,
+    noteRowsResult,
+    nutritionRangeResult,
+    weightRowsResult,
+  ] = await Promise.allSettled([
     getWaterRangeTotals(userId, from, to, { isGuest, timeZone }),
     getSleepRangeTotals(userId, from, to, { isGuest, timeZone }),
     getBiofeedbackRange(userId, from, to, { isGuest, timeZone }),
     listDailyNotesByRange(userId, from, to, { isGuest, timeZone }),
-    getNutritionRangeSummary(userId, from, to, { isGuest, timeZone }).catch(() => ({ days: [] })),
+    getNutritionRangeSummary(userId, from, to, { isGuest, timeZone }),
     listBodyMetricsBetween(userId, from, to, isGuest),
   ]);
+
+  const waterTotals =
+    waterTotalsResult.status === "fulfilled" ? waterTotalsResult.value : ([] as Array<{ date_key: string; total_ml: number }>);
+  const sleepTotals =
+    sleepTotalsResult.status === "fulfilled" ? sleepTotalsResult.value : ([] as Array<{ date_key: string; total_minutes: number }>);
+  const bioRows = bioRowsResult.status === "fulfilled" ? bioRowsResult.value : [];
+  const noteRows = noteRowsResult.status === "fulfilled" ? noteRowsResult.value : [];
+  const nutritionRange =
+    nutritionRangeResult.status === "fulfilled"
+      ? nutritionRangeResult.value
+      : { days: [] as Array<{ date_key: string; calories: number }> };
+  const weightRows = weightRowsResult.status === "fulfilled" ? weightRowsResult.value : [];
 
   const waterMap = new Map(waterTotals.map((row) => [row.date_key, toNumber(row.total_ml)]));
   const sleepMap = new Map(sleepTotals.map((row) => [row.date_key, toNumber(row.total_minutes)]));
@@ -121,10 +140,10 @@ export const getActivityRangeSnapshot = async (
   });
 
   if (error) {
-    if (isRpcUnavailableError(error)) {
-      return getActivityRangeSnapshotFallback(userId, from, to, { isGuest, timeZone });
+    if (!isRpcUnavailableError(error)) {
+      console.warn("[activitySnapshot] RPC failed, using fallback.", error);
     }
-    throw error;
+    return getActivityRangeSnapshotFallback(userId, from, to, { isGuest, timeZone });
   }
 
   const rows = Array.isArray(data) ? data : [];
@@ -154,4 +173,3 @@ export const getActivityRangeSnapshot = async (
 export const mapActivityRowsByDate = (rows: ActivityRangeDay[]) => new Map(rows.map((row) => [row.date_key, row]));
 
 export const dateToKey = toDateKey;
-

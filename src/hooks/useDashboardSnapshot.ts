@@ -87,7 +87,8 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
       return days;
     },
     enabled: Boolean(userId) || isGuest,
-    staleTime: 60_000,
+    staleTime: 15_000,
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
   });
 
@@ -190,7 +191,8 @@ export const useDashboardSnapshot = (currentMonth: Date) => {
       };
     },
     enabled: Boolean(userId) || isGuest,
-    staleTime: 45_000,
+    staleTime: 10_000,
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
   });
 

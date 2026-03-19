@@ -46,7 +46,8 @@ export type TimelineItem = {
 };
 
 const formatDateKey = (date: Date) => format(date, "yyyy-MM-dd");
-const fromDateKey = (dateKey: string) => new Date(`${dateKey}T00:00:00`);
+// Use noon to avoid timezone drift when converting to date keys across regions.
+const fromDateKey = (dateKey: string) => new Date(`${dateKey}T12:00:00`);
 export const TIMELINE_HOUR_HEIGHT = 72;
 const DAY_TOTAL_MINUTES = 24 * 60;
 
@@ -121,7 +122,7 @@ export function useCalendarPageState() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: calendarData, isLoading } = useQuery({
+  const { data: calendarData, isLoading, error: calendarDataError } = useQuery({
     queryKey: ["calendar_data", user?.id, formatDateKey(gridStart), formatDateKey(gridEnd), timezone, isGuest, waterGoal.water_goal_ml, sleepGoal.sleep_goal_minutes],
     queryFn: async () => {
       const activityRows = await getActivityRangeSnapshot(user?.id ?? null, gridStart, gridEnd, { isGuest, timeZone: timezone });
@@ -157,14 +158,17 @@ export function useCalendarPageState() {
       return daily;
     },
     enabled: queryEnabled,
+    placeholderData: (previousData) => previousData,
     staleTime: 45_000,
     refetchOnWindowFocus: false,
   });
 
+  const detailQueriesEnabled = queryEnabled && calendarView === "day";
+
   const { data: dayLogs = [] } = useQuery({
     queryKey: ["calendar_day_logs", user?.id, selectedDateKey, timezone, isGuest],
     queryFn: () => getWaterLogsByDate(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone }),
-    enabled: queryEnabled,
+    enabled: detailQueriesEnabled,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -172,7 +176,7 @@ export function useCalendarPageState() {
   const { data: selectedSleepDay } = useQuery({
     queryKey: ["calendar_day_sleep", user?.id, selectedDateKey, timezone, isGuest],
     queryFn: () => getSleepDay(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone }),
-    enabled: queryEnabled,
+    enabled: detailQueriesEnabled,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -180,7 +184,7 @@ export function useCalendarPageState() {
   const { data: selectedBiofeedback } = useQuery({
     queryKey: ["calendar_day_biofeedback", user?.id, selectedDateKey, timezone, isGuest],
     queryFn: () => getDailyBiofeedback(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone }),
-    enabled: queryEnabled,
+    enabled: detailQueriesEnabled,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -197,7 +201,7 @@ export function useCalendarPageState() {
     queryKey: ["calendar_day_nutrition", user?.id, selectedDateKey, timezone, isGuest, profileKey],
     queryFn: () =>
       getNutritionDaySummary(user?.id ?? null, fromDateKey(selectedDateKey), { isGuest, timeZone: timezone, profile }).catch(() => null),
-    enabled: queryEnabled,
+    enabled: detailQueriesEnabled,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -469,6 +473,7 @@ export function useCalendarPageState() {
     weekdayLabels,
     visibleDays,
     calendarData,
+    calendarDataError,
     isLoading,
     selectedDay,
     agendaDays,

@@ -27,6 +27,7 @@ const Calendar = () => {
     weekdayLabels,
     visibleDays,
     calendarData,
+    calendarDataError,
     isLoading,
     selectedDay,
     agendaDays,
@@ -55,11 +56,11 @@ const Calendar = () => {
   } = useCalendarPageState();
 
   const monthCalendarCard = (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="capitalize">{monthLabel}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="capitalize">{monthLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
         <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted-foreground md:gap-2 md:text-xs">
           {weekdayLabels.map((label) => (
             <div key={label}>{label}</div>
@@ -67,6 +68,12 @@ const Calendar = () => {
         </div>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">{t("calendar.loading")}</p>
+        ) : calendarDataError ? (
+          <p className="text-sm text-rose-500">
+            {language === "es"
+              ? "No se pudo cargar el calendario. Intenta sincronizar o recargar."
+              : "Could not load calendar. Try syncing or refreshing."}
+          </p>
         ) : (
           <div className="grid grid-cols-7 gap-1 md:gap-2">
             {visibleDays.map((dayDate) => {

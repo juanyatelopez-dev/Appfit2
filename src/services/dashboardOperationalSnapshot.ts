@@ -121,10 +121,10 @@ export const getDashboardOperationalSnapshot = async (
   });
 
   if (error) {
-    if (isRpcUnavailableError(error)) {
-      return fallbackDashboardOperationalSnapshot(userId, today, { isGuest, timeZone });
+    if (!isRpcUnavailableError(error)) {
+      console.warn("[dashboardOperationalSnapshot] RPC failed, using fallback.", error);
     }
-    throw error;
+    return fallbackDashboardOperationalSnapshot(userId, today, { isGuest, timeZone });
   }
 
   const row = (data ?? {}) as Record<string, unknown>;
@@ -164,4 +164,3 @@ export const getDashboardOperationalSnapshot = async (
     activeDays7: toNumber(row.active_days_7),
   };
 };
-
