@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt", "placeholder.svg", "body-mannequin.png"],
+      includeAssets: ["favicon.ico", "robots.txt", "placeholder.svg"],
       manifest: {
         name: "AppFit",
         short_name: "AppFit",
@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => ({
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        globIgnores: ["**/body-mannequin.png"],
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === "document",
