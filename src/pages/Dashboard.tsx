@@ -4,6 +4,7 @@ import { startOfMonth } from "date-fns";
 import {
   Activity,
   CalendarDays,
+  ChevronDown,
   CircleHelp,
   CheckCircle2,
   Clock3,
@@ -46,6 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { useAuth } from "@/context/AuthContext";
 import { useDashboardSnapshot } from "@/hooks/useDashboardSnapshot";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   loadDashboardCardDensity,
   saveDashboardCardDensity,
@@ -167,6 +169,11 @@ const Dashboard = () => {
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const [isSecondaryExpanded, setIsSecondaryExpanded] = useState(false);
+  const [isRecoveryDetailsExpanded, setIsRecoveryDetailsExpanded] = useState(false);
+  const [isTodayDetailsExpanded, setIsTodayDetailsExpanded] = useState(false);
+  const [isPhysicalDetailsExpanded, setIsPhysicalDetailsExpanded] = useState(false);
   const [cardDensity, setCardDensity] = useState<DashboardCardDensity>(() => loadDashboardCardDensity());
   const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
@@ -574,6 +581,7 @@ const Dashboard = () => {
   const remainingActionsCount = Math.max(missingModules.length, 0);
   const nextRequiredActionLabel = nextModule ? `Registrar ${nextModule.label.toLowerCase()}` : "Dia completado";
   const nextRequiredActionHref = nextModule?.href ?? primaryAction.href;
+  const showSecondaryDashboardZones = !isMobile || isSecondaryExpanded;
 
   return (
     <div className="app-shell min-h-0 w-full px-4 pb-5 pt-1 text-foreground sm:px-6 sm:pb-8 sm:pt-2">
@@ -588,7 +596,7 @@ const Dashboard = () => {
           }
           description={core?.todayLabel ?? "Cargando fecha..."}
           actions={
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 md:flex">
               <Button variant="outline" size="sm" className="h-10 rounded-xl px-4">
                 Dia
               </Button>
@@ -673,7 +681,7 @@ const Dashboard = () => {
         <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
           <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
           <Card className="rounded-3xl border-border/60 bg-background/40">
-            <CardContent className="grid gap-4 p-4 md:grid-cols-[150px_1fr] md:p-4">
+            <CardContent className="grid gap-3 p-3 md:grid-cols-[150px_1fr] md:gap-4 md:p-4">
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/70 p-2.5 text-center">
                       <div className="mb-2 flex w-full items-center justify-between">
                         <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
@@ -705,11 +713,11 @@ const Dashboard = () => {
                       <p className={cn("mt-1.5 text-[11px] font-bold tracking-[0.2em]", recoveryAccentClass)}>{recoveryBand}</p>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3 md:space-y-4">
                       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground">Recomendacion</p>
-                          <p className="text-2xl font-black leading-tight">{recommendationLabel}</p>
+                          <p className="text-xl font-black leading-tight md:text-2xl">{recommendationLabel}</p>
                         </div>
                         {primaryAction.href.startsWith("#") ? (
                           <Button asChild className="h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
@@ -722,24 +730,38 @@ const Dashboard = () => {
                         )}
                       </div>
 
-                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                        <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recuperacion</p>
-                          <p className={cn("mt-1 text-base font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando"}</p>
+                      {isMobile ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-9 w-full justify-between rounded-xl px-3 text-xs"
+                          onClick={() => setIsRecoveryDetailsExpanded((prev) => !prev)}
+                        >
+                          <span>{isRecoveryDetailsExpanded ? "Ocultar detalle fisiologico" : "Ver detalle fisiologico"}</span>
+                          <ChevronDown className={cn("h-4 w-4 transition-transform", isRecoveryDetailsExpanded && "rotate-180")} />
+                        </Button>
+                      ) : null}
+
+                      {!isMobile || isRecoveryDetailsExpanded ? (
+                        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                          <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recuperacion</p>
+                            <p className={cn("mt-1 text-base font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando"}</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Energia</p>
+                            <p className="mt-1 text-base font-semibold">{energyLabel}</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Estres</p>
+                            <p className="mt-1 text-base font-semibold">{stressLabel}</p>
+                          </div>
+                          <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Hidratacion</p>
+                            <p className="mt-1 text-base font-semibold">{hydrationProgress}%</p>
+                          </div>
                         </div>
-                        <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Energia</p>
-                          <p className="mt-1 text-base font-semibold">{energyLabel}</p>
-                        </div>
-                        <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Estres</p>
-                          <p className="mt-1 text-base font-semibold">{stressLabel}</p>
-                        </div>
-                        <div className="rounded-xl border border-border/60 bg-card/70 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Hidratacion</p>
-                          <p className="mt-1 text-base font-semibold">{hydrationProgress}%</p>
-                        </div>
-                      </div>
+                      ) : null}
 
                       <div className="h-2 rounded-full bg-muted">
                         <div className={cn("h-2 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
@@ -789,30 +811,46 @@ const Dashboard = () => {
                   )}
                 </div>
 
-                <div className="space-y-2 md:hidden">
-                  <p className="text-sm font-medium">Semana</p>
-                  <div className="grid grid-cols-7 gap-2">
-                    {weeklyConsistency.days.map((day) => (
-                      <div
-                        key={day.dateKey}
-                        className={cn(
-                          "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
-                          day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
-                          !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
-                          day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
-                        )}
-                      >
-                        {day.label}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
-                </div>
+                {isMobile ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-9 w-full justify-between rounded-xl px-3 text-xs"
+                    onClick={() => setIsTodayDetailsExpanded((prev) => !prev)}
+                  >
+                    <span>{isTodayDetailsExpanded ? "Ocultar semana y acciones" : "Ver semana y acciones rapidas"}</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", isTodayDetailsExpanded && "rotate-180")} />
+                  </Button>
+                ) : null}
 
-                {isWidgetVisible("quick_actions") ? (
-                  <DashboardQuickActions
-                    embedded
-                  />
+                {!isMobile || isTodayDetailsExpanded ? (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Semana</p>
+                      <div className="grid grid-cols-7 gap-2">
+                        {weeklyConsistency.days.map((day) => (
+                          <div
+                            key={day.dateKey}
+                            className={cn(
+                              "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
+                              day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
+                              !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
+                              day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
+                            )}
+                          >
+                            {day.label}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
+                    </div>
+
+                    {isWidgetVisible("quick_actions") ? (
+                      <DashboardQuickActions
+                        embedded
+                      />
+                    ) : null}
+                  </div>
                 ) : null}
               </div>
             </DashboardCardShell>
@@ -821,7 +859,7 @@ const Dashboard = () => {
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Foco</p>
-                  <p className="text-sm font-semibold">{focusHeading}</p>
+                  <p className="line-clamp-1 text-sm font-semibold">{focusHeading}</p>
                 </div>
                 <p className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", weightStatus.className)}>
                   {weightStatus.label}
@@ -839,7 +877,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="h-16 rounded-xl border border-border/60 bg-muted/10 p-2">
+              <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2 md:h-16">
                 {weightPath ? (
                   <svg viewBox="0 0 100 100" className="h-full w-full">
                     <polyline fill="none" stroke="currentColor" strokeWidth="3" className="text-primary" points={weightPath} />
@@ -849,31 +887,51 @@ const Dashboard = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {compactPhysicalMetrics.map((metric) => (
-                  <div key={metric.label} className="rounded-xl border border-border/60 bg-muted/10 px-2 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{metric.label}</p>
-                    <p className="mt-1 text-sm font-semibold leading-tight">{metric.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Meta</span>
-                  <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
-                </div>
-                <div className="h-2 rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-muted-foreground">{physicalSummary?.lastUpdatedLabel ?? "Sin actualizaciones fisicas"}</p>
-                <Button type="button" variant="outline" className="h-9 rounded-xl px-3 text-xs font-semibold" onClick={() => setIsWeightModalOpen(true)}>
+              <div className="flex items-center gap-2">
+                <Button type="button" className="h-9 rounded-xl px-3 text-xs font-semibold" onClick={() => setIsWeightModalOpen(true)}>
                   Registrar peso
                 </Button>
+                <Button asChild type="button" variant="outline" className="h-9 rounded-xl px-3 text-xs font-semibold">
+                  <Link to="/body">Ir a medidas</Link>
+                </Button>
               </div>
+
+              {isMobile ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-9 w-full justify-between rounded-xl px-3 text-xs"
+                  onClick={() => setIsPhysicalDetailsExpanded((prev) => !prev)}
+                >
+                  <span>{isPhysicalDetailsExpanded ? "Ocultar detalle corporal" : "Ver detalle corporal"}</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", isPhysicalDetailsExpanded && "rotate-180")} />
+                </Button>
+              ) : null}
+
+              {!isMobile || isPhysicalDetailsExpanded ? (
+                <>
+                  <div className="grid grid-cols-3 gap-2">
+                    {compactPhysicalMetrics.map((metric) => (
+                      <div key={metric.label} className="rounded-xl border border-border/60 bg-muted/10 px-2 py-2">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{metric.label}</p>
+                        <p className="mt-1 text-sm font-semibold leading-tight">{metric.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Meta</span>
+                      <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted">
+                      <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">{physicalSummary?.lastUpdatedLabel ?? "Sin actualizaciones fisicas"}</p>
+                </>
+              ) : null}
             </DashboardCardShell>
           </div>
         </section>
@@ -933,6 +991,25 @@ const Dashboard = () => {
           </div>
         </section>
 
+        {isMobile ? (
+          <section aria-label="Contenido secundario del dia" className="space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 w-full justify-between rounded-xl px-4"
+              onClick={() => setIsSecondaryExpanded((prev) => !prev)}
+            >
+              <span className="text-sm font-semibold">
+                {isSecondaryExpanded ? "Ocultar contenido secundario" : "Ver entrenamiento, nutricion y calendario"}
+              </span>
+              <ChevronDown className={cn("h-4 w-4 transition-transform", isSecondaryExpanded && "rotate-180")} />
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Priorizamos registro rapido. El contenido operativo extendido queda en esta seccion.
+            </p>
+          </section>
+        ) : null}
+
         <Dialog open={isWaterModalOpen} onOpenChange={setIsWaterModalOpen}>
           <DialogContent className="max-h-[90vh] w-[95vw] max-w-5xl overflow-y-auto p-4 md:p-6">
             <DialogHeader>
@@ -963,8 +1040,9 @@ const Dashboard = () => {
           </DialogContent>
         </Dialog>
 
-        <section aria-labelledby="dashboard-zone-main" className={cn("grid xl:grid-cols-[1.6fr_1.3fr_1fr]", denseSectionGapClass)}>
-          <h2 id="dashboard-zone-main" className="sr-only">Bloques principales del dashboard</h2>
+        {showSecondaryDashboardZones ? (
+          <section aria-labelledby="dashboard-zone-main" className={cn("grid xl:grid-cols-[1.6fr_1.3fr_1fr]", denseSectionGapClass)}>
+            <h2 id="dashboard-zone-main" className="sr-only">Bloques principales del dashboard</h2>
 
           <DashboardCardShell title="Entrenamiento de hoy" className="h-full" contentClassName={denseCardContentClass}>
             <div className="space-y-3">
@@ -1079,12 +1157,15 @@ const Dashboard = () => {
             </section>
 
           </div>
-        </section>
+          </section>
+        ) : null}
 
-        <section aria-labelledby="dashboard-zone-extension" className="space-y-4">
-          <h2 id="dashboard-zone-extension" className="sr-only">Zona de extension progresiva</h2>
-          {stackCards.length > 0 ? <div className="space-y-4">{stackCards.map((card) => <div key={card.key}>{card.node}</div>)}</div> : null}
-        </section>
+        {showSecondaryDashboardZones ? (
+          <section aria-labelledby="dashboard-zone-extension" className="space-y-4">
+            <h2 id="dashboard-zone-extension" className="sr-only">Zona de extension progresiva</h2>
+            {stackCards.length > 0 ? <div className="space-y-4">{stackCards.map((card) => <div key={card.key}>{card.node}</div>)}</div> : null}
+          </section>
+        ) : null}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BarChart3, Ruler, Scale, UtensilsCrossed } from "lucide-react";
+import { ArrowUpRight, Activity, Ruler, Scale, UtensilsCrossed } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,14 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: Ruler,
   },
   {
-    label: "Ver estadisticas",
-    description: "Abrir tendencias y progreso",
-    to: "/progress",
-    icon: BarChart3,
+    label: "Registrar biofeedback",
+    description: "Actualizar energia, estres y lectura diaria",
+    to: "/biofeedback",
+    icon: Activity,
   },
   {
-    label: "Ir a nutricion",
-    description: "Revisar comidas y objetivos",
+    label: "Registrar comida",
+    description: "Cargar consumo y avance nutricional",
     to: "/nutrition",
     icon: UtensilsCrossed,
   },
@@ -53,7 +53,13 @@ const DashboardQuickActions = ({ embedded = false }: Props) => {
         </div>
       ) : null}
 
-      <div className={cn("grid gap-2 md:gap-3 sm:grid-cols-2", embedded && "xl:grid-cols-4")}>
+      <div
+        className={cn(
+          "grid gap-2 md:gap-3 sm:grid-cols-2",
+          embedded &&
+            "grid-flow-col auto-cols-[minmax(185px,1fr)] overflow-x-auto pb-1 sm:grid-flow-row sm:auto-cols-auto sm:overflow-visible xl:grid-cols-4",
+        )}
+      >
         {QUICK_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
@@ -72,14 +78,14 @@ const DashboardQuickActions = ({ embedded = false }: Props) => {
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
               </div>
               <p className="mt-2 text-sm font-semibold leading-tight">{action.label}</p>
-              <p className="mt-1 text-xs leading-snug text-muted-foreground">{action.description}</p>
+              <p className={cn("mt-1 text-xs leading-snug text-muted-foreground", embedded && "hidden sm:block")}>{action.description}</p>
             </Link>
           );
         })}
       </div>
 
       <Button asChild variant="outline" className="h-10 w-full justify-center">
-        <Link to="/progress">Abrir resumen completo</Link>
+        <Link to="/biofeedback">Abrir registro completo</Link>
       </Button>
     </div>
   );
