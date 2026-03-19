@@ -91,6 +91,13 @@ type NutritionEntryInsertParams = {
   timeZone?: string;
 };
 
+const UUID_V4_LIKE_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const toValidDailyLogId = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  return UUID_V4_LIKE_REGEX.test(value) ? value : null;
+};
+
 export const listNutritionProfiles = listNutritionProfilesImpl;
 
 export const upsertNutritionProfile = upsertNutritionProfileImpl;
@@ -175,7 +182,7 @@ export const addNutritionEntry = async (params: NutritionEntryInsertParams): Pro
 
   const payload = {
     date_key: getDateKeyForTimezone(date, timeZone),
-    daily_log_id: dailyLogId,
+    daily_log_id: toValidDailyLogId(dailyLogId),
     meal_type,
     food_name: name,
     food_name_i18n: params.food_name_i18n ?? null,

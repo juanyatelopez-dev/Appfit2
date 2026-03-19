@@ -39,6 +39,7 @@ import TodayWeightModule from "@/components/daily/TodayWeightModule";
 import SleepCard from "@/components/dashboard/SleepCard";
 import WaterCard from "@/components/dashboard/WaterCard";
 import WaterWorkspace from "@/components/water/WaterWorkspace";
+import SleepWorkspace from "@/components/sleep/SleepWorkspace";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -157,6 +158,7 @@ const Dashboard = () => {
   const [isModuleTransitioning, setIsModuleTransitioning] = useState(false);
   const [showExtendedView, setShowExtendedView] = useState(false);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
+  const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
   const [cardDensity, setCardDensity] = useState<DashboardCardDensity>(() => loadDashboardCardDensity());
   const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
@@ -836,6 +838,7 @@ const Dashboard = () => {
                 accentClassName="bg-violet-500/90 text-violet-100"
                 actionHref="/sleep"
                 actionLabel="+"
+                onActionClick={() => setIsSleepModalOpen(true)}
               />
             </section>
             <DashboardMetricCard
@@ -858,6 +861,16 @@ const Dashboard = () => {
               <DialogDescription>Registro completo de hidratacion sin salir del centro operativo.</DialogDescription>
             </DialogHeader>
             <WaterWorkspace embedded />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isSleepModalOpen} onOpenChange={setIsSleepModalOpen}>
+          <DialogContent className="max-h-[90vh] w-[95vw] max-w-5xl overflow-y-auto p-4 md:p-6">
+            <DialogHeader>
+              <DialogTitle>Sueno</DialogTitle>
+              <DialogDescription>Registro completo de sueno sin salir del centro operativo.</DialogDescription>
+            </DialogHeader>
+            <SleepWorkspace embedded />
           </DialogContent>
         </Dialog>
 
