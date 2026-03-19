@@ -94,7 +94,7 @@ const DashboardMetricCard = ({
   actionLabel,
 }: DailyMetricCardProps) => (
   <Card className="group rounded-2xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-    <CardContent className="space-y-3 p-4">
+    <CardContent className="space-y-3 p-4 pt-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className={cn("rounded-xl border border-border/60 bg-background/60 p-2", accentClassName)}>
@@ -638,7 +638,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className={cn("grid items-stretch xl:grid-cols-[1.9fr_1fr]", denseSectionGapClass)}>
+              <div className={cn("grid items-stretch", denseSectionGapClass)}>
                 <Card className="rounded-2xl border-border/60 bg-background/40">
                   <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr] md:p-5">
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/70 p-4 text-center">
@@ -713,33 +713,12 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
 
-                <DashboardCardShell title="Progreso semanal" contentClassName={denseCardContentClass}>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-2xl font-black">{weeklyConsistency.completedCount}/7</p>
-                    <p className="text-sm text-muted-foreground">completado</p>
-                  </div>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {weeklyConsistency.days.map((day) => (
-                      <div
-                        key={`hero-week-${day.dateKey}`}
-                        className={cn(
-                          "rounded-md border px-1.5 py-1 text-center text-[11px] font-semibold",
-                          day.completed ? "border-primary/40 bg-primary/10 text-foreground" : "border-border/60 text-muted-foreground",
-                          day.isToday && "ring-1 ring-primary/40",
-                        )}
-                      >
-                        {day.label}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{completionCount}/{dailyModules.length} controles del dia completados.</p>
-                </DashboardCardShell>
               </div>
             </CardContent>
           </Card>
         </section>
 
-        <section aria-labelledby="dashboard-zone-metrics" className="space-y-2">
+        <section aria-labelledby="dashboard-zone-metrics" className="space-y-2 pt-1">
           <h2 id="dashboard-zone-metrics" className="sr-only">Metricas diarias</h2>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <section id="water" className="min-w-0">
@@ -927,35 +906,54 @@ const Dashboard = () => {
               />
             </section>
 
-            <DashboardCardShell title="Resumen semanal" contentClassName={denseCardContentClass}>
-              <p className="text-sm text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
-              <p className="text-sm text-muted-foreground">
-                {upcomingItems[0]?.title ? `${upcomingItems[0].title}: ${upcomingItems[0].detail}` : "Sin eventos prioritarios hoy."}
-              </p>
-            </DashboardCardShell>
           </div>
         </section>
 
         <section aria-labelledby="dashboard-zone-actions" className={cn("grid", denseSectionGapClass)}>
           <h2 id="dashboard-zone-actions" className="sr-only">Zona de accion inmediata</h2>
+          <DashboardCardShell
+            title="Control operativo"
+            titleRight={<p className="text-sm font-semibold">{weeklyConsistency.completedCount}/7</p>}
+            contentClassName={denseActionContentClass}
+          >
+            <div className="grid gap-3 xl:grid-cols-[1fr_auto] xl:items-center">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Avance operativo del dia</span>
+                  <span>{todayCompletionPct}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
+                </div>
+                <p className="text-xs text-muted-foreground">{completionCount}/{dailyModules.length} controles del dia completados.</p>
+              </div>
+              <div className="flex flex-wrap gap-2 xl:justify-end">
+                {quickActions.map((action) => (
+                  <Button key={action.label} asChild variant="outline" className="h-9 rounded-xl px-3 text-sm">
+                    {action.href.startsWith("#") ? <a href={action.href}>{action.label}</a> : <Link to={action.href}>{action.label}</Link>}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
-          <DashboardCardShell title="Acciones rapidas" contentClassName={denseActionContentClass}>
-            <div className="flex flex-wrap gap-2">
-              {quickActions.map((action) => (
-                <Button key={action.label} asChild variant="outline" className="h-9 rounded-xl px-3 text-sm">
-                  {action.href.startsWith("#") ? <a href={action.href}>{action.label}</a> : <Link to={action.href}>{action.label}</Link>}
-                </Button>
+            <div className="grid grid-cols-7 gap-2">
+              {weeklyConsistency.days.map((day) => (
+                <div
+                  key={day.dateKey}
+                  className={cn(
+                    "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
+                    day.completed ? "border-primary/40 bg-primary/10 text-foreground" : "border-border/60 text-muted-foreground",
+                    day.isToday && "ring-1 ring-primary/40",
+                  )}
+                >
+                  {day.label}
+                </div>
               ))}
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Avance operativo del dia</span>
-                <span>{todayCompletionPct}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted">
-                <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
-              </div>
-            </div>
+
+            <p className="text-xs text-muted-foreground">
+              {upcomingItems[0]?.title ? `${upcomingItems[0].title}: ${upcomingItems[0].detail}` : "Sin eventos prioritarios hoy."}
+            </p>
           </DashboardCardShell>
         </section>
 
