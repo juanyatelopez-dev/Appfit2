@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { startOfMonth } from "date-fns";
-import { CalendarDays, CheckCircle2, Crosshair, Dumbbell, Settings2, TimerReset } from "lucide-react";
+import { CalendarDays, CheckCircle2, Dumbbell, RefreshCcw, Settings2, Sparkles, TimerReset } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -22,7 +22,6 @@ import TodayMealsModule from "@/components/daily/TodayMealsModule";
 import TodayWeightModule from "@/components/daily/TodayWeightModule";
 import SleepCard from "@/components/dashboard/SleepCard";
 import WaterCard from "@/components/dashboard/WaterCard";
-import { AppPageIntro } from "@/components/layout/AppPageIntro";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -231,10 +230,6 @@ const Dashboard = () => {
     },
     [core?.nutritionToday],
   );
-  const visibleRightCards = useMemo(
-    () => visibleWidgetKeySet.has("hero_recovery") || visibleWidgetKeySet.has("hero_focus"),
-    [visibleWidgetKeySet],
-  );
   const visibleStatusRow = isWidgetVisible("status_row");
   const showPrimaryTodayGrid =
     isWidgetVisible("nutrition") ||
@@ -353,25 +348,6 @@ const Dashboard = () => {
       });
     }
 
-    if (widgetIsVisible("calendar")) {
-      cards.push({
-        key: "calendar",
-        placement: {
-          weight: 5,
-          preferredColumn: "left",
-          mobileOrder: 70,
-        },
-        node: (
-          <CalendarMiniWidget
-            month={currentMonth}
-            onMonthChange={setCurrentMonth}
-            activity={snapshot.monthActivity}
-            loading={snapshot.monthActivityLoading}
-          />
-        ),
-      });
-    }
-
     return cards;
   }, [
     core?.goal?.goal_direction,
@@ -386,14 +362,11 @@ const Dashboard = () => {
     core?.recovery.status,
     core?.recovery.subscores,
     core?.waistComparison,
-    currentMonth,
     visibleWidgetKeySet,
     nextActionLabel,
     nutritionSummary,
     saveNoteMutation,
     snapshot.coreLoading,
-    snapshot.monthActivity,
-    snapshot.monthActivityLoading,
   ]);
   const defaultSecondaryCardLimit = 4;
   const visibleStackCards = useMemo(
@@ -408,78 +381,108 @@ const Dashboard = () => {
   const denseHeroContentClass = isCompactDensity
     ? "grid gap-2 p-3 sm:gap-3 sm:p-4 md:gap-4 md:p-5"
     : "grid gap-3 p-3 sm:gap-4 sm:p-4 md:gap-6 md:p-6";
+  const greetingLabel = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Buenos dias";
+    if (hour < 19) return "Buenas tardes";
+    return "Buenas noches";
+  }, []);
+  const profileDisplayName = useMemo(() => {
+    const fullName = (profile as { full_name?: string } | null)?.full_name?.trim();
+    if (!fullName) return "atleta";
+    const [firstName] = fullName.split(/\s+/);
+    return firstName || "atleta";
+  }, [profile]);
+
+  const handleSyncDashboard = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["dashboard_snapshot"] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard_training_today"] }),
+      queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
+    ]);
+    toast.success("Dashboard sincronizado.");
+  };
 
   return (
     <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1540px] space-y-6">
         <section aria-labelledby="dashboard-zone-hero" className="space-y-4">
-        <h2 id="dashboard-zone-hero" className="sr-only">Zona hero operativo</h2>
-        <AppPageIntro
-          eyebrow="Panel diario"
-          icon={<Crosshair className="h-3.5 w-3.5" />}
-          title="Centro operativo"
-          description="Registra peso, hidratacion, sueno, medidas, biofeedback y comidas desde una sola pantalla."
-          titleClassName="text-2xl sm:text-3xl"
-          descriptionClassName="max-w-2xl"
-          actions={<Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="app-outline-button rounded-2xl">
-              <Settings2 className="mr-2 h-4 w-4" />
-              Widgets y densidad
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Densidad de cards</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={cardDensity === "compact" ? "default" : "outline"}
-                  className="h-8 rounded-lg text-xs"
-                  onClick={() => setCardDensity("compact")}
-                >
-                  Compacto
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={cardDensity === "comfortable" ? "default" : "outline"}
-                  className="h-8 rounded-lg text-xs"
-                  onClick={() => setCardDensity("comfortable")}
-                >
-                  Comodo
-                </Button>
+          <h2 id="dashboard-zone-hero" className="sr-only">Zona hero operativo</h2>
+          <div className="app-surface-tile rounded-3xl border border-border/60 bg-card/70 p-4 md:p-5">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-1">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Dashboard principal</p>
+                <h1 className="text-2xl font-black tracking-tight md:text-3xl">
+                  {greetingLabel}, <span className="text-primary">{profileDisplayName}</span>
+                </h1>
+                <p className="text-sm text-muted-foreground">{core?.todayLabel ?? "Cargando fecha..."}</p>
               </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Centro operativo</p>
-              <p className="text-xs text-muted-foreground">Controla que tarjetas aparecen en la pestana Centro operativo.</p>
-              <div className="grid max-h-72 gap-2 overflow-auto pr-1">
-                {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
-                  const checked = selectedWidgetKeys.includes(widget.key);
-                  return (
-                    <div key={widget.key} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`dashboard-widget-${widget.key}`}
-                        checked={checked}
-                        onCheckedChange={(value) => handleToggleWidget(widget.key, Boolean(value))}
-                        disabled={saveWidgetPreferencesMutation.isPending}
-                      />
-                      <Label htmlFor={`dashboard-widget-${widget.key}`} className="text-sm font-normal">
-                        {widget.label}
-                      </Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="app-outline-button rounded-xl">
+                      <Settings2 className="mr-2 h-4 w-4" />
+                      Widgets y densidad
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm space-y-4 sm:w-96">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Densidad de cards</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={cardDensity === "compact" ? "default" : "outline"}
+                          className="h-8 rounded-lg text-xs"
+                          onClick={() => setCardDensity("compact")}
+                        >
+                          Compacto
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={cardDensity === "comfortable" ? "default" : "outline"}
+                          className="h-8 rounded-lg text-xs"
+                          onClick={() => setCardDensity("comfortable")}
+                        >
+                          Comodo
+                        </Button>
+                      </div>
                     </div>
-                  );
-                })}
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Centro operativo</p>
+                      <p className="text-xs text-muted-foreground">Controla que tarjetas aparecen en la pestana Centro operativo.</p>
+                      <div className="grid max-h-72 gap-2 overflow-auto pr-1">
+                        {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
+                          const checked = selectedWidgetKeys.includes(widget.key);
+                          return (
+                            <div key={widget.key} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`dashboard-widget-${widget.key}`}
+                                checked={checked}
+                                onCheckedChange={(value) => handleToggleWidget(widget.key, Boolean(value))}
+                                disabled={saveWidgetPreferencesMutation.isPending}
+                              />
+                              <Label htmlFor={`dashboard-widget-${widget.key}`} className="text-sm font-normal">
+                                {widget.label}
+                              </Label>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <Button type="button" className="rounded-xl bg-primary px-4 text-primary-foreground hover:bg-primary/90" onClick={() => void handleSyncDashboard()}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  Sincronizar
+                </Button>
               </div>
             </div>
-          </PopoverContent>
-          </Popover>}
-        />
+          </div>
 
         <Card className="app-surface-hero overflow-hidden rounded-[22px] md:rounded-[28px]">
-        <CardContent className={cn(denseHeroContentClass, visibleRightCards && "xl:grid-cols-[1.55fr_0.85fr]")}>
+        <CardContent className={cn(denseHeroContentClass, "xl:grid-cols-[1.55fr_0.85fr]")}>
           <div className="space-y-4">
             {isWidgetVisible("hero_routine") ? (
             <div className="app-surface-tile rounded-2xl p-3 md:p-4">
@@ -497,7 +500,7 @@ const Dashboard = () => {
                     <Link to="/training?tab=today">Ver rutina</Link>
                   </Button>
                   <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto">
-                    <Link to="/training?tab=library">Ir a ejercicios</Link>
+                    <Link to="/training?tab=library">Iniciar entrenamiento</Link>
                   </Button>
                 </div>
               </div>
@@ -610,11 +613,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {visibleRightCards ? (
           <div className="grid gap-2 md:gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {isWidgetVisible("hero_recovery") ? (
             <div className="app-surface-tile rounded-2xl p-3 md:p-4">
-              <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Recuperacion</div>
+              <div className="app-surface-caption text-[11px] uppercase tracking-[0.14em]">Recovery score</div>
               <div className="app-surface-heading mt-2 text-3xl font-black md:text-4xl">{core?.recovery.score ?? 0}</div>
               <p className="app-surface-muted mt-2 text-sm">{core?.recovery.status ?? "Analizando..."}</p>
             </div>
@@ -639,11 +641,47 @@ const Dashboard = () => {
               </div>
             </div>
             ) : null}
+            <div className="app-surface-tile rounded-2xl p-3 md:p-4">
+              <div className="app-surface-caption flex items-center gap-2 text-[11px] uppercase tracking-[0.14em]">
+                <Sparkles className="h-3.5 w-3.5" />
+                Progreso semanal
+              </div>
+              <p className="app-surface-heading mt-2 text-base font-semibold md:text-lg">{weeklyConsistency.completedCount}/7 completado</p>
+              <div className="mt-3 grid grid-cols-7 gap-1.5">
+                {weeklyConsistency.days.map((day) => (
+                  <div
+                    key={`hero-week-${day.dateKey}`}
+                    className={cn(
+                      "rounded-md border px-1.5 py-1 text-center text-[11px] font-semibold",
+                      day.completed ? "border-primary/40 bg-primary/10 text-foreground" : "border-border/60 text-muted-foreground",
+                      day.isToday && "ring-1 ring-primary/30",
+                    )}
+                  >
+                    {day.label}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          ) : null}
         </CardContent>
       </Card>
       </section>
+
+      {visibleStatusRow ? (
+        <section aria-labelledby="dashboard-zone-status" className="space-y-2">
+          <h2 id="dashboard-zone-status" className="sr-only">Indicadores rapidos del dia</h2>
+          <TodayStatusRow
+            loading={snapshot.coreLoading}
+            waterMl={core?.waterTodayMl ?? 0}
+            waterGoalMl={core?.waterGoalMl ?? 2000}
+            sleepMinutes={core?.sleepDay?.total_minutes ?? 0}
+            sleepGoalMinutes={core?.sleepGoalMinutes ?? 480}
+            energy={core?.bioToday?.daily_energy ?? null}
+            stress={core?.bioToday?.perceived_stress ?? null}
+            streakDays={core?.activeDays7 ?? 0}
+          />
+        </section>
+      ) : null}
 
       <section aria-labelledby="dashboard-zone-actions" className={cn("grid xl:grid-cols-4", denseSectionGapClass)}>
         <h2 id="dashboard-zone-actions" className="sr-only">Zona de accion inmediata</h2>
@@ -752,7 +790,7 @@ const Dashboard = () => {
         </section>
       ) : null}
 
-      <section aria-labelledby="dashboard-zone-insights" className={cn("grid xl:grid-cols-[1.2fr_1fr]", denseSectionGapClass)}>
+      <section aria-labelledby="dashboard-zone-insights" className={cn("grid xl:grid-cols-[1.2fr_1fr_1fr]", denseSectionGapClass)}>
         <h2 id="dashboard-zone-insights" className="sr-only">Zona de insights y contexto</h2>
         <DashboardCardShell
           title="Consistencia semanal"
@@ -790,6 +828,15 @@ const Dashboard = () => {
             <DashboardEmptyState message="No hay pendientes criticos para hoy. Continua con tu plan." />
           )}
         </DashboardCardShell>
+
+        <section className="min-w-0">
+          <CalendarMiniWidget
+            month={currentMonth}
+            onMonthChange={setCurrentMonth}
+            activity={snapshot.monthActivity}
+            loading={snapshot.monthActivityLoading}
+          />
+        </section>
       </section>
 
       <section aria-labelledby="dashboard-zone-extension" className="space-y-4">
@@ -805,19 +852,6 @@ const Dashboard = () => {
               {showExtendedView ? "Ver menos modulos" : "Ver mas modulos"}
             </Button>
           </div>
-        ) : null}
-
-        {visibleStatusRow ? (
-          <TodayStatusRow
-            loading={snapshot.coreLoading}
-            waterMl={core?.waterTodayMl ?? 0}
-            waterGoalMl={core?.waterGoalMl ?? 2000}
-            sleepMinutes={core?.sleepDay?.total_minutes ?? 0}
-            sleepGoalMinutes={core?.sleepGoalMinutes ?? 480}
-            energy={core?.bioToday?.daily_energy ?? null}
-            stress={core?.bioToday?.perceived_stress ?? null}
-            streakDays={core?.activeDays7 ?? 0}
-          />
         ) : null}
 
         <DashboardCardStack cards={visibleStackCards} />
