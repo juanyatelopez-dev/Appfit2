@@ -95,3 +95,12 @@ After each redeploy:
 - configure custom SMTP for email confirmation
 - define a repeatable smoke-test checklist
 - consider adding cache headers explicitly for HTML vs hashed assets
+
+## Dashboard Phase 1 Deployment Notes
+
+Reference: `docs/DASHBOARD_RESTRUCTURE_PHASE1.md`
+
+- No infrastructure or schema change expected by default.
+- Validate `/today` rendering in mobile/tablet/desktop after deploy.
+- Include smoke test for widget/module preference persistence.
+- Monitor frontend errors and primary CTA interaction drop after release.

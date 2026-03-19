@@ -71,6 +71,14 @@ For meaningful changes, use this order:
 5. Refactor pass if the change increased coupling
 6. Security review for auth, secrets, and deployment impact
 
+## Active Initiative: Dashboard Restructure Phase 1
+
+- Initiative doc: `docs/DASHBOARD_RESTRUCTURE_PHASE1.md`
+- Target screen: `/today`
+- Scope: structure and interaction only (no theme redesign)
+- Execution order: Architecture -> Frontend -> QA
+- Constraint: preserve behavior parity while reducing orchestration coupling in dashboard composition
+
 ## Release Checklist
 
 Before deployment:

@@ -163,3 +163,14 @@ Use the agent prompts in this order for substantial changes:
 4. `qa_agent`
 5. `refactor_agent`
 6. `cybersecurity_agent`
+
+## Dashboard Restructure Phase 1 (Current)
+
+Architecture decision for `/today` is documented in `docs/DASHBOARD_RESTRUCTURE_PHASE1.md`.
+
+Key direction:
+- five-zone dashboard composition
+- single registry for card ordering metadata
+- view model boundary between data snapshot and UI rendering
+- reusable card shell primitives to reduce layout drift
+- progressive disclosure for secondary modules
