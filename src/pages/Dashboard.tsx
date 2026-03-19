@@ -233,7 +233,6 @@ const Dashboard = () => {
     missingModules,
     nextModule,
     todayCompletionPct,
-    nextActionLabel,
     primaryAction,
     weeklyConsistency,
   } = dashboardViewModel;
@@ -771,28 +770,27 @@ const Dashboard = () => {
                 </div>
 
                 <div className="space-y-3 rounded-xl border border-border/60 bg-muted/10 p-3 md:p-4">
-                  <p className="text-sm text-muted-foreground">
-                    Te falta {remainingActionsCount} {remainingActionsCount === 1 ? "accion" : "acciones"} para completar el dia
-                  </p>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-background/40 p-3 md:flex-row md:items-center md:justify-between md:p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
+                        <CheckCircle2 className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Siguiente paso</p>
+                        <p className="text-base font-semibold">{nextRequiredActionLabel}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Te falta {remainingActionsCount} {remainingActionsCount === 1 ? "accion" : "acciones"} para completar el dia
+                        </p>
+                      </div>
+                    </div>
                     {nextRequiredActionHref.startsWith("#") ? (
-                      <>
-                        <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
-                          <a href={nextRequiredActionHref}>Ir al registro</a>
-                        </Button>
-                        <Button asChild className="h-12 rounded-xl text-base font-semibold">
-                          <a href={nextRequiredActionHref}>{nextRequiredActionLabel}</a>
-                        </Button>
-                      </>
+                      <Button asChild className="h-11 rounded-xl px-5 text-sm font-semibold">
+                        <a href={nextRequiredActionHref}>Ir al registro</a>
+                      </Button>
                     ) : (
-                      <>
-                        <Button asChild variant="outline" className="h-12 rounded-xl text-base font-semibold">
-                          <Link to={nextRequiredActionHref}>Ir al registro</Link>
-                        </Button>
-                        <Button asChild className="h-12 rounded-xl text-base font-semibold">
-                          <Link to={nextRequiredActionHref}>{nextRequiredActionLabel}</Link>
-                        </Button>
-                      </>
+                      <Button asChild className="h-11 rounded-xl px-5 text-sm font-semibold">
+                        <Link to={nextRequiredActionHref}>Ir al registro</Link>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -820,7 +818,6 @@ const Dashboard = () => {
                 {isWidgetVisible("quick_actions") ? (
                   <DashboardQuickActions
                     embedded
-                    nextActionLabel={nextActionLabel}
                   />
                 ) : null}
               </div>

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BarChart3, ClipboardCheck, Ruler, Scale, UtensilsCrossed } from "lucide-react";
+import { ArrowUpRight, BarChart3, Ruler, Scale, UtensilsCrossed } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ type QuickAction = {
 
 type Props = {
   embedded?: boolean;
-  nextActionLabel?: string | null;
 };
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -44,7 +43,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-const DashboardQuickActions = ({ embedded = false, nextActionLabel }: Props) => {
+const DashboardQuickActions = ({ embedded = false }: Props) => {
   const content = (
     <div className={cn("space-y-4", embedded && "rounded-xl border border-border/60 bg-muted/10 p-3 md:p-4")}>
       {embedded ? (
@@ -53,18 +52,6 @@ const DashboardQuickActions = ({ embedded = false, nextActionLabel }: Props) => 
           <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
         </div>
       ) : null}
-
-      <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
-            <ClipboardCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Siguiente paso</p>
-            <p className="text-sm font-medium">{nextActionLabel ?? "Dia al dia. No hay registros urgentes pendientes."}</p>
-          </div>
-        </div>
-      </div>
 
       <div className={cn("grid gap-2 md:gap-3 sm:grid-cols-2", embedded && "xl:grid-cols-4")}>
         {QUICK_ACTIONS.map((action) => {
