@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type QuickAction = {
   label: string;
@@ -12,6 +13,7 @@ type QuickAction = {
 };
 
 type Props = {
+  embedded?: boolean;
   nextActionLabel?: string | null;
   nutritionSummary?: {
     profileName?: string | null;
@@ -51,14 +53,15 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => {
-  return (
-    <Card className="rounded-[22px] border-border/50 bg-card/80 md:rounded-[24px]">
-      <CardHeader>
-        <CardTitle>Acciones rapidas</CardTitle>
-        <CardDescription>Desde aqui deberias poder registrar o revisar lo importante sin salir del dashboard.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+const DashboardQuickActions = ({ embedded = false, nextActionLabel, nutritionSummary }: Props) => {
+  const content = (
+    <div className={cn("space-y-4", embedded && "rounded-xl border border-border/60 bg-muted/10 p-3 md:p-4")}>
+      {embedded ? (
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">Acciones rapidas</p>
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+        </div>
+      ) : null}
         <div className="rounded-2xl border border-border/60 bg-background/40 p-3 md:p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
@@ -111,7 +114,18 @@ const DashboardQuickActions = ({ nextActionLabel, nutritionSummary }: Props) => 
         <Button asChild variant="outline" className="w-full justify-center">
           <Link to="/progress">Abrir resumen completo</Link>
         </Button>
-      </CardContent>
+    </div>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <Card className="rounded-[22px] border-border/50 bg-card/80 md:rounded-[24px]">
+      <CardHeader>
+        <CardTitle>Acciones rapidas</CardTitle>
+        <CardDescription>Desde aqui deberias poder registrar o revisar lo importante sin salir del dashboard.</CardDescription>
+      </CardHeader>
+      <CardContent>{content}</CardContent>
     </Card>
   );
 };
