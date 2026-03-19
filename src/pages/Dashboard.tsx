@@ -578,7 +578,13 @@ const Dashboard = () => {
                 ? `${physicalSummary.waistChangeCm > 0 ? "+" : ""}${physicalSummary.waistChangeCm.toFixed(1)} cm`
                 : "--",
           },
-          { label: "% graso", value: physicalSummary?.bodyFatPct !== null ? `${physicalSummary.bodyFatPct.toFixed(1)}%` : "--" },
+          {
+            label: "% graso",
+            value:
+              physicalSummary?.bodyFatPct !== null && physicalSummary?.bodyFatPct !== undefined
+                ? `${physicalSummary.bodyFatPct.toFixed(1)}%`
+                : "--",
+          },
           { label: "Cambio 7d", value: weightDeltaLabel },
         ];
 
