@@ -256,9 +256,26 @@ export const resolveDayPlan = async (
   const sex = normalizeSex(baseProfile?.biological_sex);
   const activityLevel = normalizeActivityLevel(baseProfile?.activity_level);
   const goalType = normalizeGoalType(baseProfile?.nutrition_goal_type ?? baseProfile?.goal_type);
-  const dayArchetype =
-    options?.forceDayArchetype
-    ?? normalizeDayArchetype(existingLog?.archetype_snapshot ?? selectedProfile?.archetype ?? baseProfile?.day_archetype ?? storedTarget?.day_archetype ?? "base");
+  const dayArchetype = options?.forceDayArchetype
+    ?? (() => {
+      // If user explicitly clears day profile, we should not keep previous day's snapshot.
+      if (options?.clearProfileSelection) {
+        return normalizeDayArchetype(baseProfile?.day_archetype ?? storedTarget?.day_archetype ?? "base");
+      }
+
+      // If user explicitly selects a profile for this date, selected profile archetype
+      // must win over previously stored snapshot.
+      if (options?.forceProfileId) {
+        return normalizeDayArchetype(
+          selectedProfile?.archetype ?? existingLog?.archetype_snapshot ?? baseProfile?.day_archetype ?? storedTarget?.day_archetype ?? "base",
+        );
+      }
+
+      // Default resolution path when there is no explicit profile change.
+      return normalizeDayArchetype(
+        existingLog?.archetype_snapshot ?? selectedProfile?.archetype ?? baseProfile?.day_archetype ?? storedTarget?.day_archetype ?? "base",
+      );
+    })();
   const calorieOverride =
     options?.forceCalorieOverride !== undefined
       ? options.forceCalorieOverride
