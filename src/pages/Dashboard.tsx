@@ -23,12 +23,10 @@ import { toast } from "sonner";
 
 import BodyMeasurementsCard from "@/components/dashboard/BodyMeasurementsCard";
 import DashboardCardShell from "@/components/dashboard/DashboardCardShell";
-import DashboardCardStack from "@/components/dashboard/DashboardCardStack";
 import DashboardEmptyState from "@/components/dashboard/DashboardEmptyState";
 import DashboardLoadingState from "@/components/dashboard/DashboardLoadingState";
 import CalendarMiniWidget from "@/components/dashboard/CalendarMiniWidget";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
-import PhysicalProgressHub from "@/components/dashboard/PhysicalProgressHub";
 import RecoveryCard from "@/components/dashboard/RecoveryCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
 import TodayStatusRow from "@/components/dashboard/TodayStatusRow";
@@ -166,7 +164,6 @@ const Dashboard = () => {
   const snapshot = useDashboardSnapshot(currentMonth);
   const [visibleModuleKey, setVisibleModuleKey] = useState<string | null>(null);
   const [isModuleTransitioning, setIsModuleTransitioning] = useState(false);
-  const [showExtendedView, setShowExtendedView] = useState(false);
   const [isWaterModalOpen, setIsWaterModalOpen] = useState(false);
   const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
@@ -341,18 +338,6 @@ const Dashboard = () => {
     const widgetIsVisible = (widgetKey: DashboardHomeWidgetKey) =>
       widgetKey === "hero_modules" || visibleWidgetKeySet.has(widgetKey);
 
-    if (widgetIsVisible("physical_progress")) {
-      cards.push({
-        key: "physical_progress",
-        placement: {
-          weight: 5,
-          preferredColumn: "left",
-          mobileOrder: 10,
-        },
-        node: <PhysicalProgressHub loading={snapshot.coreLoading} summary={core?.physicalSummary ?? null} />,
-      });
-    }
-
     if (widgetIsVisible("biofeedback")) {
       cards.push({
         key: "biofeedback",
@@ -443,7 +428,6 @@ const Dashboard = () => {
     core?.latestMeasurementWeight,
     core?.noteLatest,
     core?.noteToday,
-    core?.physicalSummary,
     core?.previousMeasurement,
     core?.recovery.drivers,
     core?.recovery.score,
@@ -454,7 +438,6 @@ const Dashboard = () => {
     saveNoteMutation,
     snapshot.coreLoading,
   ]);
-  const visibleStackCards = useMemo(() => (showExtendedView ? stackCards : []), [showExtendedView, stackCards]);
   const isCompactDensity = cardDensity === "compact";
   const denseSectionGapClass = isCompactDensity ? "gap-2" : "gap-3";
   const denseCardContentClass = isCompactDensity ? "space-y-2 p-3 md:p-4" : "space-y-3 p-4 md:p-5";
@@ -658,7 +641,7 @@ const Dashboard = () => {
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Widgets visibles</p>
                     <div className="grid max-h-56 gap-2 overflow-auto pr-1">
-                      {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules").map((widget) => {
+                      {DASHBOARD_HOME_WIDGET_DEFINITIONS.filter((widget) => widget.key !== "hero_modules" && widget.key !== "physical_progress").map((widget) => {
                         const checked = selectedWidgetKeys.includes(widget.key);
                         return (
                           <div key={widget.key} className="flex items-center space-x-2">
@@ -1101,20 +1084,7 @@ const Dashboard = () => {
 
         <section aria-labelledby="dashboard-zone-extension" className="space-y-4">
           <h2 id="dashboard-zone-extension" className="sr-only">Zona de extension progresiva</h2>
-          {stackCards.length > 0 ? (
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                className="app-outline-button rounded-xl px-4"
-                onClick={() => setShowExtendedView((current) => !current)}
-              >
-                {showExtendedView ? "Ocultar widgets opcionales" : "Mostrar widgets opcionales"}
-              </Button>
-            </div>
-          ) : null}
-
-          {showExtendedView ? <DashboardCardStack cards={visibleStackCards} /> : null}
+          {stackCards.length > 0 ? <div className="space-y-4">{stackCards.map((card) => <div key={card.key}>{card.node}</div>)}</div> : null}
         </section>
       </div>
     </div>
