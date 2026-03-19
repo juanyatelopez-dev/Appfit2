@@ -57,7 +57,6 @@ export default defineConfig(({ mode }) => ({
             handler: "NetworkFirst",
             options: {
               cacheName: "app-pages",
-              networkTimeoutSeconds: 3,
             },
           },
           {
