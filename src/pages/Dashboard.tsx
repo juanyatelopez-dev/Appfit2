@@ -754,7 +754,6 @@ const Dashboard = () => {
           <div className={cn("grid", denseSectionGapClass, "xl:grid-cols-3")}>
             <DashboardCardShell
               title="Que hacer hoy"
-              titleRight={<p className="text-sm font-semibold">{weeklyConsistency.completedCount}/7</p>}
               contentClassName={denseActionContentClass}
               className="xl:col-span-2"
             >

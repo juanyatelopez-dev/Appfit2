@@ -135,23 +135,25 @@ const DashboardHeader = () => {
               ))}
             </div>
           </div>
-          <span className="text-sm font-semibold text-muted-foreground">{weeklyConsistency.completedCount}/7</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                aria-label="Como funciona la consistencia semanal"
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <CircleHelp className="h-3.5 w-3.5" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" side="bottom" className="w-72 space-y-1.5">
-              <p className="text-sm font-semibold">Consistencia semanal</p>
-              <p className="text-xs text-muted-foreground">Mide cuantos dias completaste en la semana.</p>
-              <p className="text-xs text-muted-foreground">Un dia cuenta como completo al registrar 2 o mas controles: agua, sueno, comida, peso o biofeedback.</p>
-            </PopoverContent>
-          </Popover>
+          <div className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-background/60 px-2.5 py-1">
+            <span className="text-sm font-semibold text-muted-foreground">{weeklyConsistency.completedCount}/7</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Como funciona la consistencia semanal"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <CircleHelp className="h-3.5 w-3.5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="bottom" className="w-72 space-y-1.5">
+                <p className="text-sm font-semibold">Consistencia semanal</p>
+                <p className="text-xs text-muted-foreground">Mide cuantos dias completaste en la semana.</p>
+                <p className="text-xs text-muted-foreground">Un dia cuenta como completo al registrar 2 o mas controles: agua, sueno, comida, peso o biofeedback.</p>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
 
