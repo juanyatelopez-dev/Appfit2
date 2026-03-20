@@ -3,7 +3,6 @@ import {
   CalendarDays,
   CircleHelp,
   LogOut,
-  Menu,
   Plus,
   Ruler,
   Settings,
@@ -16,7 +15,6 @@ import { usePreferences } from "@/context/PreferencesContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import NotificationCenter from "@/components/NotificationCenter";
-import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,9 +40,6 @@ const DashboardHeader = () => {
     { label: t("nav.calendar"), path: "/calendar", icon: CalendarDays },
     { label: t("nav.fitnessProfile"), path: "/fitness-profile", icon: Target },
   ];
-  const mobileNavItems = [
-    { label: t("nav.settings"), path: "/settings", icon: Settings },
-  ];
 
   const handleAuthAction = async () => {
     try {
@@ -66,49 +61,11 @@ const DashboardHeader = () => {
       className="z-30 flex min-h-[3.75rem] shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-card/92 px-5 py-2.5 shadow-[0_8px_24px_-22px_hsl(var(--foreground)/0.28)] backdrop-blur md:h-16 md:bg-card md:px-8 md:py-0 md:shadow-none"
     >
       <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-6">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[min(20rem,calc(100vw-1rem))] p-4">
-            <SheetTitle>Navegacion</SheetTitle>
-            <div className="mt-2 rounded-2xl border border-border/60 bg-muted/30 p-3 text-sm text-muted-foreground">
-              Accesos secundarios y ajustes.
-            </div>
-            <div className="mt-4 grid gap-2">
-              {mobileNavItems.map((item) => (
-                <SheetClose asChild key={item.path}>
-                  <Button
-                    variant="ghost"
-                    className="min-h-11 justify-start rounded-xl"
-                    onClick={() => {
-                      navigate(item.path);
-                    }}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                </SheetClose>
-              ))}
-            </div>
-            <div className="mt-6 border-t border-border pt-4">
-              <SheetClose asChild>
-                <Button
-                  variant="ghost"
-                  className="min-h-11 w-full justify-start rounded-xl text-destructive hover:text-destructive"
-                  onClick={handleAuthAction}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {isGuest ? "Cambiar cuenta" : "Cerrar sesion"}
-                </Button>
-              </SheetClose>
-            </div>
-          </SheetContent>
-        </Sheet>
-        <div className="min-w-0">
-          <p className="truncate text-[0.92rem] font-black uppercase tracking-[0.22em] text-card-foreground md:text-xl md:tracking-[0.28em]">
+        <div className="md:hidden">
+          <NotificationCenter />
+        </div>
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 md:pointer-events-auto md:static md:left-auto md:translate-x-0">
+          <p className="truncate text-center text-[0.92rem] font-black uppercase tracking-[0.22em] text-card-foreground md:text-left md:text-xl md:tracking-[0.28em]">
             THE <span className="text-primary">PRIME</span> PROTOCOL
           </p>
         </div>
@@ -178,6 +135,31 @@ const DashboardHeader = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground md:hidden"
+              aria-label="Opciones de cuenta"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[13rem] rounded-xl p-1.5">
+            <DropdownMenuLabel className="px-3 py-2 text-base font-bold">Cuenta</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="min-h-11 px-3 py-2 text-sm font-semibold" onSelect={() => navigate("/settings")}>
+              <Settings className="mr-2 h-4 w-4" />
+              Ajustes
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="min-h-11 px-3 py-2 text-sm font-semibold text-destructive focus:text-destructive"
+              onSelect={handleAuthAction}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              {isGuest ? "Cambiar cuenta" : "Cerrar sesion"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
               className="hidden h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground md:flex"
               aria-label="Registro rapido"
             >
@@ -193,7 +175,7 @@ const DashboardHeader = () => {
             <DropdownMenuItem onSelect={() => navigate("/today#nutrition")}>Agregar comida</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="flex">
+        <div className="hidden md:flex">
           <NotificationCenter />
         </div>
         <button
