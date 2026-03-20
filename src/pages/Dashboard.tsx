@@ -99,13 +99,13 @@ const DashboardMetricCard = ({
   comingSoon = false,
 }: DailyMetricCardProps) => (
   <Card className="group rounded-2xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-    <CardContent className="space-y-2 p-3 pt-4">
+    <CardContent className="space-y-3 p-3.5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className={cn("rounded-lg border border-border/60 bg-background/60 p-1.5 sm:rounded-xl sm:p-2", accentClassName)}>
-            <Icon className="h-3 w-3" />
+          <div className={cn("rounded-lg border border-border/60 bg-background/60 p-1.5", accentClassName)}>
+            <Icon className="h-3 w-3.5" />
           </div>
-          <p className="text-[11px] font-semibold tracking-tight">{title}</p>
+          <p className="text-xs font-semibold tracking-tight text-foreground">{title}</p>
         </div>
         {comingSoon ? (
           <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-600 sm:px-2 sm:text-[11px] dark:text-amber-300">
@@ -118,7 +118,7 @@ const DashboardMetricCard = ({
                 type="button"
                 onClick={onActionClick}
                 aria-label={actionLabel}
-                className="inline-flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-base font-semibold leading-none text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/50 text-sm font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {actionLabel}
               </button>
@@ -126,7 +126,7 @@ const DashboardMetricCard = ({
               <Link
                 to={actionHref}
                 aria-label={actionLabel}
-                className="inline-flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-base font-semibold leading-none text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/50 text-sm font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {actionLabel}
               </Link>
@@ -134,11 +134,9 @@ const DashboardMetricCard = ({
           </>
         )}
       </div>
-      <div className="space-y-1">
-        <p className="text-[1.12rem] font-black leading-none tracking-tight">{valueLabel}</p>
-      </div>
-      <div className="flex justify-end">
-        <p className="text-[11px] font-semibold text-muted-foreground">{goalLabel}</p>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-[2.05rem] font-black leading-none tracking-tight text-foreground">{valueLabel}</p>
+        <p className="text-[0.78rem] font-semibold text-muted-foreground/85">{goalLabel}</p>
       </div>
       <div className="h-2 rounded-full bg-muted/70">
         <div
@@ -1023,7 +1021,7 @@ const Dashboard = () => {
                     title="Agua"
                     icon={Droplets}
                     valueLabel={`${(core?.waterTodayMl ?? 0).toLocaleString("es-PE")} ml`}
-                    goalLabel={`Meta ${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`}
+                    goalLabel={`${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`}
                     progressPct={hydrationProgress}
                     accentClassName="bg-sky-500/90 text-sky-100"
                     actionHref="/water"
@@ -1036,7 +1034,7 @@ const Dashboard = () => {
                     title="Calorias"
                     icon={Flame}
                     valueLabel={`${consumedCalories.toLocaleString("es-PE")} kcal`}
-                    goalLabel={`Meta ${targetCalories.toLocaleString("es-PE")} kcal`}
+                    goalLabel={`${targetCalories.toLocaleString("es-PE")} kcal`}
                     progressPct={caloriesProgress}
                     accentClassName="bg-amber-500/90 text-amber-100"
                     actionHref="/nutrition"
@@ -1048,7 +1046,7 @@ const Dashboard = () => {
                     title="Sueno"
                     icon={Moon}
                     valueLabel={`${((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h`}
-                    goalLabel={`Meta ${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`}
+                    goalLabel={`${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`}
                     progressPct={sleepProgress}
                     accentClassName="bg-violet-500/90 text-violet-100"
                     actionHref="/sleep"
@@ -1061,7 +1059,7 @@ const Dashboard = () => {
                     title="Pasos"
                     icon={Footprints}
                     valueLabel="0 pasos"
-                    goalLabel="Meta 8,000 pasos"
+                    goalLabel="8,000 pasos"
                     progressPct={0}
                     accentClassName="bg-emerald-500/90 text-emerald-100"
                     actionHref="/calendar"
@@ -1082,7 +1080,7 @@ const Dashboard = () => {
                   title="Agua"
                   icon={Droplets}
                   valueLabel={`${(core?.waterTodayMl ?? 0).toLocaleString("es-PE")} ml`}
-                  goalLabel={`Meta ${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`}
+                  goalLabel={`${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`}
                   progressPct={hydrationProgress}
                   accentClassName="bg-sky-500/90 text-sky-100"
                   actionHref="/water"
@@ -1095,7 +1093,7 @@ const Dashboard = () => {
                   title="Calorias"
                   icon={Flame}
                   valueLabel={`${consumedCalories.toLocaleString("es-PE")} kcal`}
-                  goalLabel={`Meta ${targetCalories.toLocaleString("es-PE")} kcal`}
+                  goalLabel={`${targetCalories.toLocaleString("es-PE")} kcal`}
                   progressPct={caloriesProgress}
                   accentClassName="bg-amber-500/90 text-amber-100"
                   actionHref="/nutrition"
@@ -1107,7 +1105,7 @@ const Dashboard = () => {
                   title="Sueno"
                   icon={Moon}
                   valueLabel={`${((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h`}
-                  goalLabel={`Meta ${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`}
+                  goalLabel={`${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`}
                   progressPct={sleepProgress}
                   accentClassName="bg-violet-500/90 text-violet-100"
                   actionHref="/sleep"
@@ -1119,7 +1117,7 @@ const Dashboard = () => {
                 title="Pasos"
                 icon={Footprints}
                 valueLabel="0 pasos"
-                goalLabel="Meta 8,000 pasos"
+                goalLabel="8,000 pasos"
                 progressPct={0}
                 accentClassName="bg-emerald-500/90 text-emerald-100"
                 actionHref="/calendar"
