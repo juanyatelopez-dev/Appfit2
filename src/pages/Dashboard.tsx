@@ -28,7 +28,6 @@ import DashboardEmptyState from "@/components/dashboard/DashboardEmptyState";
 import DashboardLoadingState from "@/components/dashboard/DashboardLoadingState";
 import CalendarMiniWidget from "@/components/dashboard/CalendarMiniWidget";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
-import RecoveryCard from "@/components/dashboard/RecoveryCard";
 import TacticalNotesCard from "@/components/dashboard/TacticalNotesCard";
 import TodayStatusRow from "@/components/dashboard/TodayStatusRow";
 import TodayBiofeedbackModule from "@/components/daily/TodayBiofeedbackModule";
@@ -399,33 +398,6 @@ const Dashboard = () => {
       });
     }
 
-    if (widgetIsVisible("recovery_card")) {
-      cards.push({
-        key: "recovery_card",
-        placement: {
-          weight: 5,
-          preferredColumn: "right",
-          mobileOrder: 60,
-        },
-        node: (
-          <RecoveryCard
-            loading={snapshot.coreLoading}
-            score={core?.recovery.score ?? 0}
-            status={core?.recovery.status ?? "Recuperacion moderada"}
-            drivers={core?.recovery.drivers ?? []}
-            subscores={
-              core?.recovery.subscores ?? {
-                sleep: 0,
-                biofeedback: 0,
-                hydration: 0,
-                consistency: 0,
-              }
-            }
-          />
-        ),
-      });
-    }
-
     return cards;
   }, [
     core?.goal?.goal_direction,
@@ -434,10 +406,6 @@ const Dashboard = () => {
     core?.noteLatest,
     core?.noteToday,
     core?.previousMeasurement,
-    core?.recovery.drivers,
-    core?.recovery.score,
-    core?.recovery.status,
-    core?.recovery.subscores,
     core?.waistComparison,
     visibleWidgetKeySet,
     saveNoteMutation,
@@ -489,6 +457,14 @@ const Dashboard = () => {
   const recoveryBand = recoveryScore >= 75 ? "ALTO" : recoveryScore >= 45 ? "MEDIO" : "BAJO";
   const recoveryAccentClass = recoveryScore >= 75 ? "text-emerald-400" : recoveryScore >= 45 ? "text-amber-400" : "text-rose-400";
   const recoveryBarClass = recoveryScore >= 75 ? "bg-emerald-500" : recoveryScore >= 45 ? "bg-amber-500" : "bg-rose-500";
+  const recoveryStrokeClass = recoveryScore >= 75 ? "stroke-emerald-500" : recoveryScore >= 45 ? "stroke-amber-500" : "stroke-rose-500";
+  const recoveryStatusLabel = core?.recovery.status ?? "Recuperacion moderada";
+  const recoveryDrivers = core?.recovery.drivers ?? [];
+  const recoveryDriversLabel = recoveryDrivers.length > 0 ? recoveryDrivers.join(" | ") : "Sin drivers relevantes";
+  const recoverySubscores = core?.recovery.subscores ?? { sleep: 0, biofeedback: 0, hydration: 0, consistency: 0 };
+  const recoveryRingRadius = 28;
+  const recoveryRingCircumference = 2 * Math.PI * recoveryRingRadius;
+  const recoveryRingDash = Math.max(0, Math.min(recoveryRingCircumference, (recoveryScore / 100) * recoveryRingCircumference));
   const hydrationProgress = Math.min(100, Math.round(((core?.waterTodayMl ?? 0) / Math.max(core?.waterGoalMl ?? 2000, 1)) * 100));
   const sleepProgress = Math.min(
     100,
@@ -596,6 +572,81 @@ const Dashboard = () => {
   const nextRequiredActionLabel = nextModule ? `Registrar ${nextModule.label.toLowerCase()}` : "Dia completado";
   const nextRequiredActionHref = nextModule?.href ?? primaryAction.href;
   const showSecondaryDashboardZones = !isMobile || isSecondaryExpanded;
+  const renderTrainingRecoveryPanel = () => (
+    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
+          <p className="text-xs text-muted-foreground">Modelo diario de sueno, biofeedback, hidratacion y consistencia.</p>
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Como funciona el recovery score"
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <CircleHelp className="h-3.5 w-3.5" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" side="top" className="w-80 space-y-2">
+            <p className="text-sm font-semibold">Como funciona este card</p>
+            <p className="text-xs text-muted-foreground">
+              El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
+            </p>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="mt-2 flex items-center gap-3">
+        <div className="relative h-20 w-20 shrink-0">
+          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+            <circle cx="60" cy="60" r={recoveryRingRadius} className="fill-none stroke-muted/40" strokeWidth="10" />
+            <circle
+              cx="60"
+              cy="60"
+              r={recoveryRingRadius}
+              className={cn("fill-none", recoveryStrokeClass)}
+              strokeWidth="10"
+              strokeLinecap="round"
+              strokeDasharray={`${recoveryRingDash} ${recoveryRingCircumference - recoveryRingDash}`}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <p className={cn("text-3xl font-black leading-none", recoveryAccentClass)}>{recoveryScore}</p>
+            <p className="text-[10px] uppercase text-muted-foreground">/100</p>
+          </div>
+        </div>
+
+        <div className="min-w-0 space-y-1">
+          <p className={cn("text-base font-bold leading-tight", recoveryAccentClass)}>{recoveryStatusLabel}</p>
+          <p className="line-clamp-2 text-xs text-muted-foreground">Drivers: {recoveryDriversLabel}</p>
+        </div>
+      </div>
+
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-border/60 px-2 py-1.5">
+          <p className="text-[11px] text-muted-foreground">Sueno</p>
+          <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary/90" style={{ width: `${Math.max(0, Math.min(100, recoverySubscores.sleep))}%` }} /></div>
+        </div>
+        <div className="rounded-lg border border-border/60 px-2 py-1.5">
+          <p className="text-[11px] text-muted-foreground">Biofeedback</p>
+          <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary/90" style={{ width: `${Math.max(0, Math.min(100, recoverySubscores.biofeedback))}%` }} /></div>
+        </div>
+        <div className="rounded-lg border border-border/60 px-2 py-1.5">
+          <p className="text-[11px] text-muted-foreground">Hidratacion</p>
+          <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary/90" style={{ width: `${Math.max(0, Math.min(100, recoverySubscores.hydration))}%` }} /></div>
+        </div>
+        <div className="rounded-lg border border-border/60 px-2 py-1.5">
+          <p className="text-[11px] text-muted-foreground">Consistencia</p>
+          <div className="mt-1 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary/90" style={{ width: `${Math.max(0, Math.min(100, recoverySubscores.consistency))}%` }} /></div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="app-shell min-h-0 w-full px-4 pb-5 pt-1 text-foreground sm:px-6 sm:pb-8 sm:pt-2">
@@ -789,47 +840,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recovery</p>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              aria-label="Como funciona el recovery score"
-                              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                            >
-                              <CircleHelp className="h-3.5 w-3.5" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" side="top" className="w-80 space-y-2">
-                            <p className="text-sm font-semibold">Como funciona este card</p>
-                            <p className="text-xs text-muted-foreground">
-                              El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
-                            </p>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      <p className="mt-1 flex items-end gap-1 text-2xl font-black leading-none">
-                        <span>{recoveryScore}</span>
-                        <span className="text-xs font-semibold text-muted-foreground">/100</span>
-                      </p>
-                      <p className={cn("mt-1 text-[10px] font-bold tracking-[0.16em]", recoveryAccentClass)}>{recoveryBand}</p>
-                      <div className="mt-2 h-1.5 rounded-full bg-muted">
-                        <div className={cn("h-1.5 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Interpretacion</p>
-                      <p className="mt-1 text-sm font-black leading-tight">{recommendationLabel}</p>
-                      <p className={cn("mt-1 text-xs font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando recuperacion"}</p>
-                    </div>
-                  </div>
+                  {renderTrainingRecoveryPanel()}
 
                   {workoutExercises.length > 0 ? (
                     <div className="space-y-2">
@@ -1048,47 +1059,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recovery</p>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          aria-label="Como funciona el recovery score"
-                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <CircleHelp className="h-3.5 w-3.5" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent align="start" side="top" className="w-80 space-y-2">
-                        <p className="text-sm font-semibold">Como funciona este card</p>
-                        <p className="text-xs text-muted-foreground">
-                          El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
-                        </p>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <p className="mt-1 flex items-end gap-1 text-2xl font-black leading-none">
-                    <span>{recoveryScore}</span>
-                    <span className="text-xs font-semibold text-muted-foreground">/100</span>
-                  </p>
-                  <p className={cn("mt-1 text-[10px] font-bold tracking-[0.16em]", recoveryAccentClass)}>{recoveryBand}</p>
-                  <div className="mt-2 h-1.5 rounded-full bg-muted">
-                    <div className={cn("h-1.5 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
-                  <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Interpretacion</p>
-                  <p className="mt-1 text-sm font-black leading-tight">{recommendationLabel}</p>
-                  <p className={cn("mt-1 text-xs font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando recuperacion"}</p>
-                </div>
-              </div>
+              {renderTrainingRecoveryPanel()}
 
                 {workoutExercises.length > 0 ? (
                   <div className="space-y-2">
