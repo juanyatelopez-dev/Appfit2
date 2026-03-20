@@ -711,53 +711,55 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
         </section>
 
-        <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
-          <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
-          <Card className="rounded-3xl border-border/60 bg-background/40">
-            <CardContent className="space-y-3 p-3 md:space-y-4 md:p-4">
-              <div className="flex items-start justify-between gap-3 rounded-2xl border border-border/60 bg-card/70 p-3">
-                <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
-                  <p className="flex items-end gap-1 text-3xl font-black leading-none">
-                    <span>{recoveryScore}</span>
-                    <span className="text-sm font-semibold text-muted-foreground">/100</span>
-                  </p>
-                  <p className={cn("text-[11px] font-bold tracking-[0.2em]", recoveryAccentClass)}>{recoveryBand}</p>
+        {!isMobile ? (
+          <section aria-labelledby="dashboard-zone-hero" className="space-y-3">
+            <h2 id="dashboard-zone-hero" className="sr-only">Estado del dia</h2>
+            <Card className="rounded-3xl border-border/60 bg-background/40">
+              <CardContent className="space-y-3 p-3 md:space-y-4 md:p-4">
+                <div className="flex items-start justify-between gap-3 rounded-2xl border border-border/60 bg-card/70 p-3">
+                  <div className="space-y-1">
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
+                    <p className="flex items-end gap-1 text-3xl font-black leading-none">
+                      <span>{recoveryScore}</span>
+                      <span className="text-sm font-semibold text-muted-foreground">/100</span>
+                    </p>
+                    <p className={cn("text-[11px] font-bold tracking-[0.2em]", recoveryAccentClass)}>{recoveryBand}</p>
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="Como funciona el recovery score"
+                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        <CircleHelp className="h-4 w-4" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" side="top" className="w-80 space-y-2">
+                      <p className="text-sm font-semibold">Como funciona este card</p>
+                      <p className="text-xs text-muted-foreground">
+                        El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
+                      </p>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="Como funciona el recovery score"
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      <CircleHelp className="h-4 w-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" side="top" className="w-80 space-y-2">
-                    <p className="text-sm font-semibold">Como funciona este card</p>
-                    <p className="text-xs text-muted-foreground">
-                      El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-              </div>
 
-              <div className="rounded-2xl border border-border/60 bg-card/70 p-3">
-                <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Interpretacion</p>
-                <p className="mt-1 text-lg font-black leading-tight md:text-xl">{recommendationLabel}</p>
-                <p className={cn("mt-1 text-sm font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando recuperacion"}</p>
-              </div>
+                <div className="rounded-2xl border border-border/60 bg-card/70 p-3">
+                  <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Interpretacion</p>
+                  <p className="mt-1 text-lg font-black leading-tight md:text-xl">{recommendationLabel}</p>
+                  <p className={cn("mt-1 text-sm font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando recuperacion"}</p>
+                </div>
 
-              <div className="h-2 rounded-full bg-muted">
-                <div className={cn("h-2 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+                <div className="h-2 rounded-full bg-muted">
+                  <div className={cn("h-2 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        ) : null}
 
         <section aria-labelledby="dashboard-zone-actions" className={cn("order-[-2] grid", denseSectionGapClass)}>
           <h2 id="dashboard-zone-actions" className="sr-only">Control operativo de hoy</h2>
@@ -833,6 +835,48 @@ const Dashboard = () => {
                     </div>
                     <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
                       {exerciseCountLabel}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recovery</p>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label="Como funciona el recovery score"
+                              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                              <CircleHelp className="h-3.5 w-3.5" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" side="top" className="w-80 space-y-2">
+                            <p className="text-sm font-semibold">Como funciona este card</p>
+                            <p className="text-xs text-muted-foreground">
+                              El score (0-100) combina sueno, biofeedback, hidratacion y consistencia semanal para estimar tu capacidad de carga del dia.
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Rangos: 0-44 (ligero), 45-74 (moderado), 75-100 (fuerte). Es una guia de intensidad, no un diagnostico medico.
+                            </p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <p className="mt-1 flex items-end gap-1 text-2xl font-black leading-none">
+                        <span>{recoveryScore}</span>
+                        <span className="text-xs font-semibold text-muted-foreground">/100</span>
+                      </p>
+                      <p className={cn("mt-1 text-[10px] font-bold tracking-[0.16em]", recoveryAccentClass)}>{recoveryBand}</p>
+                      <div className="mt-2 h-1.5 rounded-full bg-muted">
+                        <div className={cn("h-1.5 rounded-full transition-all duration-300", recoveryBarClass)} style={{ width: `${Math.max(8, recoveryScore)}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Interpretacion</p>
+                      <p className="mt-1 text-sm font-black leading-tight">{recommendationLabel}</p>
+                      <p className={cn("mt-1 text-xs font-semibold", recoveryAccentClass)}>{core?.recovery.status ?? "Analizando recuperacion"}</p>
                     </div>
                   </div>
 
