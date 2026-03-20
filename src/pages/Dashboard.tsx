@@ -740,7 +740,10 @@ const Dashboard = () => {
           <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recomendacion de carga</p>
           <p className="mt-1 text-sm font-black leading-tight md:text-base">{recommendationLabel}</p>
           <p className={cn("mt-1 text-xs font-semibold", recoveryAccentClass)}>{recoveryStatusLabel}</p>
-          <p className="mt-2 text-[11px] text-muted-foreground">Detalle de factores en el boton de ayuda.</p>
+          <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+            <CircleHelp className="h-3.5 w-3.5" />
+            Detalles en el boton ?
+          </p>
         </div>
       </div>
     </div>
