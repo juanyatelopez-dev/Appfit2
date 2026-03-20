@@ -101,16 +101,16 @@ const DashboardMetricCard = ({
   comingSoon = false,
 }: DailyMetricCardProps) => (
   <Card className="group rounded-2xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-    <CardContent className="space-y-3 p-4 pt-5 md:pt-5">
+    <CardContent className="space-y-2.5 p-3 pt-4 sm:space-y-3 sm:p-4 sm:pt-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className={cn("rounded-xl border border-border/60 bg-background/60 p-2", accentClassName)}>
-            <Icon className="h-4 w-4" />
+          <div className={cn("rounded-lg border border-border/60 bg-background/60 p-1.5 sm:rounded-xl sm:p-2", accentClassName)}>
+            <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
-          <p className="text-sm font-semibold tracking-tight">{title}</p>
+          <p className="text-xs font-semibold tracking-tight sm:text-sm">{title}</p>
         </div>
         {comingSoon ? (
-          <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-amber-600 dark:text-amber-300">
+          <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-600 sm:px-2 sm:text-[11px] dark:text-amber-300">
             Proximamente
           </span>
         ) : (
@@ -120,7 +120,7 @@ const DashboardMetricCard = ({
                 type="button"
                 onClick={onActionClick}
                 aria-label={actionLabel}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-lg font-semibold leading-none text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-base font-semibold leading-none text-foreground transition-colors hover:bg-muted sm:h-8 sm:w-8 sm:text-lg"
               >
                 {actionLabel}
               </button>
@@ -128,7 +128,7 @@ const DashboardMetricCard = ({
               <Link
                 to={actionHref}
                 aria-label={actionLabel}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-lg font-semibold leading-none text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-full border border-border/70 bg-background/70 text-base font-semibold leading-none text-foreground transition-colors hover:bg-muted sm:h-8 sm:w-8 sm:text-lg"
               >
                 {actionLabel}
               </Link>
@@ -137,8 +137,8 @@ const DashboardMetricCard = ({
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-[2rem] font-black leading-none">{valueLabel}</p>
-        <p className="text-sm font-semibold text-muted-foreground">{goalLabel}</p>
+        <p className="text-[1.95rem] font-black leading-none tracking-tight sm:text-[2rem]">{valueLabel}</p>
+        <p className="text-xs font-semibold text-muted-foreground sm:text-sm">{goalLabel}</p>
       </div>
       <div className="h-2 rounded-full bg-muted/70">
         <div
@@ -173,7 +173,6 @@ const Dashboard = () => {
   const [isSecondaryExpanded, setIsSecondaryExpanded] = useState(false);
   const [isRecoveryDetailsExpanded, setIsRecoveryDetailsExpanded] = useState(false);
   const [isTodayDetailsExpanded, setIsTodayDetailsExpanded] = useState(false);
-  const [isPhysicalDetailsExpanded, setIsPhysicalDetailsExpanded] = useState(false);
   const [cardDensity, setCardDensity] = useState<DashboardCardDensity>(() => loadDashboardCardDensity());
   const timeZone = profile?.timezone || DEFAULT_WATER_TIMEZONE;
 
@@ -911,49 +910,33 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {isMobile ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 w-full justify-between rounded-xl px-3 text-xs"
-                  onClick={() => setIsPhysicalDetailsExpanded((prev) => !prev)}
-                >
-                  <span>{isPhysicalDetailsExpanded ? "Ocultar detalle corporal" : "Ver detalle corporal"}</span>
-                  <ChevronDown className={cn("h-4 w-4 transition-transform", isPhysicalDetailsExpanded && "rotate-180")} />
-                </Button>
-              ) : null}
-
-              {!isMobile || isPhysicalDetailsExpanded ? (
-                <>
-                  <div className="grid grid-cols-3 gap-2">
-                    {compactPhysicalMetrics.map((metric) => (
-                      <div key={metric.label} className="rounded-xl border border-border/60 bg-muted/10 px-2 py-2">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{metric.label}</p>
-                        <p className="mt-1 text-sm font-semibold leading-tight">{metric.value}</p>
-                      </div>
-                    ))}
+              <div className="grid grid-cols-3 gap-2">
+                {compactPhysicalMetrics.map((metric) => (
+                  <div key={metric.label} className="rounded-xl border border-border/60 bg-muted/10 px-2 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{metric.label}</p>
+                    <p className="mt-1 text-sm font-semibold leading-tight">{metric.value}</p>
                   </div>
+                ))}
+              </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Meta</span>
-                      <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
-                    </div>
-                  </div>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Meta</span>
+                  <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
+                </div>
+              </div>
 
-                  <p className="text-xs text-muted-foreground">{physicalSummary?.lastUpdatedLabel ?? "Sin actualizaciones fisicas"}</p>
-                </>
-              ) : null}
+              <p className="text-xs text-muted-foreground">{physicalSummary?.lastUpdatedLabel ?? "Sin actualizaciones fisicas"}</p>
             </DashboardCardShell>
           </div>
         </section>
 
         <section aria-labelledby="dashboard-zone-metrics" className="order-[-1] space-y-2 pt-1">
           <h2 id="dashboard-zone-metrics" className="sr-only">Metricas diarias</h2>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
             <section id="water" className="min-w-0">
               <DashboardMetricCard
                 title="Agua"
