@@ -712,10 +712,10 @@ const Dashboard = () => {
         </Popover>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[minmax(180px,220px)_1fr]">
-        <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+      <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-2 md:grid-cols-[minmax(180px,220px)_1fr] md:gap-3">
+        <div className="rounded-lg border border-border/60 bg-background/40 p-2.5 md:p-3">
           <div className="flex items-center gap-3 md:flex-col md:items-center md:gap-2">
-            <div className="relative h-28 w-28 shrink-0">
+            <div className="relative h-20 w-20 shrink-0 md:h-28 md:w-28">
               <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
                 <circle cx="60" cy="60" r={recoveryRingRadius} className="fill-none stroke-muted/40" strokeWidth="10" />
                 <circle
@@ -729,16 +729,16 @@ const Dashboard = () => {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className={cn("text-3xl font-black leading-none", recoveryAccentClass)}>{recoveryScore}</p>
+                <p className={cn("text-2xl font-black leading-none md:text-3xl", recoveryAccentClass)}>{recoveryScore}</p>
                 <p className="text-[10px] uppercase text-muted-foreground">/100</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+        <div className="rounded-lg border border-border/60 bg-background/40 p-2.5 md:p-3">
           <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recomendacion de carga</p>
-          <p className="mt-1 text-base font-black leading-tight">{recommendationLabel}</p>
+          <p className="mt-1 text-sm font-black leading-tight md:text-base">{recommendationLabel}</p>
           <p className={cn("mt-1 text-xs font-semibold", recoveryAccentClass)}>{recoveryStatusLabel}</p>
           <p className="mt-2 text-[11px] text-muted-foreground">Detalle de factores en el boton de ayuda.</p>
         </div>

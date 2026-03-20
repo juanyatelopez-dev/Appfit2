@@ -70,7 +70,14 @@ export function useTrainingPageState() {
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [deleteWorkoutId, setDeleteWorkoutId] = useState<string | null>(null);
 
-  const invalidateTraining = async () => queryClient.invalidateQueries({ queryKey: ["training"] });
+  const invalidateTraining = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["training"] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard_training_today"] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard_snapshot"] }),
+      queryClient.invalidateQueries({ queryKey: ["calendar_data"] }),
+    ]);
+  };
 
   const workoutsQuery = useQuery({ queryKey: ["training", "workouts", userId, isGuest], queryFn: () => listWorkouts(userId, options), enabled: Boolean(userId) || isGuest });
   const templatesQuery = useQuery({ queryKey: ["training", "templates", isGuest], queryFn: () => listWorkoutTemplates(options), enabled: Boolean(userId) || isGuest });
