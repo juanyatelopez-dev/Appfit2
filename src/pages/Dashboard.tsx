@@ -869,48 +869,50 @@ const Dashboard = () => {
               </div>
             </DashboardCardShell>
 
-            <DashboardCardShell title="Entrenamiento de hoy" className="h-full xl:col-span-2" contentClassName={denseCardContentClass}>
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="text-2xl font-black leading-tight">{workoutCardTitle}</p>
-                    <p className="text-sm text-muted-foreground">{dayDemandLabel}</p>
+            {isMobile ? (
+              <DashboardCardShell title="Entrenamiento de hoy" className="h-full xl:col-span-2" contentClassName={denseCardContentClass}>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-2xl font-black leading-tight">{workoutCardTitle}</p>
+                      <p className="text-sm text-muted-foreground">{dayDemandLabel}</p>
+                    </div>
+                    <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                      {exerciseCountLabel}
+                    </div>
                   </div>
-                  <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    {exerciseCountLabel}
+
+                  {workoutExercises.length > 0 ? (
+                    <div className="space-y-2">
+                      {workoutExercises.map((exercise) => (
+                        <div key={exercise.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
+                          <p className="text-sm font-medium">{exercise.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {exercise.target_sets ?? 0}x{exercise.target_reps ?? "--"}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <DashboardEmptyState message={workoutCardSubtitle} />
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                      <Link to={activeWorkout ? "/training/session" : "/training"}>Iniciar entrenamiento</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="h-10 rounded-xl px-4 text-sm">
+                      <Link to="/training">Ver rutina</Link>
+                    </Button>
                   </div>
+
+                  <p className="text-sm text-muted-foreground">
+                    <Clock3 className="mr-1 inline h-4 w-4" />
+                    {formatDurationLabel(Math.round(estimatedWorkoutMinutes))} estimados
+                  </p>
                 </div>
-
-                {workoutExercises.length > 0 ? (
-                  <div className="space-y-2">
-                    {workoutExercises.map((exercise) => (
-                      <div key={exercise.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
-                        <p className="text-sm font-medium">{exercise.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {exercise.target_sets ?? 0}x{exercise.target_reps ?? "--"}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <DashboardEmptyState message={workoutCardSubtitle} />
-                )}
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-                    <Link to={activeWorkout ? "/training/session" : "/training"}>Iniciar entrenamiento</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="h-10 rounded-xl px-4 text-sm">
-                    <Link to="/training">Ver rutina</Link>
-                  </Button>
-                </div>
-
-                <p className="text-sm text-muted-foreground">
-                  <Clock3 className="mr-1 inline h-4 w-4" />
-                  {formatDurationLabel(Math.round(estimatedWorkoutMinutes))} estimados
-                </p>
-              </div>
-            </DashboardCardShell>
+              </DashboardCardShell>
+            ) : null}
 
             <DashboardCardShell title="Progreso corporal" contentClassName={denseCardContentClass}>
               <div className="flex items-start justify-between gap-2">
@@ -1081,8 +1083,53 @@ const Dashboard = () => {
         </Dialog>
 
         {showSecondaryDashboardZones ? (
-          <section aria-labelledby="dashboard-zone-main" className={cn("grid xl:grid-cols-[1.6fr_1fr]", denseSectionGapClass)}>
+          <section aria-labelledby="dashboard-zone-main" className={cn("grid xl:grid-cols-[1.6fr_1.3fr_1fr]", denseSectionGapClass)}>
             <h2 id="dashboard-zone-main" className="sr-only">Bloques principales del dashboard</h2>
+
+          {!isMobile ? (
+            <DashboardCardShell title="Entrenamiento de hoy" className="h-full" contentClassName={denseCardContentClass}>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-2xl font-black leading-tight">{workoutCardTitle}</p>
+                    <p className="text-sm text-muted-foreground">{dayDemandLabel}</p>
+                  </div>
+                  <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                    {exerciseCountLabel}
+                  </div>
+                </div>
+
+                {workoutExercises.length > 0 ? (
+                  <div className="space-y-2">
+                    {workoutExercises.map((exercise) => (
+                      <div key={exercise.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
+                        <p className="text-sm font-medium">{exercise.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {exercise.target_sets ?? 0}x{exercise.target_reps ?? "--"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <DashboardEmptyState message={workoutCardSubtitle} />
+                )}
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                    <Link to={activeWorkout ? "/training/session" : "/training"}>Iniciar entrenamiento</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-10 rounded-xl px-4 text-sm">
+                    <Link to="/training">Ver rutina</Link>
+                  </Button>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  <Clock3 className="mr-1 inline h-4 w-4" />
+                  {formatDurationLabel(Math.round(estimatedWorkoutMinutes))} estimados
+                </p>
+              </div>
+            </DashboardCardShell>
+          ) : null}
 
           <DashboardCardShell title="Nutricion" className="h-full" contentClassName={denseCardContentClass}>
             <div className="space-y-3">
