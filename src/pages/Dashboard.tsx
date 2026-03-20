@@ -462,7 +462,7 @@ const Dashboard = () => {
   const recoveryDrivers = core?.recovery.drivers ?? [];
   const recoveryDriversLabel = recoveryDrivers.length > 0 ? recoveryDrivers.join(" | ") : "Sin drivers relevantes";
   const recoverySubscores = core?.recovery.subscores ?? { sleep: 0, biofeedback: 0, hydration: 0, consistency: 0 };
-  const recoveryRingRadius = 28;
+  const recoveryRingRadius = 38;
   const recoveryRingCircumference = 2 * Math.PI * recoveryRingRadius;
   const recoveryRingDash = Math.max(0, Math.min(recoveryRingCircumference, (recoveryScore / 100) * recoveryRingCircumference));
   const hydrationProgress = Math.min(100, Math.round(((core?.waterTodayMl ?? 0) / Math.max(core?.waterGoalMl ?? 2000, 1)) * 100));
@@ -577,7 +577,9 @@ const Dashboard = () => {
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
           <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Recovery score</p>
-          <p className="text-xs text-muted-foreground">Capacidad de carga para entrenar hoy.</p>
+          <p className="text-xs text-muted-foreground">
+            Capacidad de carga para entrenar hoy: <span className={cn("font-semibold", recoveryAccentClass)}>{recoveryBand}</span>
+          </p>
         </div>
         <Popover>
           <PopoverTrigger asChild>
@@ -623,7 +625,7 @@ const Dashboard = () => {
       <div className="grid gap-3 md:grid-cols-[minmax(180px,220px)_1fr]">
         <div className="rounded-lg border border-border/60 bg-background/40 p-3">
           <div className="flex items-center gap-3 md:flex-col md:items-center md:gap-2">
-            <div className="relative h-24 w-24 shrink-0">
+            <div className="relative h-28 w-28 shrink-0">
               <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
                 <circle cx="60" cy="60" r={recoveryRingRadius} className="fill-none stroke-muted/40" strokeWidth="10" />
                 <circle
@@ -640,9 +642,6 @@ const Dashboard = () => {
                 <p className={cn("text-3xl font-black leading-none", recoveryAccentClass)}>{recoveryScore}</p>
                 <p className="text-[10px] uppercase text-muted-foreground">/100</p>
               </div>
-            </div>
-            <div className="min-w-0 md:text-center">
-              <p className={cn("text-xs font-bold tracking-[0.16em]", recoveryAccentClass)}>{recoveryBand}</p>
             </div>
           </div>
         </div>
