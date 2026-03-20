@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 
 type QuickAction = {
+  key: "weight" | "measurements" | "biofeedback" | "nutrition";
   label: string;
   description: string;
   to: string;
@@ -14,28 +15,33 @@ type QuickAction = {
 
 type Props = {
   embedded?: boolean;
+  excludeKeys?: QuickAction["key"][];
 };
 
 const QUICK_ACTIONS: QuickAction[] = [
   {
+    key: "weight",
     label: "Registrar peso",
     description: "Actualizar el peso diario",
     to: "/weight",
     icon: Scale,
   },
   {
+    key: "measurements",
     label: "Registrar medidas",
     description: "Guardar perimetros corporales",
     to: "/body",
     icon: Ruler,
   },
   {
+    key: "biofeedback",
     label: "Registrar biofeedback",
     description: "Actualizar energia, estres y lectura diaria",
     to: "/biofeedback",
     icon: Activity,
   },
   {
+    key: "nutrition",
     label: "Registrar comida",
     description: "Cargar consumo y avance nutricional",
     to: "/nutrition",
@@ -43,7 +49,8 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-const DashboardQuickActions = ({ embedded = false }: Props) => {
+const DashboardQuickActions = ({ embedded = false, excludeKeys = [] }: Props) => {
+  const visibleActions = QUICK_ACTIONS.filter((action) => !excludeKeys.includes(action.key));
   const content = (
     <div className={cn("min-w-0 space-y-3", embedded && "overflow-hidden rounded-xl border border-border/60 bg-muted/10 p-3")}>
       {embedded ? (
@@ -53,12 +60,17 @@ const DashboardQuickActions = ({ embedded = false }: Props) => {
         </div>
       ) : null}
 
-      <div className={cn("grid gap-2 md:gap-3 sm:grid-cols-2", embedded && "grid-cols-2 xl:grid-cols-4")}>
-        {QUICK_ACTIONS.map((action) => {
+      <div
+        className={cn(
+          "grid gap-2 md:gap-3 sm:grid-cols-2",
+          embedded && (visibleActions.length <= 2 ? "grid-cols-2 xl:grid-cols-2" : "grid-cols-2 xl:grid-cols-4"),
+        )}
+      >
+        {visibleActions.map((action) => {
           const Icon = action.icon;
           return (
             <Link
-              key={action.label}
+              key={action.key}
               to={action.to}
               className={cn(
                 "group rounded-2xl border border-border/60 bg-background/50 p-3 transition hover:border-primary/40 hover:bg-primary/5 md:p-4",

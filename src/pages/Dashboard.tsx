@@ -136,14 +136,16 @@ const DashboardMetricCard = ({
       </div>
       <div className="space-y-1">
         <p className="text-[1.12rem] font-black leading-none tracking-tight">{valueLabel}</p>
-        <p className="text-[11px] font-semibold text-muted-foreground">{goalLabel}</p>
       </div>
-      <div className="h-2 rounded-full bg-muted/70">
-        <div
-          className={cn("h-2 rounded-full transition-all duration-300", accentClassName)}
-          style={{ width: `${Math.max(0, Math.min(100, progressPct))}%` }}
-        />
+      <div className="flex items-center gap-2">
+        <div className="h-2 flex-1 rounded-full bg-muted/70">
+          <div
+            className={cn("h-2 rounded-full transition-all duration-300", accentClassName)}
+            style={{ width: `${Math.max(0, Math.min(100, progressPct))}%` }}
+          />
         </div>
+        <p className="shrink-0 text-[11px] font-semibold text-muted-foreground">{goalLabel}</p>
+      </div>
     </CardContent>
   </Card>
 );
@@ -906,6 +908,7 @@ const Dashboard = () => {
                     {isWidgetVisible("quick_actions") ? (
                       <DashboardQuickActions
                         embedded
+                        excludeKeys={!isMobile ? ["measurements", "nutrition"] : []}
                       />
                     ) : null}
                   </div>
@@ -1051,6 +1054,18 @@ const Dashboard = () => {
                     actionHref="/sleep"
                     actionLabel="+"
                     onActionClick={() => setIsSleepModalOpen(true)}
+                  />
+                </section>
+                <section id="steps" className="min-w-0">
+                  <DashboardMetricCard
+                    title="Pasos"
+                    icon={Footprints}
+                    valueLabel="0 pasos"
+                    goalLabel="Meta 8,000 pasos"
+                    progressPct={0}
+                    accentClassName="bg-emerald-500/90 text-emerald-100"
+                    actionHref="/calendar"
+                    actionLabel="+"
                   />
                 </section>
               </div>
