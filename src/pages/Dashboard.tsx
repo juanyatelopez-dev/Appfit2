@@ -98,14 +98,14 @@ const DashboardMetricCard = ({
   onActionClick,
   comingSoon = false,
 }: DailyMetricCardProps) => (
-  <Card className="group rounded-2xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-    <CardContent className="space-y-2.5 p-4">
+  <Card className="group rounded-3xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <CardContent className="space-y-3 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className={cn("rounded-lg border border-border/60 bg-background/60 p-1.5", accentClassName)}>
-            <Icon className="h-3 w-3.5" />
+          <div className={cn("rounded-2xl border border-border/50 p-2.5", accentClassName)}>
+            <Icon className="h-5 w-5" />
           </div>
-          <p className="text-xs font-semibold tracking-tight text-foreground">{title}</p>
+          <p className="text-lg font-semibold tracking-tight text-foreground">{title}</p>
         </div>
         {comingSoon ? (
           <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-600 sm:px-2 sm:text-[11px] dark:text-amber-300">
@@ -118,7 +118,7 @@ const DashboardMetricCard = ({
                 type="button"
                 onClick={onActionClick}
                 aria-label={actionLabel}
-                className="inline-flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/50 text-sm font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/40 text-2xl font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {actionLabel}
               </button>
@@ -126,7 +126,7 @@ const DashboardMetricCard = ({
               <Link
                 to={actionHref}
                 aria-label={actionLabel}
-                className="inline-flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/50 text-sm font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border border-border/60 bg-background/40 text-2xl font-medium leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {actionLabel}
               </Link>
@@ -134,9 +134,12 @@ const DashboardMetricCard = ({
           </>
         )}
       </div>
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[1.12rem] font-black leading-none tracking-tight text-foreground">{valueLabel}</p>
-        <p className="text-[0.78rem] font-semibold text-muted-foreground/85">{goalLabel}</p>
+      <div className="flex items-end justify-between gap-3 pt-0.5">
+        <p className="whitespace-nowrap text-[2.45rem] font-black leading-none tracking-tight text-foreground">{valueLabel}</p>
+        <div className="text-right leading-none">
+          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground/80">Meta</p>
+          <p className="mt-1 text-[1.55rem] font-semibold text-muted-foreground/90">{goalLabel}</p>
+        </div>
       </div>
       <div className="h-2 rounded-full bg-muted/70">
         <div
