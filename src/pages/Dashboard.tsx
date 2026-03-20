@@ -100,7 +100,7 @@ const DashboardMetricCard = ({
   comingSoon = false,
 }: DailyMetricCardProps) => (
   <Card className="group rounded-2xl border-border/60 bg-card/80 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-    <CardContent className="space-y-2.5 p-3 pt-4 sm:space-y-3 sm:p-4 sm:pt-5">
+    <CardContent className="space-y-2.5 p-3 pt-5 sm:space-y-3 sm:p-4 sm:pt-6">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className={cn("rounded-lg border border-border/60 bg-background/60 p-1.5 sm:rounded-xl sm:p-2", accentClassName)}>
@@ -532,6 +532,9 @@ const Dashboard = () => {
   const proteinGoal = nutritionGoals?.protein_goal_g ?? 160;
   const carbsGoal = nutritionGoals?.carb_goal_g ?? 250;
   const fatGoal = nutritionGoals?.fat_goal_g ?? 70;
+  const proteinProgress = Math.min(100, Math.round((proteinCurrent / Math.max(proteinGoal, 1)) * 100));
+  const carbsProgress = Math.min(100, Math.round((carbsCurrent / Math.max(carbsGoal, 1)) * 100));
+  const fatProgress = Math.min(100, Math.round((fatCurrent / Math.max(fatGoal, 1)) * 100));
 
   const workoutExercises = activeWorkout?.exercises ?? scheduledWorkout?.exercises ?? [];
   const estimatedWorkoutMinutes = Math.max(
@@ -1256,8 +1259,9 @@ const Dashboard = () => {
           ) : null}
 
           <DashboardCardShell title="Nutricion" className="h-full" contentClassName={denseCardContentClass}>
-            <div className="space-y-3">
-              <div className="grid gap-3 sm:grid-cols-[130px_1fr]">
+            <div className="flex h-full flex-col justify-between gap-4">
+              <div className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-[130px_1fr]">
                 <div className="relative mx-auto h-28 w-28">
                   <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
                     <circle cx="60" cy="60" r="48" stroke="currentColor" strokeWidth="12" className="text-muted/30" fill="none" />
@@ -1293,24 +1297,48 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm"><span>Proteina</span><span>{Math.round(proteinCurrent)} g / {Math.round(proteinGoal)} g</span></div>
-                  <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-emerald-500" style={{ width: `${Math.min(100, Math.round((proteinCurrent / Math.max(proteinGoal, 1)) * 100))}%` }} /></div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm"><span>Carbs</span><span>{Math.round(carbsCurrent)} g / {Math.round(carbsGoal)} g</span></div>
-                  <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-amber-500" style={{ width: `${Math.min(100, Math.round((carbsCurrent / Math.max(carbsGoal, 1)) * 100))}%` }} /></div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm"><span>Grasas</span><span>{Math.round(fatCurrent)} g / {Math.round(fatGoal)} g</span></div>
-                  <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-rose-500" style={{ width: `${Math.min(100, Math.round((fatCurrent / Math.max(fatGoal, 1)) * 100))}%` }} /></div>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span>Proteina</span>
+                      <span>{proteinProgress}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-muted">
+                      <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${proteinProgress}%` }} />
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(proteinCurrent)} / {Math.round(proteinGoal)} g</p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span>Carbs</span>
+                      <span>{carbsProgress}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-muted">
+                      <div className="h-1.5 rounded-full bg-amber-500" style={{ width: `${carbsProgress}%` }} />
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(carbsCurrent)} / {Math.round(carbsGoal)} g</p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span>Grasas</span>
+                      <span>{fatProgress}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-muted">
+                      <div className="h-1.5 rounded-full bg-rose-500" style={{ width: `${fatProgress}%` }} />
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(fatCurrent)} / {Math.round(fatGoal)} g</p>
+                  </div>
                 </div>
               </div>
 
-              <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-                <Link to="/nutrition">Registrar comida</Link>
-              </Button>
+              <div className="space-y-2">
+                <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-2 text-xs text-muted-foreground">
+                  Restan <span className="font-semibold text-foreground">{remainingCalories.toLocaleString("es-PE")} kcal</span> para cumplir tu objetivo de hoy.
+                </div>
+                <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                  <Link to="/nutrition">Registrar comida</Link>
+                </Button>
+              </div>
             </div>
           </DashboardCardShell>
 
