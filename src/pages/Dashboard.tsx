@@ -880,6 +880,7 @@ const Dashboard = () => {
         </section>
 
 
+        {!isMobile || !USE_MOBILE_HORIZONTAL_SCROLL ? (
         <section aria-labelledby="dashboard-zone-actions" className={cn("order-[-2] grid", denseSectionGapClass)}>
           <h2 id="dashboard-zone-actions" className="sr-only">Control operativo de hoy</h2>
           <div className={cn("grid", denseSectionGapClass, "xl:grid-cols-5")}>
@@ -1060,23 +1061,78 @@ const Dashboard = () => {
             ) : null}
           </div>
         </section>
+        ) : null}
 
         {isMobile && USE_MOBILE_HORIZONTAL_SCROLL ? (
-          <section aria-label="Centro de mando movil" className="order-[-1] space-y-3">
-            {isWidgetVisible("notes") ? (
-              <TacticalNotesCard
-                loading={snapshot.coreLoading}
-                todayNote={core?.noteToday ?? null}
-                latestNote={core?.noteLatest ?? null}
-                onSave={(payload) => saveNoteMutation.mutateAsync(payload).then(() => undefined)}
-              />
-            ) : null}
-
+          <section aria-label="Centro de mando movil" className="order-[-2] space-y-3 overflow-y-hidden">
             <div
               ref={mobileCarouselRef}
               onScroll={handleMobileCarouselScroll}
-              className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1"
+              className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-1 pb-1"
             >
+              <div className="min-w-[88%] snap-start">
+                <DashboardCardShell
+                  title="Que hacer hoy"
+                  contentClassName={denseActionContentClass}
+                >
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <p className="text-[1.05rem] font-bold">Hoy estas al {todayCompletionPct}% completado</p>
+                      <div className="h-2.5 rounded-full bg-muted">
+                        <div className="h-2.5 rounded-full bg-primary transition-all duration-300" style={{ width: `${todayCompletionPct}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/10 p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
+                          <CheckCircle2 className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Siguiente paso</p>
+                          <p className="text-base font-semibold">{nextRequiredActionLabel}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Te falta {remainingActionsCount} {remainingActionsCount === 1 ? "accion" : "acciones"} para completar el dia
+                          </p>
+                        </div>
+                      </div>
+                      <Button type="button" className="h-10 rounded-xl px-4 text-sm font-semibold" onClick={handleNextRequiredAction}>
+                        {nextRequiredActionButtonLabel}
+                      </Button>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-9 w-full justify-between rounded-xl px-3 text-xs"
+                      onClick={() => setIsTodayDetailsExpanded((prev) => !prev)}
+                    >
+                      <span>{isTodayDetailsExpanded ? "Ocultar acciones rapidas" : "Ver acciones rapidas"}</span>
+                      <ChevronDown className={cn("h-4 w-4 transition-transform", isTodayDetailsExpanded && "rotate-180")} />
+                    </Button>
+
+                    {isTodayDetailsExpanded ? (
+                      <div className="space-y-3">
+                        {isWidgetVisible("quick_actions") ? (
+                          <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </DashboardCardShell>
+              </div>
+
+              {isWidgetVisible("notes") ? (
+                <div className="min-w-[88%] snap-start">
+                  <TacticalNotesCard
+                    loading={snapshot.coreLoading}
+                    todayNote={core?.noteToday ?? null}
+                    latestNote={core?.noteLatest ?? null}
+                    onSave={(payload) => saveNoteMutation.mutateAsync(payload).then(() => undefined)}
+                  />
+                </div>
+              ) : null}
+
               <div className="min-w-[88%] snap-start">
                 <DashboardCardShell title="Progreso corporal" contentClassName={denseCardContentClass}>
                   <div className="flex items-start justify-between gap-2">
@@ -1150,6 +1206,47 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
+              <div className="min-w-[88%] snap-start">
+                <DashboardCardShell title="Nutricion" className="h-full" contentClassName={denseCardContentClass}>
+                  <div className="space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
+                      <div className="relative mx-auto h-24 w-24">
+                        <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                          <circle cx="60" cy="60" r="48" stroke="currentColor" strokeWidth="12" className="text-muted/30" fill="none" />
+                          <circle
+                            cx="60"
+                            cy="60"
+                            r="48"
+                            stroke="currentColor"
+                            strokeWidth="12"
+                            strokeLinecap="round"
+                            className="text-primary"
+                            fill="none"
+                            strokeDasharray={`${Math.min(100, Math.max(0, caloriesProgress)) * 3.02} 999`}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                          <p className="text-xs text-muted-foreground">Calorias</p>
+                          <p className="text-xl font-black">{caloriesProgress}%</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
+                          <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
+                          <p className="text-lg font-bold">
+                            {consumedCalories.toLocaleString("es-PE")} / {targetCalories.toLocaleString("es-PE")} kcal
+                          </p>
+                          <p className="text-xs text-muted-foreground">Restantes {remainingCalories.toLocaleString("es-PE")} kcal</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                      <Link to="/nutrition">Registrar comida</Link>
+                    </Button>
+                  </div>
+                </DashboardCardShell>
+              </div>
+
               <div className="min-w-[88%] snap-start"><section id="water" className="min-w-0"><DashboardMetricCard title="Agua" icon={Droplets} valueLabel={`${(core?.waterTodayMl ?? 0).toLocaleString("es-PE")} ml`} goalLabel={`${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`} progressPct={hydrationProgress} accentClassName="bg-sky-500/90 text-sky-100" actionHref="/water" actionLabel="+" onActionClick={() => setIsWaterModalOpen(true)} /></section></div>
               <div className="min-w-[88%] snap-start"><section id="nutrition" className="min-w-0"><DashboardMetricCard title="Calorias" icon={Flame} valueLabel={`${consumedCalories.toLocaleString("es-PE")} kcal`} goalLabel={`${targetCalories.toLocaleString("es-PE")} kcal`} progressPct={caloriesProgress} accentClassName="bg-amber-500/90 text-amber-100" actionHref="/nutrition" actionLabel="+" /></section></div>
               <div className="min-w-[88%] snap-start"><section id="sleep" className="min-w-0"><DashboardMetricCard title="Sueno" icon={Moon} valueLabel={`${((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h`} goalLabel={`${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`} progressPct={sleepProgress} accentClassName="bg-violet-500/90 text-violet-100" actionHref="/sleep" actionLabel="+" onActionClick={() => setIsSleepModalOpen(true)} /></section></div>
@@ -1157,7 +1254,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center justify-center gap-1.5">
-              {Array.from({ length: 6 }).map((_, index) => (
+              {Array.from({ length: isWidgetVisible("notes") ? 9 : 8 }).map((_, index) => (
                 <span
                   key={`mobile-slide-dot-${index}`}
                   className={cn(
