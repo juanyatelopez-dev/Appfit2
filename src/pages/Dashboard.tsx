@@ -1115,14 +1115,12 @@ const Dashboard = () => {
                         {nextRequiredActionButtonLabel}
                       </Button>
                     </div>
+
+                    {isWidgetVisible("quick_actions") ? (
+                      <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
+                    ) : null}
                   </div>
                 </DashboardCardShell>
-
-                {isWidgetVisible("quick_actions") ? (
-                  <DashboardCardShell title="Acciones rapidas" contentClassName="p-3">
-                    <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
-                  </DashboardCardShell>
-                ) : null}
 
                 <DashboardCardShell title="Nota del dia" contentClassName="space-y-2 p-3">
                   <p className="line-clamp-1 text-xs text-muted-foreground">
