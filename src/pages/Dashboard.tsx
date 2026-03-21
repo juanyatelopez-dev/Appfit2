@@ -1115,26 +1115,15 @@ const Dashboard = () => {
                         {nextRequiredActionButtonLabel}
                       </Button>
                     </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-9 w-full justify-between rounded-xl px-3 text-xs"
-                      onClick={() => setIsTodayDetailsExpanded((prev) => !prev)}
-                    >
-                      <span>{isTodayDetailsExpanded ? "Ocultar acciones rapidas" : "Ver acciones rapidas"}</span>
-                      <ChevronDown className={cn("h-4 w-4 transition-transform", isTodayDetailsExpanded && "rotate-180")} />
-                    </Button>
-
-                    {isTodayDetailsExpanded ? (
-                      <div className="space-y-3">
-                        {isWidgetVisible("quick_actions") ? (
-                          <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
-                        ) : null}
-                      </div>
-                    ) : null}
                   </div>
                 </DashboardCardShell>
+
+                {isWidgetVisible("quick_actions") ? (
+                  <DashboardCardShell title="Acciones rapidas" contentClassName="p-3">
+                    <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
+                  </DashboardCardShell>
+                ) : null}
+
                 <DashboardCardShell title="Nota del dia" contentClassName="space-y-2 p-3">
                   <p className="line-clamp-1 text-xs text-muted-foreground">
                     {core?.noteToday?.content?.trim() ? core.noteToday.content.trim() : "Agregar nota del dia y sincronizar al calendario."}
@@ -1142,7 +1131,7 @@ const Dashboard = () => {
                   <Button
                     type="button"
                     size="sm"
-                    className="h-9 rounded-xl px-3 text-xs font-semibold"
+                    className="h-9 w-full rounded-xl px-3 text-xs font-semibold"
                     onClick={() => setIsNotesModalOpen(true)}
                   >
                     Abrir nota
