@@ -525,19 +525,39 @@ const Dashboard = () => {
     const startKey = startDate.toISOString().slice(0, 10);
     return entries.filter((entry) => entry.measured_at >= startKey && entry.measured_at <= snapshot.todayKey);
   })();
-  const weightSeries = weightRangeEntries
-    .map((row) => Number(row.weight_kg))
-    .filter((value) => Number.isFinite(value));
+  const weightSeriesRows = weightRangeEntries
+    .map((row) => ({
+      weight: Number(row.weight_kg),
+      dateMs: new Date(`${row.measured_at}T00:00:00`).getTime(),
+    }))
+    .filter((row) => Number.isFinite(row.weight) && Number.isFinite(row.dateMs));
+  const weightSeries = weightSeriesRows.map((row) => row.weight);
   const weightMin = weightSeries.length > 0 ? Math.min(...weightSeries) : 0;
   const weightMax = weightSeries.length > 0 ? Math.max(...weightSeries) : 0;
   const chartAxis = { left: 10, right: 96, top: 12, bottom: 88 };
-  const weightSeriesPoints = weightSeries.map((value, index) => {
-    const ratioX = weightSeries.length > 1 ? index / (weightSeries.length - 1) : 0.5;
+  const selectedRangeEndDate = new Date(`${snapshot.todayKey}T00:00:00`);
+  const selectedRangeStartDate = (() => {
+    if (weightTrendRange === "all") {
+      if (weightSeriesRows.length === 0) return new Date(selectedRangeEndDate);
+      return new Date(weightSeriesRows[0].dateMs);
+    }
+    const start = new Date(selectedRangeEndDate);
+    start.setDate(start.getDate() - (weightTrendRange === "7d" ? 6 : 29));
+    return start;
+  })();
+  const rangeStartMs = selectedRangeStartDate.getTime();
+  const rangeEndMs =
+    weightTrendRange === "all" && weightSeriesRows.length > 0
+      ? weightSeriesRows[weightSeriesRows.length - 1].dateMs
+      : selectedRangeEndDate.getTime();
+  const rangeSpanMs = Math.max(rangeEndMs - rangeStartMs, 1);
+  const weightSeriesPoints = weightSeriesRows.map((row) => {
+    const ratioX = Math.max(0, Math.min(1, (row.dateMs - rangeStartMs) / rangeSpanMs));
     const x = chartAxis.left + ratioX * (chartAxis.right - chartAxis.left);
     const y =
       weightMax === weightMin
         ? (chartAxis.top + chartAxis.bottom) / 2
-        : chartAxis.bottom - ((value - weightMin) / Math.max(weightMax - weightMin, 1)) * (chartAxis.bottom - chartAxis.top);
+        : chartAxis.bottom - ((row.weight - weightMin) / Math.max(weightMax - weightMin, 1)) * (chartAxis.bottom - chartAxis.top);
     return {
       x,
       y: Math.max(chartAxis.top, Math.min(chartAxis.bottom, y)),
@@ -549,12 +569,14 @@ const Dashboard = () => {
   const weightMaxLabel = weightSeries.length > 0 ? `${weightMax.toFixed(1)} kg` : "--";
   const weightMinLabel = weightSeries.length > 0 ? `${weightMin.toFixed(1)} kg` : "--";
   const weightMidLabel = weightSeries.length > 0 ? `${((weightMax + weightMin) / 2).toFixed(1)} kg` : "--";
-  const weightRangeAxisLabels =
-    weightTrendRange === "7d"
-      ? { start: "7d atras", mid: "3d", end: "Hoy" }
-      : weightTrendRange === "30d"
-        ? { start: "30d atras", mid: "15d", end: "Hoy" }
-        : { start: "Inicio", mid: "Mitad", end: "Hoy" };
+  const formatAxisDate = (date: Date) =>
+    new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "short" }).format(date).replace(".", "");
+  const midAxisDate = new Date(rangeStartMs + rangeSpanMs / 2);
+  const weightRangeAxisLabels = {
+    start: formatAxisDate(selectedRangeStartDate),
+    mid: formatAxisDate(midAxisDate),
+    end: formatAxisDate(new Date(rangeEndMs)),
+  };
   const weightGoalProgress = core?.goalProgress ?? null;
   const weightGoalProgressSafe = weightGoalProgress !== null ? Math.max(0, Math.min(100, Math.round(weightGoalProgress))) : null;
   const weightDelta = core?.latestWeightDeltaKg ?? null;
