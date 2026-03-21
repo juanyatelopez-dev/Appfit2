@@ -1285,9 +1285,9 @@ const Dashboard = () => {
             <div
               ref={mobileCarouselRef}
               onScroll={handleMobileCarouselScroll}
-              className="hide-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overflow-y-hidden px-[6%] pb-1"
+              className="hide-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overflow-y-hidden px-[4%] pb-1"
             >
-              <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
+              <div className="h-full w-[92%] shrink-0 snap-center overflow-hidden">
                 <div className="flex h-full flex-col gap-3">
                 <DashboardCardShell
                   title="Que hacer hoy"
@@ -1342,7 +1342,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
+              <div className="h-full w-[92%] shrink-0 snap-center overflow-hidden">
                 <DashboardCardShell title="Progreso corporal" className="h-full" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
@@ -1423,7 +1423,7 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
+              <div className="h-full w-[92%] shrink-0 snap-center overflow-hidden">
                 <DashboardCardShell title="Entrenamiento" className="h-full xl:col-span-2" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     {renderTrainingRecoveryPanel()}
@@ -1454,11 +1454,11 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
+              <div className="h-full w-[92%] shrink-0 snap-center overflow-hidden">
                 <DashboardCardShell title="Nutricion" className="h-full" contentClassName={cn(denseCardContentClass, "!space-y-0 flex h-full flex-col")}>
-                  <div className="space-y-3">
-                    <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
-                      <div className="relative mx-auto h-24 w-24">
+                  <div className="space-y-2.5">
+                    <div className="grid gap-2.5 sm:grid-cols-[96px_1fr]">
+                      <div className="relative mx-auto h-20 w-20">
                         <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
                           <circle cx="60" cy="60" r="48" stroke="currentColor" strokeWidth="12" className="text-muted/30" fill="none" />
                           <circle
@@ -1474,28 +1474,28 @@ const Dashboard = () => {
                           />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                          <p className="text-xs text-muted-foreground">Calorias</p>
-                          <p className="text-xl font-black">{caloriesProgress}%</p>
+                          <p className="text-[11px] text-muted-foreground">Calorias</p>
+                          <p className="text-lg font-black">{caloriesProgress}%</p>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <div className="rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
+                      <div className="space-y-1.5">
+                        <div className="rounded-xl border border-border/60 bg-muted/15 px-3 py-1.5">
                           <div className="flex items-start justify-between gap-2">
                             <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
                             <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-semibold", nutritionStatus.className)}>
                               {nutritionStatus.label}
                             </span>
                           </div>
-                          <p className="text-lg font-bold">
+                          <p className="text-[1.7rem] font-black leading-none tracking-tight">
                             {consumedCalories.toLocaleString("es-PE")} / {targetCalories.toLocaleString("es-PE")} kcal
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[11px] text-muted-foreground">
+                          <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[10px] text-muted-foreground">
                             Proteina restante: <span className="font-semibold text-foreground">{remainingProteinLabel}</span>
                           </span>
                           {nutritionContextChip ? (
-                            <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[11px] text-muted-foreground">
+                            <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[10px] text-muted-foreground">
                               {nutritionContextChip}
                             </span>
                           ) : null}
@@ -1504,9 +1504,9 @@ const Dashboard = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">{nutritionActionHint}</p>
                   </div>
-                  <div className="mt-3 flex flex-1 flex-col justify-end gap-3">
-                    <div className="grid gap-2 sm:grid-cols-3">
-                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                  <div className="mt-2 space-y-2">
+                    <div className="grid gap-1.5 sm:grid-cols-3">
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2 py-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span>Proteina</span>
                           <span>{proteinProgress}%</span>
@@ -1514,9 +1514,9 @@ const Dashboard = () => {
                         <div className="mt-1 h-1.5 rounded-full bg-muted">
                           <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${proteinProgress}%` }} />
                         </div>
-                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(proteinCurrent)} / {Math.round(proteinGoal)} g</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{Math.round(proteinCurrent)} / {Math.round(proteinGoal)} g</p>
                       </div>
-                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2 py-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span>Carbs</span>
                           <span>{carbsProgress}%</span>
@@ -1524,9 +1524,9 @@ const Dashboard = () => {
                         <div className="mt-1 h-1.5 rounded-full bg-muted">
                           <div className="h-1.5 rounded-full bg-amber-500" style={{ width: `${carbsProgress}%` }} />
                         </div>
-                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(carbsCurrent)} / {Math.round(carbsGoal)} g</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{Math.round(carbsCurrent)} / {Math.round(carbsGoal)} g</p>
                       </div>
-                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2 py-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span>Grasas</span>
                           <span>{fatProgress}%</span>
@@ -1534,20 +1534,20 @@ const Dashboard = () => {
                         <div className="mt-1 h-1.5 rounded-full bg-muted">
                           <div className="h-1.5 rounded-full bg-rose-500" style={{ width: `${fatProgress}%` }} />
                         </div>
-                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(fatCurrent)} / {Math.round(fatGoal)} g</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{Math.round(fatCurrent)} / {Math.round(fatGoal)} g</p>
                       </div>
                     </div>
-                    <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-2 text-xs text-muted-foreground">
+                    <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-1.5 text-xs text-muted-foreground">
                       Restan <span className="font-semibold text-foreground">{remainingCalories.toLocaleString("es-PE")} kcal</span> para cumplir tu objetivo de hoy.
                     </div>
-                    <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                    <Button asChild className="h-9 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
                       <Link to="/nutrition">Registrar comida</Link>
                     </Button>
                   </div>
                 </DashboardCardShell>
               </div>
 
-              <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
+              <div className="h-full w-[92%] shrink-0 snap-center overflow-hidden">
                 <div className="flex h-full flex-col gap-2.5">
                   <section id="water" className="min-w-0">
                     <DashboardMetricCard
