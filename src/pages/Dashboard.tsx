@@ -1248,9 +1248,9 @@ const Dashboard = () => {
             <div
               ref={mobileCarouselRef}
               onScroll={handleMobileCarouselScroll}
-              className="-mx-1 hide-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overflow-y-hidden px-1 pb-1"
+              className="hide-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory items-stretch gap-3 overflow-x-auto overflow-y-hidden px-[6%] pb-1"
             >
-              <div className="min-w-[88%] snap-start space-y-3 overflow-hidden">
+              <div className="min-w-[88%] snap-center space-y-3 overflow-hidden">
                 <DashboardCardShell
                   title="Que hacer hoy"
                   contentClassName={denseActionContentClass}
@@ -1302,7 +1302,7 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start overflow-hidden">
+              <div className="min-w-[88%] snap-center overflow-hidden">
                 <DashboardCardShell title="Progreso corporal" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
@@ -1383,7 +1383,7 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start self-start overflow-hidden">
+              <div className="min-w-[88%] snap-center self-start overflow-hidden">
                 <DashboardCardShell title="Entrenamiento" className="xl:col-span-2" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     {renderTrainingRecoveryPanel()}
@@ -1414,7 +1414,7 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start overflow-hidden">
+              <div className="min-w-[88%] snap-center overflow-hidden">
                 <DashboardCardShell title="Nutricion" className="h-full" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
@@ -1455,10 +1455,10 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start overflow-hidden"><section id="water" className="min-w-0"><DashboardMetricCard title="Agua" icon={Droplets} valueLabel={`${(core?.waterTodayMl ?? 0).toLocaleString("es-PE")} ml`} goalLabel={`${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`} progressPct={hydrationProgress} accentClassName="bg-sky-500/90 text-sky-100" actionHref="/water" actionLabel="+" onActionClick={() => setIsWaterModalOpen(true)} /></section></div>
-              <div className="min-w-[88%] snap-start overflow-hidden"><section id="nutrition" className="min-w-0"><DashboardMetricCard title="Calorias" icon={Flame} valueLabel={`${consumedCalories.toLocaleString("es-PE")} kcal`} goalLabel={`${targetCalories.toLocaleString("es-PE")} kcal`} progressPct={caloriesProgress} accentClassName="bg-amber-500/90 text-amber-100" actionHref="/nutrition" actionLabel="+" /></section></div>
-              <div className="min-w-[88%] snap-start overflow-hidden"><section id="sleep" className="min-w-0"><DashboardMetricCard title="Sueno" icon={Moon} valueLabel={`${((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h`} goalLabel={`${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`} progressPct={sleepProgress} accentClassName="bg-violet-500/90 text-violet-100" actionHref="/sleep" actionLabel="+" onActionClick={() => setIsSleepModalOpen(true)} /></section></div>
-              <div className="min-w-[88%] snap-start overflow-hidden"><DashboardMetricCard title="Pasos" icon={Footprints} valueLabel="Proximamente..." goalLabel="8,000 pasos" progressPct={0} accentClassName="bg-emerald-500/90 text-emerald-100" actionHref="/calendar" actionLabel="+" /></div>
+              <div className="min-w-[88%] snap-center overflow-hidden"><section id="water" className="min-w-0"><DashboardMetricCard title="Agua" icon={Droplets} valueLabel={`${(core?.waterTodayMl ?? 0).toLocaleString("es-PE")} ml`} goalLabel={`${(core?.waterGoalMl ?? 2000).toLocaleString("es-PE")} ml`} progressPct={hydrationProgress} accentClassName="bg-sky-500/90 text-sky-100" actionHref="/water" actionLabel="+" onActionClick={() => setIsWaterModalOpen(true)} /></section></div>
+              <div className="min-w-[88%] snap-center overflow-hidden"><section id="nutrition" className="min-w-0"><DashboardMetricCard title="Calorias" icon={Flame} valueLabel={`${consumedCalories.toLocaleString("es-PE")} kcal`} goalLabel={`${targetCalories.toLocaleString("es-PE")} kcal`} progressPct={caloriesProgress} accentClassName="bg-amber-500/90 text-amber-100" actionHref="/nutrition" actionLabel="+" /></section></div>
+              <div className="min-w-[88%] snap-center overflow-hidden"><section id="sleep" className="min-w-0"><DashboardMetricCard title="Sueno" icon={Moon} valueLabel={`${((core?.sleepDay?.total_minutes ?? 0) / 60).toFixed(1)} h`} goalLabel={`${((core?.sleepGoalMinutes ?? 480) / 60).toFixed(1)} h`} progressPct={sleepProgress} accentClassName="bg-violet-500/90 text-violet-100" actionHref="/sleep" actionLabel="+" onActionClick={() => setIsSleepModalOpen(true)} /></section></div>
+              <div className="min-w-[88%] snap-center overflow-hidden"><DashboardMetricCard title="Pasos" icon={Footprints} valueLabel="Proximamente..." goalLabel="8,000 pasos" progressPct={0} accentClassName="bg-emerald-500/90 text-emerald-100" actionHref="/calendar" actionLabel="+" /></div>
             </div>
 
             <div className="flex items-center justify-center gap-1.5">
