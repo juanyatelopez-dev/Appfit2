@@ -1383,8 +1383,8 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start overflow-hidden">
-                <DashboardCardShell title="Entrenamiento" className="h-full xl:col-span-2" contentClassName={denseCardContentClass}>
+              <div className="min-w-[88%] snap-start self-start overflow-hidden">
+                <DashboardCardShell title="Entrenamiento" className="xl:col-span-2" contentClassName={denseCardContentClass}>
                   <div className="space-y-3">
                     {renderTrainingRecoveryPanel()}
                     <div className="flex flex-wrap items-start justify-between gap-2">
