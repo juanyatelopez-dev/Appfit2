@@ -1383,33 +1383,39 @@ const Dashboard = () => {
                 </DashboardCardShell>
               </div>
 
-              <div className="min-w-[88%] snap-start self-start overflow-hidden">
-                <DashboardCardShell title="Entrenamiento" className="xl:col-span-2" contentClassName={denseCardContentClass}>
-                  <div className="space-y-3">
+              <div className="min-w-[88%] snap-start h-full overflow-hidden">
+                <DashboardCardShell
+                  title="Entrenamiento"
+                  className="h-full xl:col-span-2"
+                  contentClassName={cn(denseCardContentClass, "h-full")}
+                >
+                  <div className="flex h-full flex-col gap-3">
                     {renderTrainingRecoveryPanel()}
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Rutina de hoy</p>
-                        <p className="text-2xl font-black leading-tight">{workoutCardTitle}</p>
-                        <p className="text-sm text-muted-foreground">{dayDemandLabel}</p>
+                    <div className="mt-auto space-y-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Rutina de hoy</p>
+                          <p className="text-2xl font-black leading-tight">{workoutCardTitle}</p>
+                          <p className="text-sm text-muted-foreground">{dayDemandLabel}</p>
+                        </div>
+                        <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                          {exerciseCountLabel}
+                        </div>
                       </div>
-                      <div className="rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground">
-                        {exerciseCountLabel}
+                      <p className="text-xs text-muted-foreground">El resumen de ejercicios se muestra al iniciar entrenamiento.</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button type="button" className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90" onClick={handleOpenTrainingSummary}>
+                          {activeSession ? "Continuar entrenamiento" : "Iniciar entrenamiento"}
+                        </Button>
+                        <Button asChild variant="outline" className="h-10 rounded-xl px-4 text-sm">
+                          <Link to="/training">Ver rutina</Link>
+                        </Button>
                       </div>
+                      <p className="text-sm text-muted-foreground">
+                        <Clock3 className="mr-1 inline h-4 w-4" />
+                        {formatDurationLabel(Math.round(estimatedWorkoutMinutes))} estimados
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">El resumen de ejercicios se muestra al iniciar entrenamiento.</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button type="button" className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90" onClick={handleOpenTrainingSummary}>
-                        {activeSession ? "Continuar entrenamiento" : "Iniciar entrenamiento"}
-                      </Button>
-                      <Button asChild variant="outline" className="h-10 rounded-xl px-4 text-sm">
-                        <Link to="/training">Ver rutina</Link>
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      <Clock3 className="mr-1 inline h-4 w-4" />
-                      {formatDurationLabel(Math.round(estimatedWorkoutMinutes))} estimados
-                    </p>
                   </div>
                 </DashboardCardShell>
               </div>
