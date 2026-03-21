@@ -511,22 +511,25 @@ const Dashboard = () => {
   const exerciseCountLabel = workoutExercises.length > 0 ? `${workoutExercises.length} ejercicios` : "Sin ejercicios configurados";
 
   const weightSeries = (core?.weightSnapshot?.entries ?? [])
-    .slice(0, 7)
-    .reverse()
+    .slice(-7)
     .map((row) => Number(row.weight_kg))
     .filter((value) => Number.isFinite(value));
   const weightMin = weightSeries.length > 0 ? Math.min(...weightSeries) : 0;
   const weightMax = weightSeries.length > 0 ? Math.max(...weightSeries) : 0;
-  const weightPath = weightSeries
-    .map((value, index) => {
-      const x = weightSeries.length > 1 ? (index / (weightSeries.length - 1)) * 100 : 0;
-      const y =
-        weightMax === weightMin
-          ? 50
-          : 100 - ((value - weightMin) / Math.max(weightMax - weightMin, 1)) * 100;
-      return `${x},${Math.max(6, Math.min(94, y))}`;
-    })
-    .join(" ");
+  const weightSeriesPoints = weightSeries.map((value, index) => {
+    const x = weightSeries.length > 1 ? (index / (weightSeries.length - 1)) * 100 : 50;
+    const y =
+      weightMax === weightMin
+        ? 50
+        : 100 - ((value - weightMin) / Math.max(weightMax - weightMin, 1)) * 100;
+    return {
+      x,
+      y: Math.max(8, Math.min(92, y)),
+    };
+  });
+  const weightPath = weightSeriesPoints.map((point) => `${point.x},${point.y}`).join(" ");
+  const latestWeightPoint = weightSeriesPoints.length > 0 ? weightSeriesPoints[weightSeriesPoints.length - 1] : null;
+  const hasWeightTrend = weightSeriesPoints.length >= 2;
   const weightGoalProgress = core?.goalProgress ?? null;
   const weightGoalProgressSafe = weightGoalProgress !== null ? Math.max(0, Math.min(100, Math.round(weightGoalProgress))) : null;
   const weightDelta = core?.latestWeightDeltaKg ?? null;
@@ -993,9 +996,10 @@ const Dashboard = () => {
               </div>
 
               <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2 md:h-16">
-                {weightPath ? (
+                {hasWeightTrend ? (
                   <svg viewBox="0 0 100 100" className="h-full w-full">
-                    <polyline fill="none" stroke="currentColor" strokeWidth="3" className="text-primary" points={weightPath} />
+                    <polyline fill="none" stroke="currentColor" strokeWidth="3.25" className="text-primary" points={weightPath} />
+                    {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="2.8" className="fill-primary" /> : null}
                   </svg>
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
@@ -1174,9 +1178,10 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2">
-                      {weightPath ? (
+                      {hasWeightTrend ? (
                         <svg viewBox="0 0 100 100" className="h-full w-full">
-                          <polyline fill="none" stroke="currentColor" strokeWidth="3" className="text-primary" points={weightPath} />
+                          <polyline fill="none" stroke="currentColor" strokeWidth="3.25" className="text-primary" points={weightPath} />
+                          {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="2.8" className="fill-primary" /> : null}
                         </svg>
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
