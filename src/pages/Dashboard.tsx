@@ -516,15 +516,17 @@ const Dashboard = () => {
     .filter((value) => Number.isFinite(value));
   const weightMin = weightSeries.length > 0 ? Math.min(...weightSeries) : 0;
   const weightMax = weightSeries.length > 0 ? Math.max(...weightSeries) : 0;
+  const chartAxis = { left: 10, right: 96, top: 12, bottom: 88 };
   const weightSeriesPoints = weightSeries.map((value, index) => {
-    const x = weightSeries.length > 1 ? (index / (weightSeries.length - 1)) * 100 : 50;
+    const ratioX = weightSeries.length > 1 ? index / (weightSeries.length - 1) : 0.5;
+    const x = chartAxis.left + ratioX * (chartAxis.right - chartAxis.left);
     const y =
       weightMax === weightMin
-        ? 50
-        : 100 - ((value - weightMin) / Math.max(weightMax - weightMin, 1)) * 100;
+        ? (chartAxis.top + chartAxis.bottom) / 2
+        : chartAxis.bottom - ((value - weightMin) / Math.max(weightMax - weightMin, 1)) * (chartAxis.bottom - chartAxis.top);
     return {
       x,
-      y: Math.max(8, Math.min(92, y)),
+      y: Math.max(chartAxis.top, Math.min(chartAxis.bottom, y)),
     };
   });
   const weightPath = weightSeriesPoints.map((point) => `${point.x},${point.y}`).join(" ");
@@ -998,6 +1000,9 @@ const Dashboard = () => {
               <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2 md:h-16">
                 {hasWeightTrend ? (
                   <svg viewBox="0 0 100 100" className="h-full w-full">
+                    <line x1={chartAxis.left} y1={chartAxis.top} x2={chartAxis.left} y2={chartAxis.bottom} className="text-border/70" stroke="currentColor" strokeWidth="0.9" />
+                    <line x1={chartAxis.left} y1={chartAxis.bottom} x2={chartAxis.right} y2={chartAxis.bottom} className="text-border/70" stroke="currentColor" strokeWidth="0.9" />
+                    <line x1={chartAxis.left} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.right} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-border/40" stroke="currentColor" strokeDasharray="2 2" strokeWidth="0.7" />
                     <polyline fill="none" stroke="currentColor" strokeWidth="3.25" className="text-primary" points={weightPath} />
                     {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="2.8" className="fill-primary" /> : null}
                   </svg>
@@ -1180,6 +1185,9 @@ const Dashboard = () => {
                     <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2">
                       {hasWeightTrend ? (
                         <svg viewBox="0 0 100 100" className="h-full w-full">
+                          <line x1={chartAxis.left} y1={chartAxis.top} x2={chartAxis.left} y2={chartAxis.bottom} className="text-border/70" stroke="currentColor" strokeWidth="0.9" />
+                          <line x1={chartAxis.left} y1={chartAxis.bottom} x2={chartAxis.right} y2={chartAxis.bottom} className="text-border/70" stroke="currentColor" strokeWidth="0.9" />
+                          <line x1={chartAxis.left} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.right} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-border/40" stroke="currentColor" strokeDasharray="2 2" strokeWidth="0.7" />
                           <polyline fill="none" stroke="currentColor" strokeWidth="3.25" className="text-primary" points={weightPath} />
                           {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="2.8" className="fill-primary" /> : null}
                         </svg>
