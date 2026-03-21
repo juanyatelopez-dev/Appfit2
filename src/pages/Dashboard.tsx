@@ -183,6 +183,7 @@ const Dashboard = () => {
   const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
   const [isTrainingSummaryOpen, setIsTrainingSummaryOpen] = useState(false);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [selectedTrainingWorkoutId, setSelectedTrainingWorkoutId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [isSecondaryExpanded, setIsSecondaryExpanded] = useState(false);
@@ -1134,12 +1135,19 @@ const Dashboard = () => {
                     ) : null}
                   </div>
                 </DashboardCardShell>
-                <TacticalNotesCard
-                  loading={snapshot.coreLoading}
-                  todayNote={core?.noteToday ?? null}
-                  latestNote={core?.noteLatest ?? null}
-                  onSave={(payload) => saveNoteMutation.mutateAsync(payload).then(() => undefined)}
-                />
+                <DashboardCardShell title="Nota del dia" contentClassName="space-y-2 p-3">
+                  <p className="line-clamp-1 text-xs text-muted-foreground">
+                    {core?.noteToday?.content?.trim() ? core.noteToday.content.trim() : "Agregar nota del dia y sincronizar al calendario."}
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-9 rounded-xl px-3 text-xs font-semibold"
+                    onClick={() => setIsNotesModalOpen(true)}
+                  >
+                    Abrir nota
+                  </Button>
+                </DashboardCardShell>
               </div>
 
               <div className="min-w-[88%] snap-start">
@@ -1450,6 +1458,21 @@ const Dashboard = () => {
               <DialogDescription>Registro completo de peso sin salir del centro operativo.</DialogDescription>
             </DialogHeader>
             <TodayWeightModule />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isNotesModalOpen} onOpenChange={setIsNotesModalOpen}>
+          <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto p-4 md:p-6">
+            <DialogHeader>
+              <DialogTitle>Nota del dia</DialogTitle>
+              <DialogDescription>Captura rapida con guardado automatico al calendario.</DialogDescription>
+            </DialogHeader>
+            <TacticalNotesCard
+              loading={snapshot.coreLoading}
+              todayNote={core?.noteToday ?? null}
+              latestNote={core?.noteLatest ?? null}
+              onSave={(payload) => saveNoteMutation.mutateAsync(payload).then(() => undefined)}
+            />
           </DialogContent>
         </Dialog>
 
