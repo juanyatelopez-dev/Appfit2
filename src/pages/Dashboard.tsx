@@ -1480,15 +1480,17 @@ const Dashboard = () => {
                       </div>
                       <div className="space-y-2">
                         <div className="rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
-                          <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
+                            <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-semibold", nutritionStatus.className)}>
+                              {nutritionStatus.label}
+                            </span>
+                          </div>
                           <p className="text-lg font-bold">
                             {consumedCalories.toLocaleString("es-PE")} / {targetCalories.toLocaleString("es-PE")} kcal
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-semibold", nutritionStatus.className)}>
-                            {nutritionStatus.label}
-                          </span>
                           <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[11px] text-muted-foreground">
                             Proteina restante: <span className="font-semibold text-foreground">{remainingProteinLabel}</span>
                           </span>
@@ -1875,7 +1877,12 @@ const Dashboard = () => {
 
                 <div className="space-y-2">
                   <div className="rounded-xl border border-border/60 bg-muted/15 px-3 py-2">
-                    <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-xs text-muted-foreground">Consumidas / Meta</p>
+                      <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-semibold", nutritionStatus.className)}>
+                        {nutritionStatus.label}
+                      </span>
+                    </div>
                     <p className="text-lg font-bold">
                       {consumedCalories.toLocaleString("es-PE")} / {targetCalories.toLocaleString("es-PE")} kcal
                     </p>
@@ -1884,9 +1891,6 @@ const Dashboard = () => {
                     Perfil: {nutritionSummary?.profileName ?? "Sin perfil"} - Dia {nutritionSummary?.archetypeLabel ?? "Base"}
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-semibold", nutritionStatus.className)}>
-                      {nutritionStatus.label}
-                    </span>
                     <span className="rounded-full border border-border/60 bg-muted/10 px-2 py-0.5 text-[11px] text-muted-foreground">
                       Proteina restante: <span className="font-semibold text-foreground">{remainingProteinLabel}</span>
                     </span>
