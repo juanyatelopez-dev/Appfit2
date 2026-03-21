@@ -577,6 +577,20 @@ const Dashboard = () => {
         ];
 
   const remainingActionsCount = Math.max(missingModules.length, 0);
+  const quickActionsVisible = isWidgetVisible("quick_actions");
+  const mobilePhysicalHighlights = compactPhysicalMetrics.slice(0, 2);
+  const targetWeightKg = core?.goal?.target_weight_kg ?? null;
+  const currentWeightKg = core?.latestMeasurementWeight ?? core?.latestWeight ?? null;
+  const goalGapKg =
+    targetWeightKg !== null && currentWeightKg !== null
+      ? Math.abs(targetWeightKg - currentWeightKg)
+      : null;
+  const goalGapLabel =
+    goalGapKg === null
+      ? "Define una meta de peso para ver distancia."
+      : goalGapKg < 0.05
+        ? "Meta de peso alcanzada."
+        : `Te faltan ${goalGapKg.toFixed(1)} kg para tu meta.`;
   const nextRequiredActionLabel = nextModule ? `Registrar ${nextModule.label.toLowerCase()}` : "Dia completado";
   const nextRequiredActionHref = nextModule?.href ?? primaryAction.href;
   const nextRequiredActionModal = nextRequiredActionHref === "#water"
@@ -1116,7 +1130,7 @@ const Dashboard = () => {
                       </Button>
                     </div>
 
-                    {isWidgetVisible("quick_actions") ? (
+                    {quickActionsVisible ? (
                       <DashboardQuickActions embedded excludeKeys={["measurements", "nutrition"]} />
                     ) : null}
                   </div>
@@ -1139,7 +1153,8 @@ const Dashboard = () => {
 
               <div className="min-w-[88%] snap-start overflow-hidden">
                 <DashboardCardShell title="Progreso corporal" contentClassName={denseCardContentClass}>
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
                       <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Foco</p>
                       <p className="line-clamp-1 text-sm font-semibold">{focusHeading}</p>
@@ -1147,33 +1162,64 @@ const Dashboard = () => {
                     <p className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", weightStatus.className)}>
                       {weightStatus.label}
                     </p>
-                  </div>
-                  <div className="flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Peso actual</p>
-                      <p className="text-3xl font-black leading-none">{core?.latestMeasurementWeight ? `${core.latestMeasurementWeight.toFixed(1)} kg` : "--"}</p>
                     </div>
-                    <div className="text-right">
-                      <p className={cn("text-sm font-semibold", weightDeltaToneClass)}>7d: {weightDeltaLabel}</p>
-                      <p className="text-xs text-muted-foreground">{weightTrendLabel}</p>
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Peso actual</p>
+                        <p className="text-3xl font-black leading-none">{core?.latestMeasurementWeight ? `${core.latestMeasurementWeight.toFixed(1)} kg` : "--"}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={cn("text-sm font-semibold", weightDeltaToneClass)}>7d: {weightDeltaLabel}</p>
+                        <p className="text-xs text-muted-foreground">{weightTrendLabel}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2">
-                    {weightPath ? (
-                      <svg viewBox="0 0 100 100" className="h-full w-full">
-                        <polyline fill="none" stroke="currentColor" strokeWidth="3" className="text-primary" points={weightPath} />
-                      </svg>
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Meta</span>
-                      <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
+                    <div className="h-12 rounded-xl border border-border/60 bg-muted/10 p-2">
+                      {weightPath ? (
+                        <svg viewBox="0 0 100 100" className="h-full w-full">
+                          <polyline fill="none" stroke="currentColor" strokeWidth="3" className="text-primary" points={weightPath} />
+                        </svg>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
+                      )}
                     </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Meta</span>
+                        <span>{weightGoalProgressSafe !== null ? `${weightGoalProgressSafe}%` : "--"}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted">
+                        <div className="h-2 rounded-full bg-primary transition-all duration-300" style={{ width: `${weightGoalProgressSafe ?? 0}%` }} />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{goalGapLabel}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {mobilePhysicalHighlights.map((metric) => (
+                        <div key={`mobile-physical-${metric.label}`} className="rounded-lg border border-border/60 bg-muted/10 px-2 py-2">
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{metric.label}</p>
+                          <p className="mt-0.5 text-xs font-semibold">{metric.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {!quickActionsVisible ? (
+                        <Button
+                          type="button"
+                          className="h-9 rounded-xl px-3 text-xs font-semibold"
+                          onClick={() => setIsWeightModalOpen(true)}
+                        >
+                          Registrar peso
+                        </Button>
+                      ) : null}
+                      <Button asChild type="button" variant="outline" className="h-9 rounded-xl px-3 text-xs font-semibold">
+                        <Link to="/body">Ver medidas</Link>
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>{physicalSummary?.lastUpdatedLabel ?? "Sin actualizaciones fisicas"}</span>
+                      <span>{isGuest ? "Guardado local" : "Sincronizado"}</span>
                     </div>
                   </div>
                 </DashboardCardShell>
