@@ -10,8 +10,10 @@ import { TrainingTodaySection } from "@/modules/training/ui/components/TrainingT
 import { TrainingWorkoutDialog } from "@/modules/training/ui/components/TrainingWorkoutDialog";
 import { formatDateTime, formatRest, prLabelMap } from "@/modules/training/ui/trainingConstants";
 import { useTrainingPageState } from "@/modules/training/ui/useTrainingPageState";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Training = () => {
+  const isMobile = useIsMobile();
   const {
     copy,
     tab,
@@ -82,7 +84,7 @@ const Training = () => {
   return (
     <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1540px] space-y-6">
-        <AppPageIntro eyebrow="Bitácora de entrenamiento" title={copy.title} description={copy.subtitle} />
+        <AppPageIntro eyebrow="Bitácora de entrenamiento" title={copy.title} description={isMobile ? undefined : copy.subtitle} />
 
         {isTrainingLoading ? <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">{copy.loading}</div> : null}
         {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {trainingErrorMessage}</div> : null}

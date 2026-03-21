@@ -62,7 +62,31 @@ const DashboardHeader = () => {
     >
       <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-6">
         <div className="md:hidden">
-          <NotificationCenter />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                aria-label="Opciones de cuenta"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[13rem] rounded-xl p-1.5">
+              <DropdownMenuLabel className="px-3 py-2 text-base font-bold">Cuenta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="min-h-11 px-3 py-2 text-sm font-semibold" onSelect={() => navigate("/settings")}>
+                <Settings className="mr-2 h-4 w-4" />
+                Ajustes
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="min-h-11 px-3 py-2 text-sm font-semibold text-destructive focus:text-destructive"
+                onSelect={handleAuthAction}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {isGuest ? "Cambiar cuenta" : "Cerrar sesion"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 md:pointer-events-auto md:static md:left-auto md:translate-x-0">
           <p className="truncate text-center text-[0.92rem] font-black uppercase tracking-[0.22em] text-card-foreground md:text-left md:text-xl md:tracking-[0.28em]">
@@ -132,31 +156,9 @@ const DashboardHeader = () => {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground md:hidden"
-              aria-label="Opciones de cuenta"
-            >
-              <Settings className="h-5 w-5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[13rem] rounded-xl p-1.5">
-            <DropdownMenuLabel className="px-3 py-2 text-base font-bold">Cuenta</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="min-h-11 px-3 py-2 text-sm font-semibold" onSelect={() => navigate("/settings")}>
-              <Settings className="mr-2 h-4 w-4" />
-              Ajustes
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="min-h-11 px-3 py-2 text-sm font-semibold text-destructive focus:text-destructive"
-              onSelect={handleAuthAction}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              {isGuest ? "Cambiar cuenta" : "Cerrar sesion"}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="md:hidden">
+          <NotificationCenter />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
