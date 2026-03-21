@@ -534,6 +534,12 @@ const Dashboard = () => {
   const weightSeries = weightSeriesRows.map((row) => row.weight);
   const weightMin = weightSeries.length > 0 ? Math.min(...weightSeries) : 0;
   const weightMax = weightSeries.length > 0 ? Math.max(...weightSeries) : 0;
+  const rawAxisMin = Math.floor(weightMin / 10) * 10;
+  const rawAxisMax = Math.ceil(weightMax / 10) * 10;
+  const weightAxisMin = Number.isFinite(rawAxisMin) ? rawAxisMin : 0;
+  const weightAxisMax = Number.isFinite(rawAxisMax)
+    ? (rawAxisMax === weightAxisMin ? rawAxisMax + 10 : rawAxisMax)
+    : 10;
   const chartAxis = { left: 10, right: 96, top: 12, bottom: 88 };
   const selectedRangeEndDate = new Date(`${snapshot.todayKey}T00:00:00`);
   const selectedRangeStartDate = (() => {
@@ -555,9 +561,9 @@ const Dashboard = () => {
     const ratioX = Math.max(0, Math.min(1, (row.dateMs - rangeStartMs) / rangeSpanMs));
     const x = chartAxis.left + ratioX * (chartAxis.right - chartAxis.left);
     const y =
-      weightMax === weightMin
+      weightAxisMax === weightAxisMin
         ? (chartAxis.top + chartAxis.bottom) / 2
-        : chartAxis.bottom - ((row.weight - weightMin) / Math.max(weightMax - weightMin, 1)) * (chartAxis.bottom - chartAxis.top);
+        : chartAxis.bottom - ((row.weight - weightAxisMin) / Math.max(weightAxisMax - weightAxisMin, 1)) * (chartAxis.bottom - chartAxis.top);
     return {
       x,
       y: Math.max(chartAxis.top, Math.min(chartAxis.bottom, y)),
@@ -566,9 +572,9 @@ const Dashboard = () => {
   const weightPath = weightSeriesPoints.map((point) => `${point.x},${point.y}`).join(" ");
   const latestWeightPoint = weightSeriesPoints.length > 0 ? weightSeriesPoints[weightSeriesPoints.length - 1] : null;
   const hasWeightTrend = weightSeriesPoints.length >= 2;
-  const weightMaxLabel = weightSeries.length > 0 ? `${weightMax.toFixed(1)} kg` : "--";
-  const weightMinLabel = weightSeries.length > 0 ? `${weightMin.toFixed(1)} kg` : "--";
-  const weightMidLabel = weightSeries.length > 0 ? `${((weightMax + weightMin) / 2).toFixed(1)} kg` : "--";
+  const weightMaxLabel = weightSeries.length > 0 ? `${weightAxisMax.toFixed(0)} kg` : "--";
+  const weightMinLabel = weightSeries.length > 0 ? `${weightAxisMin.toFixed(0)} kg` : "--";
+  const weightMidLabel = weightSeries.length > 0 ? `${((weightAxisMax + weightAxisMin) / 2).toFixed(0)} kg` : "--";
   const formatAxisDate = (date: Date) =>
     new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "short" }).format(date).replace(".", "");
   const midAxisDate = new Date(rangeStartMs + rangeSpanMs / 2);
