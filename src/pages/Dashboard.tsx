@@ -1455,7 +1455,7 @@ const Dashboard = () => {
               </div>
 
               <div className="h-full w-[88%] shrink-0 snap-center overflow-hidden">
-                <DashboardCardShell title="Nutricion" className="h-full" contentClassName={denseCardContentClass}>
+                <DashboardCardShell title="Nutricion" className="h-full" contentClassName={cn(denseCardContentClass, "!space-y-0 flex h-full flex-col")}>
                   <div className="space-y-3">
                     <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
                       <div className="relative mx-auto h-24 w-24">
@@ -1502,6 +1502,43 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground">{nutritionActionHint}</p>
+                  </div>
+                  <div className="mt-3 flex flex-1 flex-col justify-end gap-3">
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span>Proteina</span>
+                          <span>{proteinProgress}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 rounded-full bg-muted">
+                          <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${proteinProgress}%` }} />
+                        </div>
+                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(proteinCurrent)} / {Math.round(proteinGoal)} g</p>
+                      </div>
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span>Carbs</span>
+                          <span>{carbsProgress}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 rounded-full bg-muted">
+                          <div className="h-1.5 rounded-full bg-amber-500" style={{ width: `${carbsProgress}%` }} />
+                        </div>
+                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(carbsCurrent)} / {Math.round(carbsGoal)} g</p>
+                      </div>
+                      <div className="rounded-xl border border-border/60 bg-muted/10 px-2.5 py-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span>Grasas</span>
+                          <span>{fatProgress}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 rounded-full bg-muted">
+                          <div className="h-1.5 rounded-full bg-rose-500" style={{ width: `${fatProgress}%` }} />
+                        </div>
+                        <p className="mt-1 text-[11px] text-muted-foreground">{Math.round(fatCurrent)} / {Math.round(fatGoal)} g</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-border/60 bg-background/35 px-3 py-2 text-xs text-muted-foreground">
+                      Restan <span className="font-semibold text-foreground">{remainingCalories.toLocaleString("es-PE")} kcal</span> para cumplir tu objetivo de hoy.
+                    </div>
                     <Button asChild className="h-10 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
                       <Link to="/nutrition">Registrar comida</Link>
                     </Button>
