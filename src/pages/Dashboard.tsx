@@ -19,6 +19,7 @@ import {
   TimerReset,
   UtensilsCrossed,
 } from "lucide-react";
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -540,9 +541,6 @@ const Dashboard = () => {
   const weightAxisMax = Number.isFinite(rawAxisMax)
     ? (rawAxisMax === weightAxisMin ? rawAxisMax + 10 : rawAxisMax)
     : 10;
-  const chartViewBox = { width: 180, height: 100 };
-  const chartAxis = { left: 14, right: 176, top: 12, bottom: 88 };
-  const chartAxisMidX = (chartAxis.left + chartAxis.right) / 2;
   const selectedRangeEndDate = new Date(`${snapshot.todayKey}T00:00:00`);
   const selectedRangeStartDate = (() => {
     if (weightTrendRange === "all") {
@@ -555,58 +553,29 @@ const Dashboard = () => {
   })();
   const rangeStartMs = selectedRangeStartDate.getTime();
   const rangeEndMs = selectedRangeEndDate.getTime();
-  const rangeSpanMs = Math.max(rangeEndMs - rangeStartMs, 1);
-  const mapXForDate = (dateMs: number) => {
-    const ratioX = Math.max(0, Math.min(1, (dateMs - rangeStartMs) / rangeSpanMs));
-    return chartAxis.left + ratioX * (chartAxis.right - chartAxis.left);
-  };
-  const mapYForWeight = (weight: number) => {
-    const y =
-      weightAxisMax === weightAxisMin
-        ? (chartAxis.top + chartAxis.bottom) / 2
-        : chartAxis.bottom - ((weight - weightAxisMin) / Math.max(weightAxisMax - weightAxisMin, 1)) * (chartAxis.bottom - chartAxis.top);
-    return Math.max(chartAxis.top, Math.min(chartAxis.bottom, y));
-  };
-  const realWeightPoints = weightSeriesRows.map((row) => ({
-    x: mapXForDate(row.dateMs),
-    y: mapYForWeight(row.weight),
-  }));
-  const leadingAnchorPoint =
-    weightTrendRange !== "all" && weightSeriesRows.length > 0 && weightSeriesRows[0].dateMs > rangeStartMs
-      ? { x: mapXForDate(rangeStartMs), y: mapYForWeight(weightSeriesRows[0].weight) }
-      : null;
-  const trailingAnchorPoint =
-    weightTrendRange !== "all" && weightSeriesRows.length > 0 && weightSeriesRows[weightSeriesRows.length - 1].dateMs < rangeEndMs
-      ? {
-          x: mapXForDate(rangeEndMs),
-          y: mapYForWeight(weightSeriesRows[weightSeriesRows.length - 1].weight),
-        }
-      : null;
-  const weightSmoothPath = (() => {
-    if (realWeightPoints.length < 2) return "";
-    if (realWeightPoints.length === 2) {
-      const [start, end] = realWeightPoints;
-      return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  const rangeMidMs = rangeStartMs + (rangeEndMs - rangeStartMs) / 2;
+  const plottedWeightRows = (() => {
+    if (weightSeriesRows.length === 0) return [] as Array<{ dateMs: number; weight: number; synthetic: boolean }>;
+    if (weightTrendRange === "all") {
+      return weightSeriesRows.map((row) => ({ dateMs: row.dateMs, weight: row.weight, synthetic: false }));
     }
-    const [firstPoint, ...rest] = realWeightPoints;
-    let path = `M ${firstPoint.x} ${firstPoint.y}`;
-    for (let index = 0; index < rest.length - 1; index += 1) {
-      const current = rest[index];
-      const next = rest[index + 1];
-      const controlX = current.x;
-      const controlY = current.y;
-      const endX = (current.x + next.x) / 2;
-      const endY = (current.y + next.y) / 2;
-      path += ` Q ${controlX} ${controlY} ${endX} ${endY}`;
+    const firstRow = weightSeriesRows[0];
+    const lastRow = weightSeriesRows[weightSeriesRows.length - 1];
+    const rows: Array<{ dateMs: number; weight: number; synthetic: boolean }> = [];
+    if (firstRow.dateMs > rangeStartMs) {
+      rows.push({ dateMs: rangeStartMs, weight: firstRow.weight, synthetic: true });
     }
-    const penultimate = rest[rest.length - 1];
-    path += ` T ${penultimate.x} ${penultimate.y}`;
-    return path;
+    rows.push(...weightSeriesRows.map((row) => ({ dateMs: row.dateMs, weight: row.weight, synthetic: false })));
+    if (lastRow.dateMs < rangeEndMs) {
+      rows.push({ dateMs: rangeEndMs, weight: lastRow.weight, synthetic: true });
+    }
+    return rows;
   })();
-  const firstWeightPoint = realWeightPoints.length > 0 ? realWeightPoints[0] : null;
-  const latestRealWeightRow = weightSeriesRows.length > 0 ? weightSeriesRows[weightSeriesRows.length - 1] : null;
-  const latestWeightPoint = latestRealWeightRow ? { x: mapXForDate(latestRealWeightRow.dateMs), y: mapYForWeight(latestRealWeightRow.weight) } : null;
-  const hasWeightTrend = realWeightPoints.length >= 2;
+  const weightChartData = plottedWeightRows.map((row) => ({ x: row.dateMs, y: row.weight, synthetic: row.synthetic }));
+  const firstRealWeightPoint = weightSeriesRows.length > 0 ? weightSeriesRows[0] : null;
+  const lastRealWeightPoint = weightSeriesRows.length > 0 ? weightSeriesRows[weightSeriesRows.length - 1] : null;
+  const hasWeightTrend = weightChartData.length >= 2;
+  const weightYAxisTicks = [weightAxisMin, (weightAxisMin + weightAxisMax) / 2, weightAxisMax];
   const weightMaxLabel = weightSeries.length > 0 ? `${weightAxisMax.toFixed(0)} kg` : "--";
   const weightMinLabel = weightSeries.length > 0 ? `${weightAxisMin.toFixed(0)} kg` : "--";
   const weightMidLabel = weightSeries.length > 0 ? `${((weightAxisMax + weightAxisMin) / 2).toFixed(0)} kg` : "--";
@@ -874,6 +843,69 @@ const Dashboard = () => {
     setMobileCarouselIndex(Math.max(0, Math.min(maxIndex, nextIndex)));
   };
 
+  const renderWeightTrendChart = (heightClassName: string) => (
+    <div className="rounded-xl border border-border/60 bg-muted/10 p-2.5">
+      <div className={heightClassName}>
+        {hasWeightTrend ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={weightChartData} margin={{ top: 8, right: 10, left: 0, bottom: 2 }}>
+              <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.45)" />
+              <XAxis
+                type="number"
+                dataKey="x"
+                domain={[rangeStartMs, rangeEndMs]}
+                ticks={[rangeStartMs, rangeMidMs, rangeEndMs]}
+                tickFormatter={(value) => formatAxisDate(new Date(Number(value)))}
+                tickLine={false}
+                axisLine={{ stroke: "hsl(var(--border) / 0.7)" }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                dy={8}
+              />
+              <YAxis
+                type="number"
+                domain={[weightAxisMin, weightAxisMax]}
+                ticks={weightYAxisTicks}
+                tickFormatter={(value) => `${Math.round(Number(value))} kg`}
+                tickLine={false}
+                axisLine={{ stroke: "hsl(var(--border) / 0.7)" }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                width={46}
+              />
+              {firstRealWeightPoint && lastRealWeightPoint ? (
+                <ReferenceLine
+                  segment={[
+                    { x: firstRealWeightPoint.dateMs, y: firstRealWeightPoint.weight },
+                    { x: lastRealWeightPoint.dateMs, y: lastRealWeightPoint.weight },
+                  ]}
+                  stroke="hsl(var(--primary) / 0.45)"
+                  strokeDasharray="6 4"
+                  ifOverflow="extendDomain"
+                />
+              ) : null}
+              <Line
+                type="monotone"
+                dataKey="y"
+                stroke="hsl(var(--primary))"
+                strokeWidth={4}
+                connectNulls
+                activeDot={false}
+                isAnimationActive={false}
+                dot={(props) => {
+                  const point = props as { cx?: number; cy?: number; payload?: { x?: number; synthetic?: boolean } };
+                  const payload = point.payload;
+                  if (!payload || payload.synthetic || payload.x !== lastRealWeightPoint?.dateMs) return null;
+                  return <circle cx={point.cx} cy={point.cy} r={6} fill="hsl(var(--primary))" />;
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
+        )}
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     if (!isMobile || !USE_MOBILE_HORIZONTAL_SCROLL) return;
     const container = mobileCarouselRef.current;
@@ -1101,79 +1133,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-border/60 bg-muted/10 p-3">
-                <div className="grid h-full grid-cols-[3.6rem_minmax(0,1fr)] gap-3">
-                  <div className="flex h-full flex-col justify-between text-[10px] text-muted-foreground">
-                    <span>{weightMaxLabel}</span>
-                    <span>{weightMidLabel}</span>
-                    <span>{weightMinLabel}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="h-28 md:h-32">
-                      {hasWeightTrend ? (
-                        <svg viewBox={`0 0 ${chartViewBox.width} ${chartViewBox.height}`} className="h-full w-full">
-                          <line x1={chartAxis.left} y1={chartAxis.top} x2={chartAxis.left} y2={chartAxis.bottom} className="text-muted-foreground/70" stroke="currentColor" strokeWidth="1.1" />
-                          <line x1={chartAxis.left} y1={chartAxis.bottom} x2={chartAxis.right} y2={chartAxis.bottom} className="text-muted-foreground/70" stroke="currentColor" strokeWidth="1.1" />
-                          <line x1={chartAxis.left} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.right} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-muted-foreground/45" stroke="currentColor" strokeDasharray="2 2" strokeWidth="0.9" />
-                          <line x1={chartAxis.left - 1.8} y1={chartAxis.top} x2={chartAxis.left + 1.8} y2={chartAxis.top} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          <line x1={chartAxis.left - 1.8} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.left + 1.8} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          <line x1={chartAxis.left - 1.8} y1={chartAxis.bottom} x2={chartAxis.left + 1.8} y2={chartAxis.bottom} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          <line x1={chartAxis.left} y1={chartAxis.bottom - 1.8} x2={chartAxis.left} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          <line x1={chartAxisMidX} y1={chartAxis.bottom - 1.8} x2={chartAxisMidX} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          <line x1={chartAxis.right} y1={chartAxis.bottom - 1.8} x2={chartAxis.right} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                          {leadingAnchorPoint && firstWeightPoint ? (
-                            <line
-                              x1={leadingAnchorPoint.x}
-                              y1={leadingAnchorPoint.y}
-                              x2={firstWeightPoint.x}
-                              y2={firstWeightPoint.y}
-                              className="text-primary/55"
-                              stroke="currentColor"
-                              strokeWidth="2.1"
-                              strokeDasharray="3 2"
-                              strokeLinecap="round"
-                            />
-                          ) : null}
-                          {firstWeightPoint && latestWeightPoint ? (
-                            <line
-                              x1={firstWeightPoint.x}
-                              y1={firstWeightPoint.y}
-                              x2={latestWeightPoint.x}
-                              y2={latestWeightPoint.y}
-                              className="text-primary/45"
-                              stroke="currentColor"
-                              strokeWidth="1.6"
-                              strokeDasharray="2.5 2.5"
-                            />
-                          ) : null}
-                          <path d={weightSmoothPath} fill="none" stroke="currentColor" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary" />
-                          {trailingAnchorPoint && latestWeightPoint ? (
-                            <line
-                              x1={latestWeightPoint.x}
-                              y1={latestWeightPoint.y}
-                              x2={trailingAnchorPoint.x}
-                              y2={trailingAnchorPoint.y}
-                              className="text-primary/55"
-                              stroke="currentColor"
-                              strokeWidth="2.1"
-                              strokeDasharray="3 2"
-                              strokeLinecap="round"
-                            />
-                          ) : null}
-                          {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="3.2" className="fill-primary" /> : null}
-                        </svg>
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
-                      )}
-                    </div>
-                    <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
-                      <span>{weightRangeAxisLabels.start}</span>
-                      <span>{weightRangeAxisLabels.mid}</span>
-                      <span>{weightRangeAxisLabels.end}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {renderWeightTrendChart("h-40 md:h-44")}
 
               <div className="flex items-center gap-2">
                 <Button type="button" className="h-9 rounded-xl px-3 text-xs font-semibold" onClick={() => setIsWeightModalOpen(true)}>
@@ -1361,79 +1321,7 @@ const Dashboard = () => {
                         <p className="text-xs text-muted-foreground">{weightTrendLabel}</p>
                       </div>
                     </div>
-                    <div className="rounded-xl border border-border/60 bg-muted/10 p-3">
-                      <div className="grid h-full grid-cols-[3.1rem_minmax(0,1fr)] gap-2.5">
-                        <div className="flex h-full flex-col justify-between text-[10px] text-muted-foreground">
-                          <span>{weightMaxLabel}</span>
-                          <span>{weightMidLabel}</span>
-                          <span>{weightMinLabel}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="h-24">
-                            {hasWeightTrend ? (
-                              <svg viewBox={`0 0 ${chartViewBox.width} ${chartViewBox.height}`} className="h-full w-full">
-                                <line x1={chartAxis.left} y1={chartAxis.top} x2={chartAxis.left} y2={chartAxis.bottom} className="text-muted-foreground/70" stroke="currentColor" strokeWidth="1.1" />
-                                <line x1={chartAxis.left} y1={chartAxis.bottom} x2={chartAxis.right} y2={chartAxis.bottom} className="text-muted-foreground/70" stroke="currentColor" strokeWidth="1.1" />
-                                <line x1={chartAxis.left} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.right} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-muted-foreground/45" stroke="currentColor" strokeDasharray="2 2" strokeWidth="0.9" />
-                                <line x1={chartAxis.left - 1.8} y1={chartAxis.top} x2={chartAxis.left + 1.8} y2={chartAxis.top} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                <line x1={chartAxis.left - 1.8} y1={(chartAxis.top + chartAxis.bottom) / 2} x2={chartAxis.left + 1.8} y2={(chartAxis.top + chartAxis.bottom) / 2} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                <line x1={chartAxis.left - 1.8} y1={chartAxis.bottom} x2={chartAxis.left + 1.8} y2={chartAxis.bottom} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                <line x1={chartAxis.left} y1={chartAxis.bottom - 1.8} x2={chartAxis.left} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                <line x1={chartAxisMidX} y1={chartAxis.bottom - 1.8} x2={chartAxisMidX} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                <line x1={chartAxis.right} y1={chartAxis.bottom - 1.8} x2={chartAxis.right} y2={chartAxis.bottom + 1.8} className="text-muted-foreground/75" stroke="currentColor" strokeWidth="1" />
-                                {leadingAnchorPoint && firstWeightPoint ? (
-                                  <line
-                                    x1={leadingAnchorPoint.x}
-                                    y1={leadingAnchorPoint.y}
-                                    x2={firstWeightPoint.x}
-                                    y2={firstWeightPoint.y}
-                                    className="text-primary/55"
-                                    stroke="currentColor"
-                                    strokeWidth="2.1"
-                                    strokeDasharray="3 2"
-                                    strokeLinecap="round"
-                                  />
-                                ) : null}
-                                {firstWeightPoint && latestWeightPoint ? (
-                                  <line
-                                    x1={firstWeightPoint.x}
-                                    y1={firstWeightPoint.y}
-                                    x2={latestWeightPoint.x}
-                                    y2={latestWeightPoint.y}
-                                    className="text-primary/45"
-                                    stroke="currentColor"
-                                    strokeWidth="1.6"
-                                    strokeDasharray="2.5 2.5"
-                                  />
-                                ) : null}
-                                <path d={weightSmoothPath} fill="none" stroke="currentColor" strokeWidth="3.8" strokeLinecap="round" strokeLinejoin="round" className="text-primary" />
-                                {trailingAnchorPoint && latestWeightPoint ? (
-                                  <line
-                                    x1={latestWeightPoint.x}
-                                    y1={latestWeightPoint.y}
-                                    x2={trailingAnchorPoint.x}
-                                    y2={trailingAnchorPoint.y}
-                                    className="text-primary/55"
-                                    stroke="currentColor"
-                                    strokeWidth="2.1"
-                                    strokeDasharray="3 2"
-                                    strokeLinecap="round"
-                                  />
-                                ) : null}
-                                {latestWeightPoint ? <circle cx={latestWeightPoint.x} cy={latestWeightPoint.y} r="3.2" className="fill-primary" /> : null}
-                              </svg>
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Sin tendencia</div>
-                            )}
-                          </div>
-                          <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
-                            <span>{weightRangeAxisLabels.start}</span>
-                            <span>{weightRangeAxisLabels.mid}</span>
-                            <span>{weightRangeAxisLabels.end}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {renderWeightTrendChart("h-36")}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>Meta</span>
