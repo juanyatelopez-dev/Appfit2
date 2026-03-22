@@ -11,6 +11,8 @@ function renderPanel(overrides: Partial<ComponentProps<typeof NutritionSidebarPa
   const props: ComponentProps<typeof NutritionSidebarPanel> = {
     effectiveProfileLabel: "Torso",
     activeArchetype: "heavy",
+    planSource: "selected_template",
+    planSourceLabel: "Plantilla elegida",
     weightSource: "closest_on_or_before",
     target: {
       bmr: 1800,
@@ -94,7 +96,7 @@ describe("NutritionSidebarPanel", () => {
   it("renders control cards and technical access", () => {
     renderPanel();
 
-    expect(screen.getByText("Perfil del dia")).toBeInTheDocument();
+    expect(screen.getByText("Plan de hoy")).toBeInTheDocument();
     expect(screen.getByText("Balance energetico")).toBeInTheDocument();
     expect(screen.getByText("Macros")).toBeInTheDocument();
     expect(screen.getByText("2650 kcal")).toBeInTheDocument();

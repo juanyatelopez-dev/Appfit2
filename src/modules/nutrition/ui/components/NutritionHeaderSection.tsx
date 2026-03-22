@@ -1,9 +1,10 @@
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleHelp, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NUTRITION_ARCHETYPE_META } from "@/features/nutrition/nutritionProfiles";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatMetric } from "@/modules/nutrition/ui/nutritionConstants";
 import type { NutritionProfileRecord } from "@/modules/nutrition/types";
 
@@ -13,6 +14,9 @@ type NutritionHeaderSectionProps = {
   profileOptions: NutritionProfileRecord[];
   activeArchetype: string;
   archetypeDescription: string;
+  planSource: "selected_template" | "initial_template" | "automatic" | "archived_snapshot";
+  planSourceLabel: string;
+  planSourceDescription: string;
   totalCalories: number | null | undefined;
   onPreviousDate: () => void;
   onNextDate: () => void;
@@ -27,6 +31,9 @@ export function NutritionHeaderSection({
   profileOptions,
   activeArchetype,
   archetypeDescription,
+  planSource,
+  planSourceLabel,
+  planSourceDescription,
   totalCalories,
   onPreviousDate,
   onNextDate,
@@ -36,6 +43,14 @@ export function NutritionHeaderSection({
 }: NutritionHeaderSectionProps) {
   const activeArchetypeLabel =
     NUTRITION_ARCHETYPE_META[activeArchetype as keyof typeof NUTRITION_ARCHETYPE_META]?.shortLabel ?? "Base";
+  const planSourceTone =
+    planSource === "selected_template"
+      ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+      : planSource === "initial_template"
+        ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200"
+        : planSource === "archived_snapshot"
+          ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
+          : "border-slate-400/30 bg-slate-500/10 text-slate-200";
 
   return (
     <section className="space-y-4">
@@ -50,8 +65,26 @@ export function NutritionHeaderSection({
       <div className="app-surface-hero rounded-[24px] px-4 py-5 sm:rounded-[28px] sm:px-8 sm:py-8">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_auto] xl:items-end">
           <div className="app-chip-muted rounded-2xl px-4 py-3">
-            <div className="app-surface-caption mb-2 text-[10px] font-semibold uppercase tracking-[0.24em]">
-              Perfil del dia
+            <div className="mb-2 flex items-center gap-2">
+              <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">
+                Plantilla del dia
+              </div>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="app-surface-muted rounded-full p-1"
+                      aria-label="Que es plantilla del dia"
+                    >
+                      <CircleHelp className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    Plantillas del dia te permiten ajustar calorias y macros segun el tipo de jornada sin duplicar comidas.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <Select
               value={selectedProfileId ?? "__fallback__"}
@@ -61,7 +94,7 @@ export function NutritionHeaderSection({
                 <SelectValue placeholder="Selecciona perfil" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__fallback__">Sin perfil explicito</SelectItem>
+                <SelectItem value="__fallback__">Automatico</SelectItem>
                 {profileOptions
                   .filter((row) => !row.is_archived)
                   .map((profileRow) => (
@@ -71,7 +104,20 @@ export function NutritionHeaderSection({
                   ))}
               </SelectContent>
             </Select>
-            <p className="app-surface-muted mt-2 text-sm">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span
+                className={`rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${planSourceTone}`}
+              >
+                {planSourceLabel}
+              </span>
+              {planSource === "archived_snapshot" ? (
+                <span className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">
+                  Historial
+                </span>
+              ) : null}
+            </div>
+            <p className="app-surface-muted mt-2 text-sm">{planSourceDescription}</p>
+            <p className="app-surface-caption mt-1 text-xs">
               {activeArchetypeLabel} | {archetypeDescription}
             </p>
           </div>

@@ -80,6 +80,9 @@ const Nutrition = () => {
     selectedNutritionProfile,
     activeArchetype,
     archetypeMeta,
+    planSource,
+    planSourceLabel,
+    planSourceDescription,
     effectiveProfileLabel,
     caloriesPct,
     proteinPct,
@@ -115,6 +118,9 @@ const Nutrition = () => {
           profileOptions={profileOptions}
           activeArchetype={activeArchetype}
           archetypeDescription={archetypeMeta.description}
+          planSource={planSource}
+          planSourceLabel={planSourceLabel}
+          planSourceDescription={planSourceDescription}
           totalCalories={totals?.calories}
           onPreviousDate={() => setSelectedDate((prev) => addDays(prev, -1))}
           onNextDate={() => setSelectedDate((prev) => addDays(prev, 1))}
@@ -164,6 +170,8 @@ const Nutrition = () => {
           <NutritionSidebarPanel
             effectiveProfileLabel={effectiveProfileLabel}
             activeArchetype={activeArchetype}
+            planSource={planSource}
+            planSourceLabel={planSourceLabel}
             weightSource={daySummary?.weightSource}
             target={target}
             goals={goals}

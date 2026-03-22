@@ -1,5 +1,7 @@
+import { CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { NUTRITION_ARCHETYPE_META } from "@/features/nutrition/nutritionProfiles";
 import { ACTIVITY_LABELS, formatMetric, GOAL_LABELS } from "@/modules/nutrition/ui/nutritionConstants";
 import type {
@@ -12,6 +14,8 @@ import type {
 type NutritionSidebarPanelProps = {
   effectiveProfileLabel: string;
   activeArchetype: string;
+  planSource: "selected_template" | "initial_template" | "automatic" | "archived_snapshot";
+  planSourceLabel: string;
   weightSource: "closest_on_or_before" | "latest_available" | "profile_fallback" | undefined;
   target: NutritionTargetBreakdown | null | undefined;
   goals: NutritionGoals | null | undefined;
@@ -28,6 +32,8 @@ type NutritionSidebarPanelProps = {
 export function NutritionSidebarPanel({
   effectiveProfileLabel,
   activeArchetype,
+  planSource,
+  planSourceLabel,
   weightSource,
   target,
   goals,
@@ -43,16 +49,43 @@ export function NutritionSidebarPanel({
   const archetypeMeta =
     NUTRITION_ARCHETYPE_META[activeArchetype as keyof typeof NUTRITION_ARCHETYPE_META] ??
     NUTRITION_ARCHETYPE_META.base;
+  const planSourceTone =
+    planSource === "selected_template"
+      ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+      : planSource === "initial_template"
+        ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200"
+        : planSource === "archived_snapshot"
+          ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
+          : "border-slate-400/30 bg-slate-500/10 text-slate-200";
 
   return (
     <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
       <div className="app-surface-panel rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Perfil del dia</p>
+            <div className="flex items-center gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Plan de hoy</p>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="app-surface-muted rounded-full p-1" aria-label="Ayuda plan de hoy">
+                      <CircleHelp className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    El plan de hoy se resuelve por plantilla elegida, plantilla inicial o modo automatico.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <h3 className="app-surface-heading mt-1 text-lg font-bold">{effectiveProfileLabel}</h3>
           </div>
           <div className="app-chip rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">{archetypeMeta.label}</div>
+        </div>
+        <div
+          className={`mt-3 inline-flex rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${planSourceTone}`}
+        >
+          {planSourceLabel}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <div className="app-surface-soft rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">

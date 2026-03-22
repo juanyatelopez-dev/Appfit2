@@ -196,9 +196,9 @@ export function useNutritionPageState() {
       setNutritionProfileForDate(userId, selectedDate, profileId, { isGuest, timeZone, profile }),
     onSuccess: async () => {
       await invalidateNutrition();
-      toast.success("Perfil del dia actualizado.");
+      toast.success("Plantilla del dia actualizada.");
     },
-    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo actualizar el perfil del dia.")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo actualizar la plantilla del dia.")),
   });
 
   const saveProfileMutation = useMutation({
@@ -220,36 +220,36 @@ export function useNutritionPageState() {
       setProfileArchetype("base");
       setProfileIsDefault(false);
       await invalidateNutrition();
-      toast.success("Perfil nutricional guardado.");
+      toast.success("Plantilla guardada.");
     },
-    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo guardar el perfil.")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo guardar la plantilla.")),
   });
 
   const archiveProfileMutation = useMutation({
     mutationFn: (profileId: string) => archiveNutritionProfile(profileId, userId, { isGuest, archived: true }),
     onSuccess: async () => {
       await invalidateNutrition();
-      toast.success("Perfil archivado.");
+      toast.success("Plantilla archivada.");
     },
-    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo archivar el perfil.")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo archivar la plantilla.")),
   });
 
   const deleteProfileMutation = useMutation({
     mutationFn: (profileId: string) => deleteNutritionProfileSafe(profileId, userId, { isGuest }),
     onSuccess: async (result) => {
       await invalidateNutrition();
-      toast.success(result.archived ? "El perfil se archivo para proteger el historial." : "Perfil eliminado.");
+      toast.success(result.archived ? "La plantilla se archivo para proteger el historial." : "Plantilla eliminada.");
     },
-    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo eliminar el perfil.")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo eliminar la plantilla.")),
   });
 
   const defaultProfileMutation = useMutation({
     mutationFn: (profileId: string) => setDefaultNutritionProfile(profileId, userId, { isGuest }),
     onSuccess: async () => {
       await invalidateNutrition();
-      toast.success("Perfil marcado como predeterminado.");
+      toast.success("Plantilla inicial actualizada.");
     },
-    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo marcar el perfil predeterminado.")),
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo marcar la plantilla inicial.")),
   });
 
   const daySummary = summaryQuery.data;
@@ -263,7 +263,32 @@ export function useNutritionPageState() {
   const activeDailyLog = daySummary?.dailyLog ?? null;
   const activeArchetype = target?.dayArchetype ?? selectedNutritionProfile?.archetype ?? activeDailyLog?.archetype_snapshot ?? "base";
   const archetypeMeta = NUTRITION_ARCHETYPE_META[activeArchetype];
-  const effectiveProfileLabel = selectedNutritionProfile?.name ?? activeDailyLog?.profile_name_snapshot ?? "Sin perfil explicito";
+  const planSource: "selected_template" | "initial_template" | "automatic" | "archived_snapshot" =
+    selectedNutritionProfile
+      ? selectedNutritionProfile.is_default
+        ? "initial_template"
+        : "selected_template"
+      : activeDailyLog?.nutrition_profile_id || activeDailyLog?.profile_name_snapshot
+        ? "archived_snapshot"
+        : "automatic";
+  const effectiveProfileLabel = selectedNutritionProfile?.name
+    ?? (activeDailyLog?.profile_name_snapshot ? `${activeDailyLog.profile_name_snapshot} (archivada)` : "Automatico");
+  const planSourceLabel =
+    planSource === "selected_template"
+      ? "Plantilla elegida"
+      : planSource === "initial_template"
+        ? "Plantilla inicial"
+        : planSource === "archived_snapshot"
+          ? "Plantilla archivada"
+          : "Automatico";
+  const planSourceDescription =
+    planSource === "selected_template"
+      ? "Esta plantilla tiene prioridad para este dia."
+      : planSource === "initial_template"
+        ? "Se aplico tu plantilla inicial porque no habia una seleccion manual para este dia."
+        : planSource === "archived_snapshot"
+          ? "Este dia conserva una plantilla archivada para proteger tu historial."
+          : "Hoy usamos tu base de calculo porque no elegiste una plantilla.";
   const caloriesPct = goals && totals ? Math.min(100, Math.round((totals.calories / Math.max(goals.calorie_goal, 1)) * 100)) : 0;
   const proteinPct = goals && totals ? Math.min(100, Math.round((totals.protein_g / Math.max(goals.protein_goal_g, 1)) * 100)) : 0;
   const carbsPct = goals && totals ? Math.min(100, Math.round((totals.carbs_g / Math.max(goals.carb_goal_g, 1)) * 100)) : 0;
@@ -538,6 +563,9 @@ export function useNutritionPageState() {
     selectedNutritionProfile,
     activeArchetype,
     archetypeMeta,
+    planSource,
+    planSourceLabel,
+    planSourceDescription,
     effectiveProfileLabel,
     caloriesPct,
     proteinPct,

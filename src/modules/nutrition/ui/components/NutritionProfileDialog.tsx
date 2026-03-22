@@ -36,20 +36,20 @@ export function NutritionProfileDialog({
 }: NutritionProfileDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="app-dialog-surface max-w-xl">
-        <DialogHeader>
-          <DialogTitle>{editingProfile ? "Editar perfil nutricional" : "Crear perfil nutricional"}</DialogTitle>
-          <DialogDescription>
-            Configura un perfil del dia para recalcular metas caloricas y macros sin duplicar comidas.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="app-dialog-surface max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{editingProfile ? "Editar plantilla del dia" : "Crear plantilla del dia"}</DialogTitle>
+            <DialogDescription>
+              Configura una plantilla para recalcular metas caloricas y macros segun el tipo de dia.
+            </DialogDescription>
+          </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Nombre</Label>
             <Input value={profileName} onChange={(event) => onProfileNameChange(event.target.value)} placeholder="Ej. Pierna, Torso, Descanso" className="app-input-surface" />
           </div>
           <div className="space-y-2">
-            <Label>Arquetipo</Label>
+            <Label>Tipo de dia</Label>
             <Select value={profileArchetype} onValueChange={(value) => onProfileArchetypeChange(value as NutritionDayArchetype)}>
               <SelectTrigger className="app-input-surface"><SelectValue /></SelectTrigger>
               <SelectContent>{Object.entries(NUTRITION_ARCHETYPE_META).map(([key, meta]) => <SelectItem key={key} value={key}>{meta.label}</SelectItem>)}</SelectContent>
@@ -58,12 +58,12 @@ export function NutritionProfileDialog({
           </div>
           <label className="app-surface-muted flex items-center gap-3 text-sm">
             <Checkbox checked={profileIsDefault} onCheckedChange={(checked) => onProfileIsDefaultChange(Boolean(checked))} />
-            Marcar como perfil predeterminado
+            Marcar como plantilla inicial
           </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full app-outline-button sm:w-auto">Cancelar</Button>
-          <Button onClick={onSave} disabled={isPending} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto">Guardar perfil</Button>
+          <Button onClick={onSave} disabled={isPending} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto">Guardar plantilla</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
