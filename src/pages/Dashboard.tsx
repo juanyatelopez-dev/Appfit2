@@ -233,17 +233,21 @@ const Dashboard = () => {
   const scheduledWorkout = trainingTodayQuery.data?.scheduledWorkout ?? null;
   const activeSession = trainingTodayQuery.data?.activeSession ?? null;
   const activeWorkout = trainingTodayQuery.data?.activeSession?.workout ?? null;
+  const todayTrainingRow = trainingTodayQuery.data?.schedule.find((day) => day.day_of_week === new Date().getDay()) ?? null;
+  const isTrainingRestDay = Boolean(todayTrainingRow?.is_rest_day && !activeSession && !scheduledWorkout);
   const selectedTrainingWorkoutQuery = useQuery({
     queryKey: ["dashboard_training_selected_workout", user?.id, isGuest, timeZone, selectedTrainingWorkoutId],
     queryFn: () => getWorkoutDetail(user?.id ?? null, selectedTrainingWorkoutId!, { isGuest, timeZone }),
     enabled: Boolean(selectedTrainingWorkoutId) && (Boolean(user?.id) || isGuest),
   });
-  const workoutCardTitle = activeWorkout?.name ?? scheduledWorkout?.name ?? "Sin rutina asignada";
+  const workoutCardTitle = activeWorkout?.name ?? scheduledWorkout?.name ?? (isTrainingRestDay ? "Dia de descanso" : "Sin rutina asignada");
   const workoutCardSubtitle = activeWorkout
     ? "Sesion activa en curso."
     : scheduledWorkout
       ? "Rutina programada para hoy."
-      : "Asigna una rutina para ver tu bloque del dia aqui.";
+      : isTrainingRestDay
+        ? "Hoy toca descanso programado. Prioriza recuperacion, movilidad y sueno."
+        : "Asigna una rutina para ver tu bloque del dia aqui.";
   const modulePreferencesQuery = useQuery({
     queryKey: modulePreferencesKey,
     queryFn: () => getDashboardCheckinModulePreferences(user?.id ?? null, { isGuest }),
@@ -493,7 +497,13 @@ const Dashboard = () => {
       : recoveryScore >= 45
       ? "Entrenamiento moderado"
       : "Entrenamiento ligero";
-  const dayDemandLabel = recoveryScore >= 75 ? "Dia de alto rendimiento" : recoveryScore >= 45 ? "Dia de carga media" : "Dia de descarga";
+  const dayDemandLabel = isTrainingRestDay
+    ? "Descanso planificado para hoy"
+    : recoveryScore >= 75
+      ? "Dia de alto rendimiento"
+      : recoveryScore >= 45
+        ? "Dia de carga media"
+        : "Dia de descarga";
 
   const nutritionTotals = core?.nutritionToday?.totals;
   const nutritionGoals = core?.nutritionToday?.goals;

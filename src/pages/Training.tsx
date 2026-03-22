@@ -50,6 +50,7 @@ const Training = () => {
     schedule,
     activeSession,
     scheduledWorkout,
+    isRestDayToday,
     exerciseLibrary,
     isTrainingLoading,
     trainingError,
@@ -102,6 +103,7 @@ const Training = () => {
             copy={copy}
             activeSession={activeSession}
             scheduledWorkout={scheduledWorkout}
+            isRestDayToday={isRestDayToday}
             schedule={schedule}
             workouts={workouts}
             activeProgress={activeProgress}

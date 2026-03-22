@@ -131,6 +131,8 @@ export function useTrainingPageState() {
   const today = todayQuery.data;
   const activeSession = today?.activeSession ?? null;
   const scheduledWorkout = today?.scheduledWorkout ?? null;
+  const todayScheduleRow = schedule.find((row) => row.day_of_week === new Date().getDay()) ?? null;
+  const isRestDayToday = Boolean(todayScheduleRow?.is_rest_day && !activeSession);
   const exerciseLibrary = useMemo(() => exercisesQuery.data ?? [], [exercisesQuery.data]);
   const trainingQueries = [workoutsQuery, templatesQuery, scheduleQuery, todayQuery, exercisesQuery, historyQuery];
   const isTrainingLoading = trainingQueries.some((query) => query.isLoading);
@@ -472,6 +474,7 @@ export function useTrainingPageState() {
     schedule,
     activeSession,
     scheduledWorkout,
+    isRestDayToday,
     exerciseLibrary,
     isTrainingLoading,
     trainingError,

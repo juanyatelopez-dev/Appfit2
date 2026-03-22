@@ -114,6 +114,7 @@ function renderSection(overrides: Partial<ComponentProps<typeof TrainingTodaySec
     copy,
     activeSession: null,
     scheduledWorkout,
+    isRestDayToday: false,
     schedule,
     workouts: [baseWorkout],
     activeProgress: { completed: 1, target: 3, percent: 33 },
@@ -217,8 +218,19 @@ describe("TrainingTodaySection", () => {
     renderSection({
       activeSession: null,
       scheduledWorkout: null,
+      isRestDayToday: false,
     });
 
     expect(screen.getByText(copy.noWorkoutScheduled)).toBeInTheDocument();
+  });
+
+  it("shows a specific rest-day message when today is marked as rest", () => {
+    renderSection({
+      activeSession: null,
+      scheduledWorkout: null,
+      isRestDayToday: true,
+    });
+
+    expect(screen.getByText(copy.restDayNotice)).toBeInTheDocument();
   });
 });

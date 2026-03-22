@@ -29,6 +29,7 @@ type TrainingTodaySectionProps = {
   copy: TrainingCopy;
   activeSession: WorkoutSessionDetail | null;
   scheduledWorkout: WorkoutDetail | null;
+  isRestDayToday: boolean;
   schedule: WorkoutScheduleDay[];
   workouts: WorkoutRecord[];
   activeProgress: ActiveProgress;
@@ -61,6 +62,7 @@ export function TrainingTodaySection({
   copy,
   activeSession,
   scheduledWorkout,
+  isRestDayToday,
   schedule,
   workouts,
   activeProgress,
@@ -270,8 +272,8 @@ export function TrainingTodaySection({
 
           {!activeSession && !scheduledWorkout ? (
             <div className="space-y-3">
-              {renderPlaceholder(copy.noWorkoutScheduled)}
-              <div className="rounded-2xl border border-border/70 bg-muted/15 p-3 text-sm text-muted-foreground">{copy.noWorkoutScheduledHint}</div>
+              {renderPlaceholder(isRestDayToday ? copy.restDayNotice : copy.noWorkoutScheduled)}
+              <div className="rounded-2xl border border-border/70 bg-muted/15 p-3 text-sm text-muted-foreground">{isRestDayToday ? copy.restDayHint : copy.noWorkoutScheduledHint}</div>
             </div>
           ) : null}
         </CardContent>
