@@ -37,7 +37,7 @@ export function TrainingProgressSection({
     <div className="grid gap-5 xl:grid-cols-[1.15fr_0.95fr]">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-cyan-500" />{copy.progressTitle}</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-primary" />{copy.progressTitle}</CardTitle>
           <CardDescription>{copy.progressDescription}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -53,6 +53,7 @@ export function TrainingProgressSection({
               </div>
             ))}
           </div>
+          {prs.length === 0 ? <div className="rounded-2xl border border-dashed p-3 text-sm text-muted-foreground">{copy.noPrsYet}</div> : null}
           <div className="h-60 rounded-2xl border p-4 md:h-72">
             {progress.length === 0 ? (
               <div className="text-sm text-muted-foreground">{copy.noProgress}</div>
@@ -63,9 +64,9 @@ export function TrainingProgressSection({
                   <XAxis dataKey="date_key" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="max_weight" stroke="#22d3ee" strokeWidth={2.5} dot={false} />
-                  <Line type="monotone" dataKey="estimated_1rm" stroke="#f59e0b" strokeWidth={2.5} dot={false} />
-                  <Line type="monotone" dataKey="total_volume" stroke="#10b981" strokeWidth={2.5} dot={false} />
+                  <Line type="monotone" dataKey="max_weight" stroke="#dc2626" strokeWidth={2.5} dot={false} />
+                  <Line type="monotone" dataKey="estimated_1rm" stroke="#ef4444" strokeWidth={2.5} dot={false} />
+                  <Line type="monotone" dataKey="total_volume" stroke="#fb7185" strokeWidth={2.5} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -81,6 +82,7 @@ export function TrainingProgressSection({
         <CardContent>
           <ScrollArea className="h-[420px] pr-3 md:h-[640px]">
             <div className="space-y-3">
+              {history.length === 0 ? <div className="rounded-2xl border border-dashed p-3 text-sm text-muted-foreground">{copy.noExerciseHistory}</div> : null}
               {history.map((entry) => (
                 <div key={entry.session_id} className="rounded-2xl border p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

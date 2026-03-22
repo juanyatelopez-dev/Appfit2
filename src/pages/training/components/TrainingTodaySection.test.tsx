@@ -108,7 +108,7 @@ function renderSection(overrides: Partial<ComponentProps<typeof TrainingTodaySec
   const onSaveExerciseNote = vi.fn();
   const onSaveSet = vi.fn();
   const onDeleteSet = vi.fn();
-  const onSaveScheduleDay = vi.fn();
+  const onOpenPlanning = vi.fn();
 
   const props: ComponentProps<typeof TrainingTodaySection> = {
     copy,
@@ -133,13 +133,12 @@ function renderSection(overrides: Partial<ComponentProps<typeof TrainingTodaySec
     onSaveExerciseNote,
     onSaveSet,
     onDeleteSet,
-    onSaveScheduleDay,
+    onOpenPlanning,
     isStartPending: false,
     isFinishPending: false,
     isSaveSessionNotePending: false,
     isSaveSetPending: false,
     isDeleteSetPending: false,
-    isSaveSchedulePending: false,
     ...overrides,
   };
 
@@ -154,7 +153,7 @@ function renderSection(overrides: Partial<ComponentProps<typeof TrainingTodaySec
       onSaveExerciseNote,
       onSaveSet,
       onDeleteSet,
-      onSaveScheduleDay,
+      onOpenPlanning,
     },
   };
 }
@@ -163,7 +162,7 @@ describe("TrainingTodaySection", () => {
   it("starts the scheduled workout when there is no active session", () => {
     const { callbacks } = renderSection();
 
-    fireEvent.click(screen.getByRole("button", { name: copy.startWorkout }));
+    fireEvent.click(screen.getAllByRole("button", { name: copy.startWorkout })[0]);
 
     expect(callbacks.onStartWorkout).toHaveBeenCalledWith("workout-1");
   });

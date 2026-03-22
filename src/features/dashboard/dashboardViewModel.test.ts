@@ -25,7 +25,7 @@ describe("buildDashboardViewModel", () => {
     });
 
     expect(model.primaryAction.label).toBe("Continuar entrenamiento");
-    expect(model.primaryAction.href).toBe("/training?tab=today");
+    expect(model.primaryAction.href).toBe("/training?tab=train");
   });
 
   it("falls back to next pending module action when there is no workout", () => {

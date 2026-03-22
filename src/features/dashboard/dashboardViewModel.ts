@@ -70,14 +70,14 @@ const buildPrimaryAction = (
   if (activeWorkout) {
     return {
       label: "Continuar entrenamiento",
-      href: "/training?tab=today",
+      href: "/training?tab=train",
     };
   }
 
   if (scheduledWorkout) {
     return {
       label: "Iniciar entrenamiento",
-      href: "/training?tab=today",
+      href: "/training?tab=train",
     };
   }
 

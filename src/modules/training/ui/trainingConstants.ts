@@ -1,8 +1,15 @@
 import type { SaveExerciseInput } from "@/modules/training/types";
 
 export const MAX_ROUTINE_PREVIEW_EXERCISES = 4;
-export const TRAINING_TABS = ["today", "routines", "library", "history", "progress"] as const;
+export const TRAINING_TABS = ["train", "plan", "progress"] as const;
 export type TrainingTab = (typeof TRAINING_TABS)[number];
+export const LEGACY_TRAINING_TAB_MAP: Record<string, TrainingTab> = {
+  today: "train",
+  routines: "plan",
+  library: "plan",
+  history: "progress",
+  progress: "progress",
+};
 
 export const defaultExerciseForm: SaveExerciseInput = {
   name: "",
@@ -51,12 +58,12 @@ export const parseStoredJson = <T,>(value: string | null, fallback: T): T => {
 export const TRAINING_COPY = {
   en: {
     title: "Training Logbook",
-    subtitle: "Routines, library, weekly plan, active session, history and progress.",
+    subtitle: "Open, understand what to do, and start training in seconds.",
     today: "Today",
     rest: "Rest",
     activeSession: "Active session",
     noWorkout: "No workout",
-    tabs: { today: "Today's workout", routines: "Routines", library: "Library", history: "History", progress: "Progress" },
+    tabs: { train: "Train", plan: "Plan", progress: "Progress" },
     startWorkout: "Start workout",
     startedAt: "Started",
     cancel: "Cancel",
@@ -103,6 +110,17 @@ export const TRAINING_COPY = {
     exerciseHistoryTitle: "Exercise history",
     exerciseHistoryDescription: "Sets, peak load and volume by date.",
     noWorkoutScheduled: "No workout scheduled today.",
+    planningSectionTitle: "Weekly plan",
+    planningSectionDescription: "Assign routines for each day and lock your week.",
+    planningSummaryTitle: "Week snapshot",
+    planningSummaryDescription: "Review the week and jump to planning if needed.",
+    viewPlanning: "Open planning",
+    noWorkoutScheduledHint: "Use quick start or prepare your week to keep momentum.",
+    noLibraryResults: "No exercises match these filters.",
+    clearFilters: "Clear filters",
+    noPrsYet: "No PRs yet for this exercise.",
+    noExerciseHistory: "No exercise sessions recorded yet.",
+    librarySupportHint: "Support library for routine editing and setup",
     routineSaved: "Routine saved.",
     routineDeleted: "Routine deleted.",
     templateDuplicated: "Template duplicated.",
@@ -146,12 +164,12 @@ export const TRAINING_COPY = {
   },
   es: {
     title: "Training Logbook",
-    subtitle: "Rutinas, biblioteca, agenda semanal, sesion activa, historial y progreso.",
+    subtitle: "Abre, entiende que toca hoy y empieza a entrenar en segundos.",
     today: "Hoy",
     rest: "Descanso",
     activeSession: "Sesion activa",
     noWorkout: "Sin entrenamiento",
-    tabs: { today: "Entrenamiento de hoy", routines: "Rutinas", library: "Biblioteca", history: "Historial", progress: "Progreso" },
+    tabs: { train: "Entrenar", plan: "Planificar", progress: "Progreso" },
     startWorkout: "Iniciar entrenamiento",
     startedAt: "Iniciada",
     cancel: "Cancelar",
@@ -198,6 +216,17 @@ export const TRAINING_COPY = {
     exerciseHistoryTitle: "Historial por ejercicio",
     exerciseHistoryDescription: "Detalle de sets, carga maxima y volumen por fecha.",
     noWorkoutScheduled: "No hay entrenamiento programado hoy.",
+    planningSectionTitle: "Plan semanal",
+    planningSectionDescription: "Asigna rutinas por dia y deja la semana lista.",
+    planningSummaryTitle: "Resumen semanal",
+    planningSummaryDescription: "Mira tu semana y entra a planificar si necesitas cambios.",
+    viewPlanning: "Ver planificacion",
+    noWorkoutScheduledHint: "Usa inicio rapido o prepara tu semana para mantener el ritmo.",
+    noLibraryResults: "No encontramos ejercicios con esos filtros.",
+    clearFilters: "Limpiar filtros",
+    noPrsYet: "Aun no hay PRs para este ejercicio.",
+    noExerciseHistory: "Aun no hay sesiones registradas para este ejercicio.",
+    librarySupportHint: "Biblioteca de apoyo para editar y crear rutinas",
     routineSaved: "Rutina guardada.",
     routineDeleted: "Rutina eliminada.",
     templateDuplicated: "Plantilla duplicada.",

@@ -756,7 +756,7 @@ const Dashboard = () => {
     try {
       if (activeSession) {
         setIsTrainingSummaryOpen(false);
-        navigate("/training?tab=today");
+        navigate("/training?tab=train");
         return;
       }
       if (!selectedTrainingWorkoutId) {
@@ -774,7 +774,7 @@ const Dashboard = () => {
       ]);
       setIsTrainingSummaryOpen(false);
       toast.success("Sesion iniciada.");
-      navigate("/training?tab=today");
+      navigate("/training?tab=train");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "No se pudo iniciar el entrenamiento."));
     }

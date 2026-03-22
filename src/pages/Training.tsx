@@ -4,6 +4,7 @@ import { TrainingCustomExerciseDialog } from "@/modules/training/ui/components/T
 import { TrainingDeleteWorkoutDialog } from "@/modules/training/ui/components/TrainingDeleteWorkoutDialog";
 import { TrainingHistorySection } from "@/modules/training/ui/components/TrainingHistorySection";
 import { TrainingLibrarySection } from "@/modules/training/ui/components/TrainingLibrarySection";
+import { TrainingPlanningScheduleSection } from "@/modules/training/ui/components/TrainingPlanningScheduleSection";
 import { TrainingProgressSection } from "@/modules/training/ui/components/TrainingProgressSection";
 import { TrainingRoutinesSection } from "@/modules/training/ui/components/TrainingRoutinesSection";
 import { TrainingTodaySection } from "@/modules/training/ui/components/TrainingTodaySection";
@@ -90,15 +91,13 @@ const Training = () => {
         {trainingError ? <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{copy.failedLoad}: {trainingErrorMessage}</div> : null}
 
         <Tabs value={tab} onValueChange={handleTabChange} className="space-y-5">
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-2 sm:grid-cols-3 lg:grid-cols-5">
-          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="today">{copy.tabs.today}</TabsTrigger>
-          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="routines">{copy.tabs.routines}</TabsTrigger>
-          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="library">{copy.tabs.library}</TabsTrigger>
-          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm lg:min-w-0" value="history">{copy.tabs.history}</TabsTrigger>
-          <TabsTrigger className="col-span-2 min-w-0 px-2 text-xs sm:col-span-1 sm:text-sm lg:min-w-0" value="progress">{copy.tabs.progress}</TabsTrigger>
+        <TabsList className="grid h-auto w-full grid-cols-3 gap-2 rounded-2xl bg-muted/60 p-2">
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm" value="train">{copy.tabs.train}</TabsTrigger>
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm" value="plan">{copy.tabs.plan}</TabsTrigger>
+          <TabsTrigger className="min-w-0 px-2 text-xs sm:text-sm" value="progress">{copy.tabs.progress}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="today" className="space-y-5">
+        <TabsContent value="train" className="space-y-5">
           <TrainingTodaySection
             copy={copy}
             activeSession={activeSession}
@@ -123,17 +122,23 @@ const Training = () => {
             onSaveExerciseNote={(payload) => saveSessionNoteMutation.mutate(payload)}
             onSaveSet={saveSet}
             onDeleteSet={(payload) => deleteSetMutation.mutate(payload)}
-            onSaveScheduleDay={(payload) => saveScheduleMutation.mutate(payload)}
+            onOpenPlanning={() => handleTabChange("plan")}
             isStartPending={startSessionMutation.isPending}
             isFinishPending={finishSessionMutation.isPending}
             isSaveSessionNotePending={saveSessionNoteMutation.isPending}
             isSaveSetPending={saveSetMutation.isPending}
             isDeleteSetPending={deleteSetMutation.isPending}
-            isSaveSchedulePending={saveScheduleMutation.isPending}
           />
         </TabsContent>
 
-        <TabsContent value="routines" className="space-y-5">
+        <TabsContent value="plan" className="space-y-5">
+          <TrainingPlanningScheduleSection
+            copy={copy}
+            schedule={schedule}
+            workouts={workouts}
+            isSaveSchedulePending={saveScheduleMutation.isPending}
+            onSaveScheduleDay={(payload) => saveScheduleMutation.mutate(payload)}
+          />
           <TrainingRoutinesSection
             copy={copy}
             workouts={workouts}
@@ -152,27 +157,22 @@ const Training = () => {
             onDeleteWorkout={setDeleteWorkoutId}
             onDuplicateTemplate={(templateId) => duplicateTemplateMutation.mutate(templateId)}
           />
-        </TabsContent>
-
-        <TabsContent value="library" className="space-y-5">
-          <TrainingLibrarySection
-            copy={copy}
-            filters={filters}
-            exerciseLibrary={exerciseLibrary}
-            formatExerciseName={formatExerciseName}
-            onOpenCustomExercise={() => setCustomExerciseOpen(true)}
-            onFiltersChange={setFilters}
-            onSelectExercise={setSelectedExerciseId}
-          />
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-5">
-          <TrainingHistorySection
-            copy={copy}
-            history={history}
-            renderPlaceholder={renderPlaceholder}
-            formatDateTime={formatDateTime}
-          />
+          <details>
+            <summary className="cursor-pointer select-none rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+              {copy.librarySupportHint}
+            </summary>
+            <div className="mt-3">
+              <TrainingLibrarySection
+                copy={copy}
+                filters={filters}
+                exerciseLibrary={exerciseLibrary}
+                formatExerciseName={formatExerciseName}
+                onOpenCustomExercise={() => setCustomExerciseOpen(true)}
+                onFiltersChange={setFilters}
+                onSelectExercise={setSelectedExerciseId}
+              />
+            </div>
+          </details>
         </TabsContent>
 
         <TabsContent value="progress" className="space-y-5">
@@ -187,6 +187,12 @@ const Training = () => {
             formatDateTime={formatDateTime}
             formatExerciseName={formatExerciseName}
             onSelectExercise={setSelectedExerciseId}
+          />
+          <TrainingHistorySection
+            copy={copy}
+            history={history}
+            renderPlaceholder={renderPlaceholder}
+            formatDateTime={formatDateTime}
           />
         </TabsContent>
         </Tabs>

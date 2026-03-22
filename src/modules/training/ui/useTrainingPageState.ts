@@ -8,6 +8,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 import {
   defaultExerciseForm,
   draftStorageKey,
+  LEGACY_TRAINING_TAB_MAP,
   notesStorageKey,
   parseStoredJson,
   toNumber,
@@ -51,7 +52,12 @@ export function useTrainingPageState() {
   const options = useMemo(() => ({ isGuest, language }), [isGuest, language]);
   const copy = TRAINING_COPY[language];
   const searchTab = searchParams.get("tab");
-  const initialTab = TRAINING_TABS.includes((searchTab ?? "") as TrainingTab) ? (searchTab as TrainingTab) : "today";
+  const resolveTab = (value: string | null): TrainingTab => {
+    if (!value) return "train";
+    if (TRAINING_TABS.includes(value as TrainingTab)) return value as TrainingTab;
+    return LEGACY_TRAINING_TAB_MAP[value] ?? "train";
+  };
+  const initialTab = resolveTab(searchTab);
 
   const [tab, setTab] = useState<TrainingTab>(initialTab);
   const [filters, setFilters] = useState<ExerciseFilterInput>({ search: "", muscleGroup: "all", equipment: "all", movementType: "all" });
@@ -84,7 +90,11 @@ export function useTrainingPageState() {
   const scheduleQuery = useQuery({ queryKey: ["training", "schedule", userId, isGuest], queryFn: () => listWorkoutSchedule(userId, options), enabled: Boolean(userId) || isGuest });
   const todayQuery = useQuery({ queryKey: ["training", "today", userId, isGuest], queryFn: () => getTrainingTodaySummary(userId, new Date(), options), enabled: Boolean(userId) || isGuest });
   const exercisesQuery = useQuery({ queryKey: ["training", "exercises", userId, isGuest, filters], queryFn: () => listExercises(userId, filters, options), enabled: Boolean(userId) || isGuest });
-  const historyQuery = useQuery({ queryKey: ["training", "history", userId, isGuest], queryFn: () => listWorkoutHistory(userId, options), enabled: Boolean(userId) || isGuest });
+  const historyQuery = useQuery({
+    queryKey: ["training", "history", userId, isGuest],
+    queryFn: () => listWorkoutHistory(userId, options),
+    enabled: (Boolean(userId) || isGuest) && tab === "progress",
+  });
   const editingWorkoutQuery = useQuery({
     queryKey: ["training", "workout-detail", userId, editingWorkoutId, isGuest],
     queryFn: () => getWorkoutDetail(userId, editingWorkoutId!, options),
@@ -113,7 +123,7 @@ export function useTrainingPageState() {
       const details = await Promise.all(workouts.map((workout) => getWorkoutDetail(userId, workout.id, options)));
       return details.filter((detail): detail is WorkoutDetail => Boolean(detail));
     },
-    enabled: (Boolean(userId) || isGuest) && workouts.length > 0,
+    enabled: (Boolean(userId) || isGuest) && workouts.length > 0 && tab === "plan",
   });
 
   const templates = templatesQuery.data ?? [];
@@ -139,7 +149,7 @@ export function useTrainingPageState() {
   };
 
   useEffect(() => {
-    const nextTab = TRAINING_TABS.includes((searchTab ?? "") as TrainingTab) ? (searchTab as TrainingTab) : "today";
+    const nextTab = resolveTab(searchTab);
     if (nextTab !== tab) setTab(nextTab);
   }, [searchTab, tab]);
 
@@ -304,7 +314,15 @@ export function useTrainingPageState() {
   const startSessionMutation = useMutation({
     mutationFn: (workoutId: string) => startWorkoutSession(userId, workoutId, options),
     onSuccess: async () => {
-      setTab("today");
+      setTab("train");
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set("tab", "train");
+          return next;
+        },
+        { replace: true },
+      );
       toast.success(copy.sessionStarted);
       await invalidateTraining();
     },

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DAY_LABELS, MUSCLE_GROUP_LABELS } from "@/modules/training/catalog";
 import type { TrainingCopy } from "@/modules/training/ui/trainingConstants";
@@ -50,13 +49,12 @@ type TrainingTodaySectionProps = {
   onSaveExerciseNote: (payload: { sessionId: string; exerciseId: string; notes: string | null }) => void;
   onSaveSet: (sessionId: string, exerciseId: string, setNumber: number, restSeconds: number, complete: boolean) => void;
   onDeleteSet: (payload: { sessionId: string; exerciseId: string; setNumber: number }) => void;
-  onSaveScheduleDay: (payload: { dayOfWeek: number; workoutId: string | null; isRestDay: boolean }) => void;
+  onOpenPlanning?: () => void;
   isStartPending: boolean;
   isFinishPending: boolean;
   isSaveSessionNotePending: boolean;
   isSaveSetPending: boolean;
   isDeleteSetPending: boolean;
-  isSaveSchedulePending: boolean;
 };
 
 export function TrainingTodaySection({
@@ -83,19 +81,22 @@ export function TrainingTodaySection({
   onSaveExerciseNote,
   onSaveSet,
   onDeleteSet,
-  onSaveScheduleDay,
+  onOpenPlanning,
   isStartPending,
   isFinishPending,
   isSaveSessionNotePending,
   isSaveSetPending,
   isDeleteSetPending,
-  isSaveSchedulePending,
 }: TrainingTodaySectionProps) {
+  const todayIndex = new Date().getDay();
+  const plannedDays = schedule.filter((day) => day.is_rest_day || day.workout_id !== null).length;
+  const mobileStartWorkoutId = !activeSession ? (scheduledWorkout?.id ?? workouts[0]?.id ?? null) : null;
+
   return (
-    <div className="grid gap-5 xl:grid-cols-[1.4fr_0.9fr]">
+    <div className="grid gap-5 pb-24 xl:grid-cols-[1.4fr_0.9fr] xl:pb-0">
       <Card>
         <CardHeader>
-          <CardTitle>{copy.tabs.today}</CardTitle>
+          <CardTitle>{copy.tabs.train}</CardTitle>
           <CardDescription>La sesion activa tiene prioridad sobre todo lo demas.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -267,7 +268,12 @@ export function TrainingTodaySection({
             </div>
           ) : null}
 
-          {!activeSession && !scheduledWorkout ? renderPlaceholder(copy.noWorkoutScheduled) : null}
+          {!activeSession && !scheduledWorkout ? (
+            <div className="space-y-3">
+              {renderPlaceholder(copy.noWorkoutScheduled)}
+              <div className="rounded-2xl border border-border/70 bg-muted/15 p-3 text-sm text-muted-foreground">{copy.noWorkoutScheduledHint}</div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -287,36 +293,36 @@ export function TrainingTodaySection({
 
         <Card>
           <CardHeader>
-            <CardTitle>{copy.week}</CardTitle>
-            <CardDescription>{copy.weekDescription}</CardDescription>
+            <CardTitle>{copy.planningSummaryTitle}</CardTitle>
+            <CardDescription>{copy.planningSummaryDescription}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {schedule.map((day) => (
-              <div key={day.day_of_week} className="grid gap-2 rounded-2xl border p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">{DAY_LABELS[day.day_of_week]}</span>
-                  {day.day_of_week === new Date().getDay() ? <Badge variant="secondary">{copy.todayBadge}</Badge> : null}
-                </div>
-                <Select
-                  value={day.is_rest_day ? "rest" : day.workout_id ?? "none"}
-                  disabled={isSaveSchedulePending}
-                  onValueChange={(value) =>
-                    onSaveScheduleDay({
-                      dayOfWeek: day.day_of_week,
-                      workoutId: value === "none" || value === "rest" ? null : value,
-                      isRestDay: value === "rest",
-                    })
-                  }
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{copy.unassigned}</SelectItem>
-                    <SelectItem value="rest">{copy.rest}</SelectItem>
-                    {workouts.map((workout) => <SelectItem key={workout.id} value={workout.id}>{workout.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+            <div className="rounded-2xl border border-border/70 bg-muted/20 p-3">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{copy.week}</span>
+                <Badge variant="outline">{plannedDays}/7</Badge>
               </div>
-            ))}
+              <div className="grid grid-cols-7 gap-2">
+                {schedule.map((day) => {
+                  const isToday = day.day_of_week === todayIndex;
+                  const isPlanned = day.is_rest_day || Boolean(day.workout_id);
+                  return (
+                    <div key={day.day_of_week} className="space-y-1 text-center">
+                      <div className="text-[11px] text-muted-foreground">{DAY_LABELS[day.day_of_week].slice(0, 1)}</div>
+                      <div className={`rounded-md border px-1 py-1 text-xs ${isPlanned ? "border-primary/60 bg-primary/10 text-foreground" : "border-dashed text-muted-foreground"}`}>
+                        {day.is_rest_day ? copy.rest : isPlanned ? "OK" : "-"}
+                      </div>
+                      {isToday ? <div className="text-[10px] font-semibold text-primary">{copy.todayBadge}</div> : <div className="h-[14px]" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {onOpenPlanning ? (
+              <Button className="w-full" variant="outline" onClick={onOpenPlanning}>
+                {copy.viewPlanning}
+              </Button>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -336,6 +342,21 @@ export function TrainingTodaySection({
           </CardContent>
         </Card>
       </div>
+
+      {!activeSession ? (
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 p-3 backdrop-blur md:hidden">
+          <div className="mx-auto flex max-w-[560px] gap-2">
+            <Button className="flex-1" onClick={() => (mobileStartWorkoutId ? onStartWorkout(mobileStartWorkoutId) : onOpenPlanning?.())} disabled={isStartPending}>
+              {mobileStartWorkoutId ? copy.startWorkout : copy.viewPlanning}
+            </Button>
+            {onOpenPlanning && mobileStartWorkoutId ? (
+              <Button variant="outline" className="flex-1" onClick={onOpenPlanning}>
+                {copy.viewPlanning}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

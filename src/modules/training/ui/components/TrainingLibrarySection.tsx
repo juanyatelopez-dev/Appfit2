@@ -63,8 +63,20 @@ export function TrainingLibrarySection({
           </Select>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
+          {exerciseLibrary.length === 0 ? (
+            <div className="md:col-span-2 rounded-2xl border border-dashed p-4">
+              <div className="text-sm text-muted-foreground">{copy.noLibraryResults}</div>
+              <Button
+                variant="ghost"
+                className="mt-2 h-auto px-0 text-sm text-primary hover:text-primary"
+                onClick={() => onFiltersChange(() => ({ search: "", muscleGroup: "all", equipment: "all", movementType: "all" }))}
+              >
+                {copy.clearFilters}
+              </Button>
+            </div>
+          ) : null}
           {exerciseLibrary.map((exercise) => (
-            <button key={exercise.id} type="button" className="rounded-2xl border p-4 text-left hover:border-cyan-400/40 hover:bg-cyan-400/5" onClick={() => onSelectExercise(exercise.id)}>
+            <button key={exercise.id} type="button" className="rounded-2xl border p-4 text-left hover:border-primary/40 hover:bg-primary/5" onClick={() => onSelectExercise(exercise.id)}>
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="font-semibold">{formatExerciseName(exercise)}</div>
