@@ -306,12 +306,15 @@ export function TrainingTodaySection({
                     <div key={day.day_of_week} className="space-y-1 text-center">
                       <div className="text-[11px] text-muted-foreground">{DAY_LABELS[day.day_of_week].slice(0, 1)}</div>
                       <div className={`rounded-md border px-1 py-1 text-xs ${isPlanned ? "border-primary/60 bg-primary/10 text-foreground" : "border-dashed text-muted-foreground"}`}>
-                        {day.is_rest_day ? copy.rest : isPlanned ? "OK" : "-"}
+                        {day.is_rest_day ? "R" : isPlanned ? "OK" : "-"}
                       </div>
                       {isToday ? <div className="text-[10px] font-semibold text-primary">{copy.todayBadge}</div> : <div className="h-[14px]" />}
                     </div>
                   );
                 })}
+              </div>
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                <span className="font-semibold text-foreground">R</span> = {copy.rest}
               </div>
             </div>
             {onOpenPlanning ? (
