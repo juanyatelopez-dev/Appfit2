@@ -1,4 +1,4 @@
-import { ChevronDown, CirclePlus, Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -39,13 +39,6 @@ export function NutritionMealsSection({
           <h2 className="app-surface-heading mt-1 text-xl font-bold md:text-2xl">Registro operativo de comidas</h2>
           <p className="app-surface-caption mt-1 text-xs">Expande un bloque y registra sin salir del flujo diario.</p>
         </div>
-        <Button
-          onClick={() => onOpenMealDialog("breakfast")}
-          className="w-full rounded-2xl bg-primary px-4 text-primary-foreground hover:bg-primary/90 sm:w-auto"
-        >
-          <CirclePlus className="mr-2 h-4 w-4" />
-          Agregar comida
-        </Button>
       </div>
 
       <div className="space-y-4 px-4 py-5 sm:px-5 sm:py-5">

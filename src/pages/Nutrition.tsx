@@ -169,6 +169,7 @@ const Nutrition = () => {
                 foodLibraryItems={foodLibraryItems}
                 favorites={favorites}
                 categories={categories}
+                onAddMeal={() => openDialogForMeal("breakfast")}
                 onUpdateFavorite={(payload) => updateFavoriteMutation.mutate(payload)}
                 onDeleteFavorite={(favoriteId) => deleteFavoriteMutation.mutate(favoriteId)}
                 isUpdatingFavorite={updateFavoriteMutation.isPending}

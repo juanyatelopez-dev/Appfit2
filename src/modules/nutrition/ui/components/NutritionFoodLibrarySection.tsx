@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { PencilLine, Trash2 } from "lucide-react";
+import { CirclePlus, PencilLine, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ type NutritionFoodLibrarySectionProps = {
   foodLibraryItems: FoodDatabaseItem[];
   favorites: FavoriteFood[];
   categories: string[];
+  onAddMeal: () => void;
   onUpdateFavorite: (payload: {
     id: string;
     name: string;
@@ -84,6 +85,7 @@ export function NutritionFoodLibrarySection({
   foodLibraryItems,
   favorites,
   categories,
+  onAddMeal,
   onUpdateFavorite,
   onDeleteFavorite,
   isUpdatingFavorite,
@@ -252,10 +254,16 @@ export function NutritionFoodLibrarySection({
             <h2 className="app-surface-heading mt-1 text-xl font-bold md:text-2xl">Biblioteca de alimentos</h2>
             <p className="app-surface-caption mt-1 text-xs">Base completa + personalizados. Los personalizados se pueden editar.</p>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
-            <div className="app-panel-block rounded-xl px-3 py-2">Total: <span className="font-semibold">{rows.length}</span></div>
-            <div className="app-panel-block rounded-xl px-3 py-2">Base: <span className="font-semibold">{sourceCounts.database}</span></div>
-            <div className="app-panel-block rounded-xl px-3 py-2">Custom: <span className="font-semibold">{sourceCounts.favorite}</span></div>
+          <div className="flex flex-col gap-2 md:items-end">
+            <Button type="button" onClick={onAddMeal} className="w-full rounded-2xl bg-primary px-4 text-primary-foreground hover:bg-primary/90 md:w-auto">
+              <CirclePlus className="mr-2 h-4 w-4" />
+              Agregar comida
+            </Button>
+            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
+              <div className="app-panel-block rounded-xl px-3 py-2">Total: <span className="font-semibold">{rows.length}</span></div>
+              <div className="app-panel-block rounded-xl px-3 py-2">Base: <span className="font-semibold">{sourceCounts.database}</span></div>
+              <div className="app-panel-block rounded-xl px-3 py-2">Custom: <span className="font-semibold">{sourceCounts.favorite}</span></div>
+            </div>
           </div>
         </div>
 
