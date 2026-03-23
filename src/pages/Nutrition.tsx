@@ -127,6 +127,10 @@ const Nutrition = () => {
           planSource={planSource}
           planSourceLabel={planSourceLabel}
           planSourceDescription={planSourceDescription}
+          weightSource={daySummary?.weightSource}
+          target={target}
+          goals={goals}
+          metabolicProfile={metabolicProfile}
           onPreviousDate={() => setSelectedDate((prev) => addDays(prev, -1))}
           onNextDate={() => setSelectedDate((prev) => addDays(prev, 1))}
           onSelectProfile={(value) => profileSelectionMutation.mutate(value)}
@@ -195,6 +199,7 @@ const Nutrition = () => {
             carbsPct={carbsPct}
             fatPct={fatPct}
             onOpenTechnicalConfig={() => setTechnicalOpen(true)}
+            showPlanCard={false}
           />
         </div>
       </div>

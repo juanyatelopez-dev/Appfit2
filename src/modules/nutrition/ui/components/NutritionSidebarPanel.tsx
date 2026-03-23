@@ -28,6 +28,7 @@ type NutritionSidebarPanelProps = {
   carbsPct: number;
   fatPct: number;
   onOpenTechnicalConfig: () => void;
+  showPlanCard?: boolean;
 };
 
 export function NutritionSidebarPanel({
@@ -46,6 +47,7 @@ export function NutritionSidebarPanel({
   carbsPct,
   fatPct,
   onOpenTechnicalConfig,
+  showPlanCard = true,
 }: NutritionSidebarPanelProps) {
   const archetypeMeta =
     NUTRITION_ARCHETYPE_META[activeArchetype as keyof typeof NUTRITION_ARCHETYPE_META] ??
@@ -93,7 +95,7 @@ export function NutritionSidebarPanel({
 
   return (
     <aside className="space-y-5 xl:sticky xl:top-6 xl:self-start">
-      <div className="app-surface-panel rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
+      {showPlanCard ? <div className="app-surface-panel rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -151,7 +153,7 @@ export function NutritionSidebarPanel({
         <Button type="button" variant="outline" className="mt-4 w-full app-outline-button" onClick={onOpenTechnicalConfig}>
           Ver configuracion tecnica
         </Button>
-      </div>
+      </div> : null}
 
       <div className="app-surface-panel rounded-[24px] p-4 sm:rounded-[28px] sm:p-5">
         <div className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.26em]">Balance energetico</div>

@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { NUTRITION_ARCHETYPE_META } from "@/features/nutrition/nutritionProfiles";
-import type { NutritionProfileRecord } from "@/modules/nutrition/types";
+import { ACTIVITY_LABELS, formatMetric, GOAL_LABELS } from "@/modules/nutrition/ui/nutritionConstants";
+import type { NutritionGoals, NutritionMetabolicProfile, NutritionProfileRecord, NutritionTargetBreakdown } from "@/modules/nutrition/types";
 
 type NutritionHeaderSectionProps = {
   selectedDate: Date;
@@ -19,6 +20,10 @@ type NutritionHeaderSectionProps = {
   planSource: "selected_template" | "initial_template" | "automatic" | "archived_snapshot";
   planSourceLabel: string;
   planSourceDescription: string;
+  weightSource: "closest_on_or_before" | "latest_available" | "profile_fallback" | undefined;
+  target: NutritionTargetBreakdown | null | undefined;
+  goals: NutritionGoals | null | undefined;
+  metabolicProfile: NutritionMetabolicProfile | null | undefined;
   onPreviousDate: () => void;
   onNextDate: () => void;
   onSelectProfile: (value: string | null) => void;
@@ -39,6 +44,10 @@ export function NutritionHeaderSection({
   planSource,
   planSourceLabel,
   planSourceDescription,
+  weightSource,
+  target,
+  goals,
+  metabolicProfile,
   onPreviousDate,
   onNextDate,
   onSelectProfile,
@@ -70,6 +79,9 @@ export function NutritionHeaderSection({
         : planSource === "archived_snapshot"
           ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
           : "border-slate-400/30 bg-slate-500/10 text-slate-200";
+  const activityLabel = ACTIVITY_LABELS[metabolicProfile?.activityLevel ?? "moderate"] ?? "--";
+  const goalLabel = GOAL_LABELS[metabolicProfile?.goalType ?? "maintain"] ?? "--";
+  const weightLabel = weightSource === "profile_fallback" ? "Peso perfil" : "Peso registrado";
 
   const openWeeklyPlanner = () => {
     const base: Record<string, string> = {};
@@ -131,7 +143,7 @@ export function NutritionHeaderSection({
       </div>
 
       <div className="app-surface-hero rounded-[24px] px-4 py-5 sm:rounded-[28px] sm:px-6 sm:py-6">
-        <div className="grid gap-3 xl:grid-cols-[2.8fr_2.2fr_1.2fr] xl:items-stretch">
+        <div className="grid gap-3 xl:grid-cols-[2.7fr_1.7fr_1.6fr] xl:items-stretch">
           <article className="app-chip-muted rounded-2xl px-4 py-3">
             <div className="mb-2 flex items-center gap-2">
               <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">Perfil nutricional diario</div>
@@ -195,12 +207,43 @@ export function NutritionHeaderSection({
               ) : null}
             </div>
             <p className="app-surface-muted mt-2 text-sm">{planSourceDescription}</p>
-          </article>
-
-          <article className="app-chip-muted flex flex-col justify-center gap-2 rounded-2xl px-3 py-3">
-            <Button type="button" variant="outline" onClick={onOpenTechnicalConfig} className="w-full app-outline-button rounded-2xl">
+            <Button type="button" variant="outline" onClick={onOpenTechnicalConfig} className="mt-3 w-full app-outline-button rounded-2xl">
               <SlidersHorizontal className="mr-2 h-4 w-4" />
               Config tecnica
+            </Button>
+          </article>
+
+          <article className="app-chip-muted rounded-2xl px-4 py-3">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-primary/80">Plan de hoy</div>
+                <h3 className="app-surface-heading mt-1 text-lg font-bold">{selectedPlanName}</h3>
+              </div>
+              <div className="app-chip rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
+                {NUTRITION_ARCHETYPE_META[activeArchetype as keyof typeof NUTRITION_ARCHETYPE_META]?.label ?? "Base"}
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className={`rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${planSourceTone}`}>
+                {planSourceLabel}
+              </span>
+              <span className="app-surface-soft rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
+                {activityLabel}
+              </span>
+              <span className="app-surface-soft rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
+                {goalLabel}
+              </span>
+              <span className="app-surface-soft rounded-xl px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]">
+                {weightLabel}
+              </span>
+            </div>
+            <div className="app-surface-caption mt-3 grid gap-2 text-xs uppercase tracking-[0.2em]">
+              <div className="flex items-center justify-between"><span>TDEE base</span><span>{formatMetric(target?.tdee)}</span></div>
+              <div className="flex items-center justify-between"><span>Ajuste</span><span>{target ? `${target.archetypeDelta >= 0 ? "+" : ""}${target.archetypeDelta}` : "--"}</span></div>
+              <div className="flex items-center justify-between"><span>Meta final</span><span>{formatMetric(goals?.calorie_goal, " kcal")}</span></div>
+            </div>
+            <Button type="button" variant="outline" onClick={onOpenTechnicalConfig} className="mt-4 w-full app-outline-button rounded-2xl">
+              Ver configuracion tecnica
             </Button>
           </article>
         </div>
