@@ -35,50 +35,6 @@ function renderSection(overrides: Partial<ComponentProps<typeof NutritionHeaderS
     planSource: "selected_template",
     planSourceLabel: "Plantilla elegida",
     planSourceDescription: "Esta plantilla tiene prioridad para este dia.",
-    weightSource: "closest_on_or_before",
-    target: {
-      bmr: 1800,
-      tdee: 2670,
-      calorieTarget: 2403,
-      finalTargetCalories: 2103,
-      proteinGrams: 150,
-      fatGrams: 70,
-      carbGrams: 220,
-      proteinCalories: 600,
-      fatCalories: 630,
-      carbCalories: 880,
-      activityMultiplier: 1.55,
-      goalMultiplier: 0.9,
-      archetypeDelta: -300,
-      dayArchetype: "heavy",
-      isOverrideApplied: false,
-    },
-    goals: {
-      calorie_goal: 2103,
-      protein_goal_g: 150,
-      carb_goal_g: 220,
-      fat_goal_g: 70,
-      day_archetype: "heavy",
-      bmr: 1800,
-      tdee: 2670,
-      activity_multiplier: 1.55,
-      goal_multiplier: 0.9,
-      archetype_delta: -300,
-      calorie_target: 2403,
-      final_target_calories: 2103,
-    },
-    metabolicProfile: {
-      sex: "male",
-      age: 30,
-      weightKg: 80,
-      heightCm: 178,
-      activityLevel: "high",
-      goalType: "lose_slow",
-      dayArchetype: "heavy",
-      birthDate: "1995-01-01",
-      calorieOverride: null,
-      isCalorieOverrideEnabled: false,
-    },
     onPreviousDate,
     onNextDate,
     onSelectProfile,
@@ -113,7 +69,7 @@ describe("NutritionHeaderSection", () => {
     const iconButtons = screen.getAllByRole("button", { name: "" });
     fireEvent.click(iconButtons[0]);
     fireEvent.click(iconButtons[1]);
-    fireEvent.click(screen.getByRole("button", { name: /Config tecnica/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /Config tecnica/i })[0]);
 
     expect(callbacks.onPreviousDate).toHaveBeenCalled();
     expect(callbacks.onNextDate).toHaveBeenCalled();
