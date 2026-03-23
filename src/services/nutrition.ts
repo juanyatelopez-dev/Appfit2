@@ -22,11 +22,13 @@ import {
 } from "@/services/nutritionCore";
 import {
   calculateNutritionFromFood as calculateNutritionFromFoodImpl,
+  deleteFavoriteFood as deleteFavoriteFoodImpl,
   getFavoriteFoods as getFavoriteFoodsImpl,
   listFoodDatabaseCategories as listFoodDatabaseCategoriesImpl,
   listRecentNutritionEntries as listRecentNutritionEntriesImpl,
   saveFavoriteFood as saveFavoriteFoodImpl,
   searchFoodDatabase as searchFoodDatabaseImpl,
+  updateFavoriteFood as updateFavoriteFoodImpl,
 } from "@/services/nutritionLibrary";
 import { parseGuestEntries, saveGuestEntries } from "@/services/nutritionGuestState";
 import { normalizeEntry } from "@/services/nutritionNormalization";
@@ -438,6 +440,10 @@ export const listRecentNutritionEntries = listRecentNutritionEntriesImpl;
 export const getFavoriteFoods = getFavoriteFoodsImpl;
 
 export const saveFavoriteFood = saveFavoriteFoodImpl;
+
+export const updateFavoriteFood = updateFavoriteFoodImpl;
+
+export const deleteFavoriteFood = deleteFavoriteFoodImpl;
 
 export const updateNutritionGoals = async (
   userId: string | null,

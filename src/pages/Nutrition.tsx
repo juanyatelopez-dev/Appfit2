@@ -2,6 +2,7 @@ import { addDays } from "date-fns";
 import { useState } from "react";
 
 import { NutritionHeaderSection } from "@/modules/nutrition/ui/components/NutritionHeaderSection";
+import { NutritionFoodLibrarySection } from "@/modules/nutrition/ui/components/NutritionFoodLibrarySection";
 import { NutritionMealDialog } from "@/modules/nutrition/ui/components/NutritionMealDialog";
 import { NutritionMealsSection } from "@/modules/nutrition/ui/components/NutritionMealsSection";
 import { NutritionProfileDialog } from "@/modules/nutrition/ui/components/NutritionProfileDialog";
@@ -91,11 +92,14 @@ const Nutrition = () => {
     mealOverview,
     categories,
     foodSearchResults,
+    foodLibraryItems,
     favorites,
     recentEntries,
     addMutation,
     deleteMutation,
     saveProfileMutation,
+    updateFavoriteMutation,
+    deleteFavoriteMutation,
     profileSelectionMutation,
     archiveProfileMutation,
     deleteProfileMutation,
@@ -136,6 +140,15 @@ const Nutrition = () => {
               onOpenMealDialog={openDialogForMeal}
               onToggleMeal={toggleMeal}
               onDeleteEntry={(entryId) => deleteMutation.mutate(entryId)}
+            />
+            <NutritionFoodLibrarySection
+              foodLibraryItems={foodLibraryItems}
+              favorites={favorites}
+              categories={categories}
+              onUpdateFavorite={(payload) => updateFavoriteMutation.mutate(payload)}
+              onDeleteFavorite={(favoriteId) => deleteFavoriteMutation.mutate(favoriteId)}
+              isUpdatingFavorite={updateFavoriteMutation.isPending}
+              isDeletingFavorite={deleteFavoriteMutation.isPending}
             />
           </section>
 

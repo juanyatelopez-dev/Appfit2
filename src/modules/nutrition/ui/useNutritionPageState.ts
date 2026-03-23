@@ -14,6 +14,7 @@ import {
   addNutritionEntry,
   archiveNutritionProfile,
   calculateNutritionFromFood,
+  deleteFavoriteFood,
   deleteNutritionEntry,
   deleteNutritionProfileSafe,
   getFavoriteFoods,
@@ -26,6 +27,7 @@ import {
   searchFoodDatabase,
   setDefaultNutritionProfile,
   setNutritionProfileForDate,
+  updateFavoriteFood,
   upsertNutritionProfile,
   type FoodDatabaseItem,
   type NutritionDayArchetype,
@@ -139,6 +141,12 @@ export function useNutritionPageState() {
     enabled: queryEnabled,
   });
 
+  const foodLibraryQuery = useQuery({
+    queryKey: ["food_database_library", language],
+    queryFn: () => searchFoodDatabase({ limit: 5000, language }).catch(() => []),
+    enabled: queryEnabled,
+  });
+
   const invalidateNutrition = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["nutrition_day_summary"] }),
@@ -189,6 +197,57 @@ export function useNutritionPageState() {
       queryClient.invalidateQueries({ queryKey: ["nutrition_favorites"] });
       toast.success("Guardado en favoritos.");
     },
+  });
+
+  const updateFavoriteMutation = useMutation({
+    mutationFn: (payload: {
+      id: string;
+      name: string;
+      serving_size: number;
+      serving_unit: string;
+      calories: number;
+      protein_g: number;
+      carbs_g: number;
+      fat_g: number;
+      fiber_g?: number | null;
+      sodium_mg?: number | null;
+      potassium_mg?: number | null;
+      micronutrients?: Record<string, number> | null;
+      nutrient_density_score?: number | null;
+    }) =>
+      updateFavoriteFood(
+        payload.id,
+        userId,
+        {
+          name: payload.name,
+          serving_size: payload.serving_size,
+          serving_unit: payload.serving_unit,
+          calories: payload.calories,
+          protein_g: payload.protein_g,
+          carbs_g: payload.carbs_g,
+          fat_g: payload.fat_g,
+          fiber_g: payload.fiber_g,
+          sodium_mg: payload.sodium_mg,
+          potassium_mg: payload.potassium_mg,
+          micronutrients: payload.micronutrients,
+          nutrient_density_score: payload.nutrient_density_score,
+        },
+        { isGuest },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutrition_favorites"] });
+      toast.success("Alimento actualizado.");
+    },
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo actualizar el alimento.")),
+  });
+
+  const deleteFavoriteMutation = useMutation({
+    mutationFn: (favoriteId: string) => deleteFavoriteFood(favoriteId, userId, { isGuest }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nutrition_favorites"] });
+      toast.success("Alimento eliminado.");
+    },
+    onError: (error: unknown) => toast.error(getErrorMessage(error, "No se pudo eliminar el alimento.")),
   });
 
   const profileSelectionMutation = useMutation({
@@ -600,11 +659,14 @@ export function useNutritionPageState() {
     mealOverview,
     categories: categoriesQuery.data || [],
     foodSearchResults: foodSearchQuery.data || [],
+    foodLibraryItems: foodLibraryQuery.data || [],
     favorites: favoritesQuery.data || [],
     recentEntries: recentQuery.data || [],
     addMutation,
     deleteMutation,
     saveProfileMutation,
+    updateFavoriteMutation,
+    deleteFavoriteMutation,
     profileSelectionMutation,
     archiveProfileMutation,
     deleteProfileMutation,
