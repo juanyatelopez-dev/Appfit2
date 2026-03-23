@@ -122,7 +122,7 @@ export function NutritionHeaderSection({
       </div>
 
       <div className="app-surface-hero rounded-[24px] px-4 py-5 sm:rounded-[28px] sm:px-6 sm:py-6">
-        <div className="grid gap-3 xl:grid-cols-[3fr_1.3fr] xl:items-stretch">
+        <div className="grid gap-3 xl:grid-cols-1 xl:items-stretch">
           <article className="app-chip-muted rounded-2xl px-4 py-3">
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -179,12 +179,6 @@ export function NutritionHeaderSection({
             </div>
           </article>
 
-          <article className="app-chip-muted flex flex-col justify-center gap-2 rounded-2xl px-3 py-3">
-            <Button type="button" variant="outline" onClick={onOpenTechnicalConfig} className="w-full app-outline-button rounded-2xl">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Config tecnica
-            </Button>
-          </article>
         </div>
       </div>
 

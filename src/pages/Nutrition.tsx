@@ -117,26 +117,25 @@ const Nutrition = () => {
   return (
     <div className="app-shell min-h-screen px-4 py-5 text-foreground sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1540px] space-y-6">
-        <NutritionHeaderSection
-          selectedDate={selectedDate}
-          selectedProfileId={selectedNutritionProfile?.id ?? null}
-          selectedPlanName={effectiveProfileLabel}
-          profileOptions={profileOptions}
-          activeArchetype={activeArchetype}
-          archetypeDescription={archetypeMeta.description}
-          planSource={planSource}
-          planSourceLabel={planSourceLabel}
-          planSourceDescription={planSourceDescription}
-          onPreviousDate={() => setSelectedDate((prev) => addDays(prev, -1))}
-          onNextDate={() => setSelectedDate((prev) => addDays(prev, 1))}
-          onSelectProfile={(value) => profileSelectionMutation.mutate(value)}
-          onApplyWeeklyPlan={(entries) => weeklyProfilePlanMutation.mutate(entries)}
-          isApplyingWeeklyPlan={weeklyProfilePlanMutation.isPending}
-          onOpenTechnicalConfig={() => setTechnicalOpen(true)}
-        />
-
         <div className="grid gap-6 xl:grid-cols-[1.65fr_0.8fr]">
           <section className="space-y-5">
+            <NutritionHeaderSection
+              selectedDate={selectedDate}
+              selectedProfileId={selectedNutritionProfile?.id ?? null}
+              selectedPlanName={effectiveProfileLabel}
+              profileOptions={profileOptions}
+              activeArchetype={activeArchetype}
+              archetypeDescription={archetypeMeta.description}
+              planSource={planSource}
+              planSourceLabel={planSourceLabel}
+              planSourceDescription={planSourceDescription}
+              onPreviousDate={() => setSelectedDate((prev) => addDays(prev, -1))}
+              onNextDate={() => setSelectedDate((prev) => addDays(prev, 1))}
+              onSelectProfile={(value) => profileSelectionMutation.mutate(value)}
+              onApplyWeeklyPlan={(entries) => weeklyProfilePlanMutation.mutate(entries)}
+              isApplyingWeeklyPlan={weeklyProfilePlanMutation.isPending}
+              onOpenTechnicalConfig={() => setTechnicalOpen(true)}
+            />
             <div className="app-surface-panel rounded-[20px] p-2 sm:rounded-[24px]">
               <div className="grid grid-cols-2 gap-2">
                 <Button
