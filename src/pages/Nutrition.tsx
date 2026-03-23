@@ -1,5 +1,6 @@
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { NutritionHeaderSection } from "@/modules/nutrition/ui/components/NutritionHeaderSection";
@@ -137,6 +138,35 @@ const Nutrition = () => {
       <div className="mx-auto max-w-[1540px] space-y-6">
         <div className="grid gap-6 xl:grid-cols-[1.65fr_0.8fr]">
           <section className="space-y-5">
+            <div className="space-y-2 px-1 sm:hidden">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/80">Bitacora de nutricion</p>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="app-surface-heading text-3xl font-black tracking-tight">Nutricion - Hoy</h1>
+                <div className="app-chip-muted grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-2xl px-3 py-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="app-surface-muted h-9 w-9 rounded-xl hover:bg-background/60 hover:text-foreground"
+                    onClick={() => setSelectedDate((prev) => addDays(prev, -1))}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="min-w-0 text-center">
+                    <div className="app-surface-caption text-[10px] uppercase tracking-[0.24em]">Bitacora</div>
+                    <div className="app-surface-heading text-sm font-semibold">{format(selectedDate, "dd/MM/yyyy")}</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="app-surface-muted h-9 w-9 rounded-xl hover:bg-background/60 hover:text-foreground"
+                    onClick={() => setSelectedDate((prev) => addDays(prev, 1))}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <p className="app-surface-caption text-sm">Registra rapido y entiende exactamente que plan nutricional estas usando.</p>
+            </div>
             <div className="hidden sm:block">
               <NutritionHeaderSection
                 selectedDate={selectedDate}
@@ -221,6 +251,7 @@ const Nutrition = () => {
                     onApplyWeeklyPlan={(entries) => weeklyProfilePlanMutation.mutate(entries)}
                     isApplyingWeeklyPlan={weeklyProfilePlanMutation.isPending}
                     onOpenTechnicalConfig={() => setTechnicalOpen(true)}
+                    showIntro={false}
                   />
                   {sidebarPanel}
                 </div>

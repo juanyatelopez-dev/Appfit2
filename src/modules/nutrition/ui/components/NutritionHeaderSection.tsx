@@ -25,6 +25,7 @@ type NutritionHeaderSectionProps = {
   onApplyWeeklyPlan: (entries: Array<{ date: Date; profileId: string | null }>) => void;
   isApplyingWeeklyPlan?: boolean;
   onOpenTechnicalConfig: () => void;
+  showIntro?: boolean;
 };
 
 const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
@@ -45,6 +46,7 @@ export function NutritionHeaderSection({
   onApplyWeeklyPlan,
   isApplyingWeeklyPlan = false,
   onOpenTechnicalConfig,
+  showIntro = true,
 }: NutritionHeaderSectionProps) {
   const [weeklyPlannerOpen, setWeeklyPlannerOpen] = useState(false);
   const [weeklyDraft, setWeeklyDraft] = useState<Record<string, string>>({});
@@ -91,7 +93,7 @@ export function NutritionHeaderSection({
 
   return (
     <section className="space-y-4">
-      <div className="space-y-2 px-1">
+      {showIntro ? <div className="space-y-2 px-1">
         <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-primary/80">Bitacora de nutricion</p>
         <div className="flex items-start justify-between gap-3">
           <h1 className="app-surface-heading text-3xl font-black tracking-tight md:text-4xl">Nutricion - Hoy</h1>
@@ -119,7 +121,7 @@ export function NutritionHeaderSection({
           </div>
         </div>
         <p className="app-surface-caption text-sm">Registra rapido y entiende exactamente que plan nutricional estas usando.</p>
-      </div>
+      </div> : null}
 
       <div className="app-surface-hero rounded-[24px] px-4 py-5 sm:rounded-[28px] sm:px-6 sm:py-6">
         <div className="grid gap-3 xl:grid-cols-1 xl:items-stretch">
