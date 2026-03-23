@@ -472,7 +472,7 @@ const AdminUsers = () => {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-border/60">
-              <Table>
+              <Table className="min-w-[980px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Email</TableHead>
@@ -630,7 +630,7 @@ const AdminUsers = () => {
             </div>
           ) : notificationAuditQuery.data && notificationAuditQuery.data.length > 0 ? (
             <div className="overflow-x-auto rounded-2xl border border-border/60">
-              <Table>
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>
@@ -680,7 +680,7 @@ const AdminUsers = () => {
             </div>
           ) : auditQuery.data && auditQuery.data.length > 0 ? (
             <div className="overflow-x-auto rounded-2xl border border-border/60">
-              <Table>
+              <Table className="min-w-[680px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Fecha</TableHead>

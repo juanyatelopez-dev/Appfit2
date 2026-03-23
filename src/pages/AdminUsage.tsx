@@ -104,8 +104,8 @@ const AdminUsage = () => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : panelUsageQuery.data && panelUsageQuery.data.length > 0 ? (
-            <div className="rounded-2xl border border-border/60">
-              <Table>
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
+              <Table className="min-w-[760px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Panel</TableHead>

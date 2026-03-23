@@ -6,7 +6,6 @@ import AdminLayout from "@/layouts/AdminLayout";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import RequireAccountRole from "@/routes/RequireAccountRole";
 import RequireOnboarding from "@/routes/RequireOnboarding";
-import RequireDesktopForAdmin from "@/routes/RequireDesktopForAdmin";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -76,13 +75,11 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/onboarding" element={withRouteFallback(<Onboarding />)} />
 
-        <Route element={<RequireDesktopForAdmin />}>
-          <Route element={<RequireAccountRole allowedRoles={["admin_manager", "super_admin"]} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin" element={withRouteFallback(<AdminDashboard />)} />
-              <Route path="/admin/users" element={withRouteFallback(<AdminUsers />)} />
-              <Route path="/admin/usage" element={withRouteFallback(<AdminUsage />)} />
-            </Route>
+        <Route element={<RequireAccountRole allowedRoles={["admin_manager", "super_admin"]} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={withRouteFallback(<AdminDashboard />)} />
+            <Route path="/admin/users" element={withRouteFallback(<AdminUsers />)} />
+            <Route path="/admin/usage" element={withRouteFallback(<AdminUsage />)} />
           </Route>
         </Route>
 
