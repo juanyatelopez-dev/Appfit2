@@ -25,7 +25,6 @@ const Nutrition = () => {
     activeMeal,
     mode,
     setMode,
-    expandedMeals,
     foodName,
     setFoodName,
     servingSize,
@@ -108,7 +107,6 @@ const Nutrition = () => {
     defaultProfileMutation,
     weeklyProfilePlanMutation,
     openDialogForMeal,
-    toggleMeal,
     openCreateProfile,
     openEditProfile,
     handleAddEntry,
@@ -159,9 +157,7 @@ const Nutrition = () => {
             {activeMainView === "logbook" ? (
               <NutritionMealsSection
                 mealOverview={mealOverview}
-                expandedMeals={expandedMeals}
                 onOpenMealDialog={openDialogForMeal}
-                onToggleMeal={toggleMeal}
                 onDeleteEntry={(entryId) => deleteMutation.mutate(entryId)}
               />
             ) : (

@@ -1,4 +1,4 @@
-import { ChevronDown, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,17 +18,13 @@ type MealOverviewItem = {
 
 type NutritionMealsSectionProps = {
   mealOverview: MealOverviewItem[];
-  expandedMeals: Record<NutritionMealType, boolean>;
   onOpenMealDialog: (meal: NutritionMealType, mode?: AddMode) => void;
-  onToggleMeal: (meal: NutritionMealType) => void;
   onDeleteEntry: (entryId: string) => void;
 };
 
 export function NutritionMealsSection({
   mealOverview,
-  expandedMeals,
   onOpenMealDialog,
-  onToggleMeal,
   onDeleteEntry,
 }: NutritionMealsSectionProps) {
   return (
@@ -78,16 +74,8 @@ export function NutritionMealsSection({
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => onToggleMeal(meal.key)}
-                className="app-surface-soft app-surface-muted justify-self-end rounded-2xl p-3"
-              >
-                <ChevronDown className={cn("h-5 w-5 transition-transform", expandedMeals[meal.key] && "rotate-180")} />
-              </button>
             </div>
 
-            {expandedMeals[meal.key] && (
               <div className="border-t border-border/40 px-4 pb-4 pt-3 sm:px-5 sm:pb-5">
                 <div className="app-surface-soft hidden overflow-hidden rounded-2xl border md:block">
                   <table className="w-full text-left">
@@ -192,7 +180,6 @@ export function NutritionMealsSection({
                   </p>
                 </div>
               </div>
-            )}
           </article>
         ))}
       </div>
