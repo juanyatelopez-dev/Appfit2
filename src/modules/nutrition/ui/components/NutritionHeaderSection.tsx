@@ -12,6 +12,7 @@ import type { NutritionProfileRecord } from "@/modules/nutrition/types";
 type NutritionHeaderSectionProps = {
   selectedDate: Date;
   selectedProfileId: string | null;
+  selectedPlanName: string;
   profileOptions: NutritionProfileRecord[];
   activeArchetype: string;
   archetypeDescription: string;
@@ -31,6 +32,7 @@ const DAY_LABELS = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Vierne
 export function NutritionHeaderSection({
   selectedDate,
   selectedProfileId,
+  selectedPlanName,
   profileOptions,
   activeArchetype,
   archetypeDescription,
@@ -183,8 +185,8 @@ export function NutritionHeaderSection({
           <article className="app-chip-muted rounded-2xl px-4 py-3">
             <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">Fuente del plan</div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className={`rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${planSourceTone}`}>
-                {planSourceLabel}
+              <span className={`rounded-xl border px-2 py-1 text-[11px] font-semibold tracking-[0.01em] ${planSourceTone}`}>
+                {planSource === "automatic" ? "Automatico" : `Plantilla elegida: ${selectedPlanName}`}
               </span>
               {planSource === "archived_snapshot" ? (
                 <span className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">

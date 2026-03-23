@@ -28,6 +28,7 @@ function renderSection(overrides: Partial<ComponentProps<typeof NutritionHeaderS
   const props: ComponentProps<typeof NutritionHeaderSection> = {
     selectedDate: new Date("2026-03-13T12:00:00"),
     selectedProfileId: "profile-1",
+    selectedPlanName: "Torso",
     profileOptions,
     activeArchetype: "heavy",
     archetypeDescription: "Mayor demanda energetica y de recuperacion.",
@@ -80,5 +81,10 @@ describe("NutritionHeaderSection", () => {
     fireEvent.click(screen.getByRole("button", { name: /Plan semanal/i }));
     fireEvent.click(screen.getByRole("button", { name: /Aplicar plan semanal/i }));
     expect(callbacks.onApplyWeeklyPlan).toHaveBeenCalled();
+  });
+
+  it("shows selected plan name in plan source section", () => {
+    renderSection();
+    expect(screen.getByText("Plantilla elegida: Torso")).toBeInTheDocument();
   });
 });

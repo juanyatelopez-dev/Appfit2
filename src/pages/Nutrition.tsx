@@ -120,6 +120,7 @@ const Nutrition = () => {
         <NutritionHeaderSection
           selectedDate={selectedDate}
           selectedProfileId={selectedNutritionProfile?.id ?? null}
+          selectedPlanName={effectiveProfileLabel}
           profileOptions={profileOptions}
           activeArchetype={activeArchetype}
           archetypeDescription={archetypeMeta.description}
