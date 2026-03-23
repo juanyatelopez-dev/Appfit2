@@ -62,15 +62,6 @@ export function NutritionHeaderSection({
   const activeArchetypeLabel =
     NUTRITION_ARCHETYPE_META[activeArchetype as keyof typeof NUTRITION_ARCHETYPE_META]?.shortLabel ?? "Base";
 
-  const planSourceTone =
-    planSource === "selected_template"
-      ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
-      : planSource === "initial_template"
-        ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-200"
-        : planSource === "archived_snapshot"
-          ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-          : "border-slate-400/30 bg-slate-500/10 text-slate-200";
-
   const openWeeklyPlanner = () => {
     const base: Record<string, string> = {};
     weekDays.forEach((day) => {
@@ -131,27 +122,33 @@ export function NutritionHeaderSection({
       </div>
 
       <div className="app-surface-hero rounded-[24px] px-4 py-5 sm:rounded-[28px] sm:px-6 sm:py-6">
-        <div className="grid gap-3 xl:grid-cols-[2.8fr_2.2fr_1.2fr] xl:items-stretch">
+        <div className="grid gap-3 xl:grid-cols-[3fr_1.3fr] xl:items-stretch">
           <article className="app-chip-muted rounded-2xl px-4 py-3">
-            <div className="mb-2 flex items-center gap-2">
-              <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">Perfil nutricional diario</div>
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="button" className="app-surface-muted rounded-full p-1" aria-label="Que es perfil nutricional diario">
-                      <CircleHelp className="h-3.5 w-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[240px] text-xs">
-                    <p>
-                      Las plantillas de alimentacion ajustan tus calorias segun el tipo de dia: descanso (-300), esfuerzo alto (+150) o base (sin ajuste). Este ajuste se suma al calculo principal de tu Perfil Fitness.
-                    </p>
-                    <p className="mt-2">
-                      Puedes guardar plantillas, marcar una como inicial, aplicarlas por fecha y conservar snapshots diarios para no alterar tu historial.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">Perfil nutricional diario</div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="app-surface-muted rounded-full p-1" aria-label="Que es perfil nutricional diario">
+                        <CircleHelp className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px] text-xs">
+                      <p>
+                        Las plantillas de alimentacion ajustan tus calorias segun el tipo de dia: descanso (-300), esfuerzo alto (+150) o base (sin ajuste). Este ajuste se suma al calculo principal de tu Perfil Fitness.
+                      </p>
+                      <p className="mt-2">
+                        Puedes guardar plantillas, marcar una como inicial, aplicarlas por fecha y conservar snapshots diarios para no alterar tu historial.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Button type="button" variant="outline" size="sm" className="app-outline-button rounded-xl" onClick={onOpenTechnicalConfig}>
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Config tecnica
+              </Button>
             </div>
             <Select
               value={selectedProfileId ?? "__fallback__"}
@@ -180,25 +177,6 @@ export function NutritionHeaderSection({
                 Plan semanal
               </Button>
             </div>
-          </article>
-
-          <article className="app-chip-muted rounded-2xl px-4 py-3">
-            <div className="app-surface-caption text-[10px] font-semibold uppercase tracking-[0.24em]">Fuente del plan</div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className={`rounded-xl border px-2 py-1 text-[11px] font-semibold tracking-[0.01em] ${planSourceTone}`}>
-                {planSource === "automatic" ? "Automatico" : `Plantilla elegida: ${selectedPlanName}`}
-              </span>
-              {planSource === "archived_snapshot" ? (
-                <span className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">
-                  Historial
-                </span>
-              ) : null}
-            </div>
-            <p className="app-surface-muted mt-2 text-sm">{planSourceDescription}</p>
-            <Button type="button" variant="outline" onClick={onOpenTechnicalConfig} className="mt-3 w-full app-outline-button rounded-2xl">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Config tecnica
-            </Button>
           </article>
 
           <article className="app-chip-muted flex flex-col justify-center gap-2 rounded-2xl px-3 py-3">

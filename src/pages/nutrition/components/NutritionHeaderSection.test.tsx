@@ -83,8 +83,8 @@ describe("NutritionHeaderSection", () => {
     expect(callbacks.onApplyWeeklyPlan).toHaveBeenCalled();
   });
 
-  it("shows selected plan name in plan source section", () => {
+  it("shows technical configuration actions in header cards", () => {
     renderSection();
-    expect(screen.getByText("Plantilla elegida: Torso")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Config tecnica/i }).length).toBeGreaterThan(0);
   });
 });

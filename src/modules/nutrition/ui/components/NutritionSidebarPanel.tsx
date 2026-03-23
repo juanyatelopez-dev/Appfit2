@@ -120,7 +120,7 @@ export function NutritionSidebarPanel({
         <div
           className={`mt-3 inline-flex rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${planSourceTone}`}
         >
-          {planSourceLabel}
+          {planSource === "automatic" ? "Automatico" : `Plantilla elegida: ${effectiveProfileLabel}`}
         </div>
         <TooltipProvider delayDuration={90}>
           <div className="mt-3 flex flex-wrap gap-2">
