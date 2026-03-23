@@ -1,4 +1,4 @@
-import { ChevronDown, CirclePlus, Library, Trash2 } from "lucide-react";
+import { ChevronDown, CirclePlus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,6 @@ type NutritionMealsSectionProps = {
   onOpenMealDialog: (meal: NutritionMealType, mode?: AddMode) => void;
   onToggleMeal: (meal: NutritionMealType) => void;
   onDeleteEntry: (entryId: string) => void;
-  onOpenFoodLibrary: () => void;
 };
 
 export function NutritionMealsSection({
@@ -31,26 +30,12 @@ export function NutritionMealsSection({
   onOpenMealDialog,
   onToggleMeal,
   onDeleteEntry,
-  onOpenFoodLibrary,
 }: NutritionMealsSectionProps) {
   return (
     <div className="app-surface-panel rounded-[24px] sm:rounded-[28px]">
       <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
         <div>
-          <div className="flex items-center gap-2">
-            <p className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.28em]">Logbook</p>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-xl app-outline-button"
-              onClick={onOpenFoodLibrary}
-              aria-label="Abrir biblioteca de alimentos"
-              title="Biblioteca de alimentos"
-            >
-              <Library className="h-4 w-4" />
-            </Button>
-          </div>
+          <p className="app-surface-caption text-[11px] font-semibold uppercase tracking-[0.28em]">Logbook</p>
           <h2 className="app-surface-heading mt-1 text-xl font-bold md:text-2xl">Registro operativo de comidas</h2>
           <p className="app-surface-caption mt-1 text-xs">Expande un bloque y registra sin salir del flujo diario.</p>
         </div>

@@ -1,7 +1,7 @@
 import { addDays } from "date-fns";
 import { useState } from "react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { NutritionHeaderSection } from "@/modules/nutrition/ui/components/NutritionHeaderSection";
 import { NutritionFoodLibrarySection } from "@/modules/nutrition/ui/components/NutritionFoodLibrarySection";
 import { NutritionMealDialog } from "@/modules/nutrition/ui/components/NutritionMealDialog";
@@ -13,7 +13,7 @@ import { useNutritionPageState } from "@/modules/nutrition/ui/useNutritionPageSt
 
 const Nutrition = () => {
   const [technicalOpen, setTechnicalOpen] = useState(false);
-  const [foodLibraryOpen, setFoodLibraryOpen] = useState(false);
+  const [activeMainView, setActiveMainView] = useState<"logbook" | "library">("logbook");
 
   const {
     selectedDate,
@@ -136,14 +136,45 @@ const Nutrition = () => {
 
         <div className="grid gap-6 xl:grid-cols-[1.65fr_0.8fr]">
           <section className="space-y-5">
-            <NutritionMealsSection
-              mealOverview={mealOverview}
-              expandedMeals={expandedMeals}
-              onOpenMealDialog={openDialogForMeal}
-              onToggleMeal={toggleMeal}
-              onDeleteEntry={(entryId) => deleteMutation.mutate(entryId)}
-              onOpenFoodLibrary={() => setFoodLibraryOpen(true)}
-            />
+            <div className="app-surface-panel rounded-[20px] p-2 sm:rounded-[24px]">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={activeMainView === "logbook" ? "default" : "outline"}
+                  className="rounded-xl"
+                  onClick={() => setActiveMainView("logbook")}
+                >
+                  Logbook
+                </Button>
+                <Button
+                  type="button"
+                  variant={activeMainView === "library" ? "default" : "outline"}
+                  className="rounded-xl"
+                  onClick={() => setActiveMainView("library")}
+                >
+                  Biblioteca
+                </Button>
+              </div>
+            </div>
+            {activeMainView === "logbook" ? (
+              <NutritionMealsSection
+                mealOverview={mealOverview}
+                expandedMeals={expandedMeals}
+                onOpenMealDialog={openDialogForMeal}
+                onToggleMeal={toggleMeal}
+                onDeleteEntry={(entryId) => deleteMutation.mutate(entryId)}
+              />
+            ) : (
+              <NutritionFoodLibrarySection
+                foodLibraryItems={foodLibraryItems}
+                favorites={favorites}
+                categories={categories}
+                onUpdateFavorite={(payload) => updateFavoriteMutation.mutate(payload)}
+                onDeleteFavorite={(favoriteId) => deleteFavoriteMutation.mutate(favoriteId)}
+                isUpdatingFavorite={updateFavoriteMutation.isPending}
+                isDeletingFavorite={deleteFavoriteMutation.isPending}
+              />
+            )}
           </section>
 
           <NutritionSidebarPanel
@@ -234,23 +265,6 @@ const Nutrition = () => {
         onSelectedRecentIdChange={setSelectedRecentId}
         onSave={handleAddEntry}
       />
-
-      <Dialog open={foodLibraryOpen} onOpenChange={setFoodLibraryOpen}>
-        <DialogContent className="app-dialog-surface max-h-[88vh] overflow-y-auto sm:max-w-6xl">
-          <DialogHeader>
-            <DialogTitle>Biblioteca de alimentos</DialogTitle>
-          </DialogHeader>
-          <NutritionFoodLibrarySection
-            foodLibraryItems={foodLibraryItems}
-            favorites={favorites}
-            categories={categories}
-            onUpdateFavorite={(payload) => updateFavoriteMutation.mutate(payload)}
-            onDeleteFavorite={(favoriteId) => deleteFavoriteMutation.mutate(favoriteId)}
-            isUpdatingFavorite={updateFavoriteMutation.isPending}
-            isDeletingFavorite={deleteFavoriteMutation.isPending}
-          />
-        </DialogContent>
-      </Dialog>
 
       <NutritionTechnicalDialog
         open={technicalOpen}
