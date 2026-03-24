@@ -233,7 +233,7 @@ const Dashboard = () => {
   const scheduledWorkout = trainingTodayQuery.data?.scheduledWorkout ?? null;
   const activeSession = trainingTodayQuery.data?.activeSession ?? null;
   const activeWorkout = trainingTodayQuery.data?.activeSession?.workout ?? null;
-  const todayTrainingRow = trainingTodayQuery.data?.schedule?.find((day) => day.day_of_week === new Date().getDay()) ?? null;
+  const todayTrainingRow = trainingTodayQuery.data?.schedule.find((day) => day.day_of_week === new Date().getDay()) ?? null;
   const isTrainingRestDay = Boolean(todayTrainingRow?.is_rest_day && !activeSession && !scheduledWorkout);
   const selectedTrainingWorkoutQuery = useQuery({
     queryKey: ["dashboard_training_selected_workout", user?.id, isGuest, timeZone, selectedTrainingWorkoutId],
