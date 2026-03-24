@@ -1078,13 +1078,7 @@ const Dashboard = () => {
             </div>
           }
         />
-        <section
-          aria-label="Dia de la semana"
-          className={cn(
-            "order-[-3] space-y-2 px-1 md:hidden",
-            isMobile && USE_MOBILE_HORIZONTAL_SCROLL && "hidden",
-          )}
-        >
+        <section aria-label="Dia de la semana" className={cn("order-[-3] space-y-2 px-1 md:hidden", isMobile && USE_MOBILE_HORIZONTAL_SCROLL && "shrink-0 space-y-1.5")}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Dia de la semana</p>
           <div className="grid grid-cols-7 gap-2">
             {weeklyConsistency.days.map((day) => (
@@ -1298,26 +1292,6 @@ const Dashboard = () => {
 
         {isMobile && USE_MOBILE_HORIZONTAL_SCROLL ? (
           <section aria-label="Centro de mando movil" className="order-[-2] flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
-            <section aria-label="Dia de la semana movil" className="shrink-0 space-y-1.5 px-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Dia de la semana</p>
-              <div className="grid grid-cols-7 gap-2">
-                {weeklyConsistency.days.map((day) => (
-                  <div
-                    key={`mobile-week-${day.dateKey}`}
-                    className={cn(
-                      "rounded-lg border px-2 py-2 text-center text-xs font-semibold",
-                      day.completed && !day.isToday && "border-emerald-500/40 bg-emerald-500/10 text-foreground",
-                      !day.completed && !day.isToday && "border-border/60 bg-background/60 text-muted-foreground",
-                      day.isToday && "border-primary/60 bg-primary/15 text-foreground ring-1 ring-primary/35",
-                    )}
-                  >
-                    {day.label}
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">{weeklyConsistency.completedCount}/7 dias completados</p>
-            </section>
-
             <div
               ref={mobileCarouselRef}
               onScroll={handleMobileCarouselScroll}
