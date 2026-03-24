@@ -232,5 +232,6 @@ describe("TrainingTodaySection", () => {
     });
 
     expect(screen.getByText(copy.restDayNotice)).toBeInTheDocument();
+    expect(screen.getByText(copy.restDayCelebrate)).toBeInTheDocument();
   });
 });

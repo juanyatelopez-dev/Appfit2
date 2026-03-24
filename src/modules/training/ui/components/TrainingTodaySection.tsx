@@ -92,7 +92,7 @@ export function TrainingTodaySection({
 }: TrainingTodaySectionProps) {
   const todayIndex = new Date().getDay();
   const plannedDays = schedule.filter((day) => day.is_rest_day || day.workout_id !== null).length;
-  const mobileStartWorkoutId = !activeSession ? (scheduledWorkout?.id ?? workouts[0]?.id ?? null) : null;
+  const quickStartWorkoutId = workouts[0]?.id ?? null;
 
   return (
     <div className="grid gap-5 pb-24 xl:grid-cols-[1.4fr_0.9fr] xl:pb-0">
@@ -109,10 +109,17 @@ export function TrainingTodaySection({
                   <div className="text-xl font-bold md:text-2xl">{scheduledWorkout.name}</div>
                   <div className="text-sm text-muted-foreground">{scheduledWorkout.description || "Rutina programada para hoy."}</div>
                 </div>
-                <Button className="w-full sm:w-auto" onClick={() => onStartWorkout(scheduledWorkout.id)} disabled={isStartPending}>
-                  <PlayCircle className="mr-2 h-4 w-4" />
-                  {copy.startWorkout}
-                </Button>
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                  <Button className="w-full sm:w-auto" onClick={() => onStartWorkout(scheduledWorkout.id)} disabled={isStartPending}>
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    {copy.startWorkout}
+                  </Button>
+                  {onOpenPlanning ? (
+                    <Button className="w-full sm:w-auto" variant="outline" onClick={onOpenPlanning}>
+                      {copy.viewPlanning}
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </div>
           ) : null}
@@ -274,6 +281,23 @@ export function TrainingTodaySection({
             <div className="space-y-3">
               {renderPlaceholder(isRestDayToday ? copy.restDayNotice : copy.noWorkoutScheduled)}
               <div className="rounded-2xl border border-border/70 bg-muted/15 p-3 text-sm text-muted-foreground">{isRestDayToday ? copy.restDayHint : copy.noWorkoutScheduledHint}</div>
+              <div className="grid gap-2 sm:flex sm:flex-wrap">
+                {isRestDayToday ? (
+                  <div className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-foreground">
+                    {copy.restDayCelebrate}
+                  </div>
+                ) : quickStartWorkoutId ? (
+                  <Button className="w-full sm:w-auto" onClick={() => onStartWorkout(quickStartWorkoutId)} disabled={isStartPending}>
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    {copy.startWorkout}
+                  </Button>
+                ) : null}
+                {onOpenPlanning ? (
+                  <Button className="w-full sm:w-auto" variant="outline" onClick={onOpenPlanning}>
+                    {copy.viewPlanning}
+                  </Button>
+                ) : null}
+              </div>
             </div>
           ) : null}
         </CardContent>
@@ -342,20 +366,6 @@ export function TrainingTodaySection({
         </Card>
       </div>
 
-      {!activeSession ? (
-        <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom)+0.25rem)] z-20 border-t bg-background/95 p-3 backdrop-blur md:hidden">
-          <div className="mx-auto flex max-w-[560px] gap-2">
-            <Button className="flex-1" onClick={() => (mobileStartWorkoutId ? onStartWorkout(mobileStartWorkoutId) : onOpenPlanning?.())} disabled={isStartPending}>
-              {mobileStartWorkoutId ? copy.startWorkout : copy.viewPlanning}
-            </Button>
-            {onOpenPlanning && mobileStartWorkoutId ? (
-              <Button variant="outline" className="flex-1" onClick={onOpenPlanning}>
-                {copy.viewPlanning}
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
